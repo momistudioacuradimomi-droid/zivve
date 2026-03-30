@@ -32,7 +32,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 /* ── UI ── */
 #ui{position:fixed;inset:0;pointer-events:none;z-index:10}
-#scoreWrap{position:absolute;top:16px;left:50%;transform:translateX(-50%);text-align:center}
+#scoreWrap{position:absolute;top:52px;left:50%;transform:translateX(-50%);text-align:center}
 #scoreLbl{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase}
 #scoreVal{font-family:'Orbitron',sans-serif;font-size:clamp(30px,7vw,48px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
 #scoreVal.pop{transform:scale(1.3);color:var(--gold);text-shadow:0 0 40px var(--gold)}
@@ -1666,26 +1666,44 @@ async function sbFetch(path,opts={}){const r=await fetch(SUPABASE_URL+'/rest/v1/
 async function lbPost(name,score){
   if(!USE_LB)return;
   try{
-    // Prima cerca se esiste già un record per questo nome
-    const existing=await sbFetch(`scores?name=eq.${encodeURIComponent(name)}&select=id,score`);
+    // Cerca record esistente per questo nome
+    const existing=await sbFetch(`scores?name=eq.${encodeURIComponent(name)}&select=id,score&limit=1`);
     if(Array.isArray(existing)&&existing.length>0){
-      // Aggiorna solo se il nuovo score è migliore
+      // Esiste già — aggiorna SOLO se score migliore
       if(score>existing[0].score){
         await sbFetch(`scores?id=eq.${existing[0].id}`,{
           method:'PATCH',
-          body:JSON.stringify({score,orb:selectedOrbId,created_at:new Date().toISOString()})
+          headers:{'Prefer':'return=minimal'},
+          body:JSON.stringify({score,orb:selectedOrbId})
         });
       }
+      // Se score peggiore, non fare nulla
     } else {
-      // Inserisci nuovo record
+      // Primo record per questo nome
       await sbFetch('scores',{
         method:'POST',
-        body:JSON.stringify({name,score,orb:selectedOrbId,country:localStorage.getItem('drift_country')||'',created_at:new Date().toISOString()})
+        headers:{'Prefer':'return=minimal'},
+        body:JSON.stringify({
+          name,score,
+          orb:selectedOrbId,
+          country:localStorage.getItem('drift_country')||''
+        })
       });
     }
   }catch(e){console.log('lbPost error:',e);}
 }
-async function lbGet(limit=10){if(!USE_LB)return getMockLB();try{const d=await sbFetch(`scores?order=score.desc&limit=${limit}&select=name,score,orb,country`);return Array.isArray(d)&&d.length>0?d:getMockLB();}catch(e){console.log('lbGet error:',e);return getMockLB();}}
+async function lbGet(limit=10){
+  if(!USE_LB) return getMockLB();
+  try{
+    const d=await sbFetch(`scores?order=score.desc&limit=${limit}&select=name,score,orb,country`);
+    if(Array.isArray(d)&&d.length>0) return d;
+    console.log('lbGet: Supabase vuoto, uso mock');
+    return getMockLB();
+  }catch(e){
+    console.log('lbGet error:',e);
+    return getMockLB();
+  }
+}
 const BOT_PLAYERS=[
   {name:'LYRA',   base:530, var:150},
   {name:'VEXON',  base:480, var:120},
@@ -2440,7 +2458,7 @@ function startGame(seed){
   }
   G={running:true,paused:false,angle:0,dir:1,speed:BASE_SPEED,
      enemies:[],particles:[],trails:[],rings:[],shockwaves:[],
-     spawnTimer:0,maxEnemies:BASE_ENEMIES,frameCount:0,score:0,
+     spawnTimer:0,maxEnemies:BASE_ENEMIES,frameCount:0,score:0,spawnShield:120,
      lives:3,level:1,shaking:0,invincible:0,slowMo:0,
      nearMissStreak:0,_lastNearMissFrame:0,perfectDodgeCount:0,
      survivedZigzag:false,survivedZigzagCount:0,survivalMode:false,
@@ -2483,7 +2501,7 @@ function reverseDir(){
 }
 function triggerPerfectDodge(px,py){
   G.dir*=-1;if(G.adapt)G.adapt.framesSinceTap=0;
-  G.slowMo=90;
+  G.slowMo=480;
   G.perfectDodgeCount=(G.perfectDodgeCount||0)+1;
   const bonus=50*(G._perfectMult||1)*G.perfectDodgeCount;G.score+=bonus;
   for(let i=0;i<55;i++){
@@ -2494,7 +2512,7 @@ function triggerPerfectDodge(px,py){
   for(let i=0;i<4;i++)setTimeout(()=>G.rings.push({x:px,y:py,r:0,alpha:.9,
     color:['#ffe566','#4af0d0','#ffffff','#ffe566'][i],grow:14}),i*100);
   showMsg('✨ PERFECT DODGE! +'+bonus,'#ffe566');
-  flashScreen('rgba(255,229,102,0.3)');
+  flashScreen('rgba(255,229,102,0.15)');
   sndPerfectDodge();haptic([10,5,10,5,30,5,60]);
   const pd=parseInt(localStorage.getItem('drift_perfect_dodges')||'0')+1;
   localStorage.setItem('drift_perfect_dodges',pd);
@@ -2502,7 +2520,12 @@ function triggerPerfectDodge(px,py){
   orbPowerOnPerfect();
   // Dopo 2s, mostra invito condivisione
   if(pd===1||pd%5===0){
-    setTimeout(()=>{if(G&&G.running)sharePerfectDodgeVideo(pd,bonus);},2200);
+    setTimeout(()=>{
+      if(G&&G.running){
+        // Mostra solo il toast — no download automatico
+        showPerfectDodgeToastOnly(pd,bonus);
+      }
+    },2200);
   }
 }
 
@@ -3002,10 +3025,14 @@ function update(){
   const _sm2=getScoreMultiplier();
   G.score=Math.floor(G.frameCount/5*_sm2);
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
-  if(nl!==G.level){G.level=nl;G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;G.maxEnemies=Math.min(BASE_ENEMIES+(G.level-1),15);levelBump();}
+  if(nl!==G.level){G.level=nl;
+    // Aggiorna velocità base ma mantieni il boost se attivo
+    const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    if(!G.activePowerup||G.activePowerup.key!=='boost') G.speed=baseSpd;
+    G.maxEnemies=Math.min(BASE_ENEMIES+(G.level-1),15);levelBump();}
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
   survivalFill.style.background=G.lives===1?'linear-gradient(90deg,#ff2244,#ff6633)':G.lives===2?'linear-gradient(90deg,#ff8800,#ffcc00)':'linear-gradient(90deg,#4af0d0,#7ec8ff)';
-  const _sm=G.slowMo>0?(G.slowMo--,.25):1;
+  const _sm=G.slowMo>0?(G.slowMo--,Math.max(0.15,0.25*(BASE_SPEED/G.speed))):1;
   G.angle+=(G.speed*G.dir*_sm)*(Math.PI/180);
   G.trails.push({x:CX+Math.cos(G.angle)*ORBIT_R,y:CY+Math.sin(G.angle)*ORBIT_R});
   if(G.trails.length>26)G.trails.shift();
@@ -3067,15 +3094,16 @@ function update(){
       G.enemies.splice(ei,1);continue;
     }
   }
-  if(G.invincible>0)G.invincible--;
-  else if(G.frameCount<120){} // spawn protection: primi 2 secondi invulnerabile
+  const _spActive=G.frameCount<120||G.spawnShield>0;
+  if(G.invincible>0){G.invincible--;}
+  else if(_spActive){if(G.spawnShield>0)G.spawnShield--;} // spawn protection
   else{
     const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13;
     for(let i=G.enemies.length-1;i>=0;i--){
       const e=G.enemies[i];
       if(e.type.isPowerup){
         // Power-up collection — wider pickup radius
-        const _collectR=hitR*1.6*(getOrbPower()==='powerup_magnet'?2.2:1)*(getOrbPower()==='harvest'?1.6:1);
+        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.2:1)*(getOrbPower()==='harvest'?1.6:1);
         if(Math.hypot(px-e.x,py-e.y)<_collectR){
           G.enemies.splice(i,1);
           applyPowerup(e.type.key,px,py);
@@ -3241,7 +3269,7 @@ function applyPowerup(key, px, py){
 
   if(key==='boost'){
     G.activePowerup={key,timer:DURATION,savedSpeed:null};
-    G.speed *= 2.2; // raddoppia la velocità attuale
+    G.speed = Math.min(G.speed * 1.5, BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL + 5); // boost moderato
     showMsg('⚡ SPEED BOOST!','#00ffaa');
     flashScreen('rgba(0,255,170,0.18)');
     sndBoost();
@@ -3306,7 +3334,7 @@ function registerHit(px,py,e){
     sndShieldHit();haptic([10,5,10]);
     return; // nessun danno
   }
-  G.lives--;G.shaking=24;G.invincible=48;updateLivesUI();
+  G.lives--;G.shaking=24;G.invincible=48;G.spawnShield=120;updateLivesUI();
   for(let i=0;i<32;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*5+1.5;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:55+Math.random()*20,color:i<16?'#ff2244':'#ff6633',r:Math.random()*4+1.5});}
   for(let i=0;i<12;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*3+.5;G.particles.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:35,color:'#ff8866',r:Math.random()*3+1});}
   G.rings.push({x:px,y:py,r:0,alpha:.85,color:'#ff2244',grow:10});
@@ -3340,9 +3368,9 @@ function registerHit(px,py,e){
 
 function levelBump(){
   const isMajor=G.level%10===0;
-  for(let i=0;i<(isMajor?5:3);i++)setTimeout(()=>G.shockwaves.push({r:0,alpha:.6}),i*110);
-  flashScreen(isMajor?'rgba(255,100,30,0.18)':'rgba(255,229,102,0.12)');
-  for(let i=0;i<(isMajor?50:20);i++){
+  for(let i=0;i<(isMajor?5:3);i++)setTimeout(()=>G.shockwaves.push({r:0,alpha:.3}),i*110);
+  flashScreen(isMajor?'rgba(255,100,30,0.08)':'rgba(255,229,102,0.06)');
+  for(let i=0;i<(isMajor?20:8);i++){
     const a=Math.random()*Math.PI*2,sp=Math.random()*(isMajor?8:4)+2;
     G.particles.push({x:CX,y:CY,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:isMajor?80:45,color:isMajor?['#ff6633','#ff2244','#ffe566'][i%3]:'#ffe566',r:Math.random()*(isMajor?4:2.5)+1.5});
   }
@@ -3444,7 +3472,8 @@ function drawTrail(){
 function drawPlayer(){
   const x=CX+Math.cos(G.angle)*ORBIT_R,y=CY+Math.sin(G.angle)*ORBIT_R,r=ORBIT_R*.072;
   // Spawn protection: anello visivo primi 2 secondi
-  if(G&&G.frameCount<120){const _a=1-G.frameCount/120;ctx.save();ctx.globalAlpha=_a*.5;ctx.strokeStyle='#4af0d0';ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(x,y,r+10,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
+  const _spVis=G&&(G.frameCount<120||(G.spawnShield>0));
+  if(_spVis){const _a=G.spawnShield>0?(G.spawnShield/120):Math.max(0,1-G.frameCount/120);ctx.save();ctx.globalAlpha=_a*.5;ctx.strokeStyle='#4af0d0';ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(x,y,r+10,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
   if(G.invincible>0&&Math.floor(G.invincible/5)%2===0){ctx.save();ctx.globalAlpha=.28;}
   const orb=getOrb(selectedOrbId);
   // Aura
@@ -4460,6 +4489,7 @@ function buildLiveStats(){
 }
 
 function showAchToast(a){
+  if(G&&G.running) return; // non durante il gioco
   document.getElementById('achToastIcon').textContent=a.icon;
   const reward=BADGE_REWARDS[a.id];
   const rewardLine=reward?.msg?`<div style="font-size:9px;color:var(--accent);margin-top:3px;letter-spacing:.06em">🎁 ${reward.msg}</div>`:'';
@@ -5006,7 +5036,7 @@ async function loadLbTab(tab){
   const el=document.getElementById('lbFullRows');
   el.innerHTML='<div style="color:var(--dim);text-align:center;font-size:11px;padding:12px;letter-spacing:.15em">Loading...</div>';
   let rows=[];
-  if(tab==='world') rows=await lbGet(20);
+  if(tab==='world'){ rows=await lbGet(20); if(!rows||rows.length===0) rows=getMockLB(); }
   else if(tab==='country'){
     const all=await lbGet(100);
     const myCountry=playerCountry||localStorage.getItem('drift_country')||'';
