@@ -3857,7 +3857,7 @@ async function endGame(){
   document.getElementById('goTime').textContent=secs+'s';
   document.getElementById('goLevel').textContent=G.level;
   // Contesto settimanale
-  const _wlb=getWeeklyLB();const _myWPos=_wlb.findIndex(e=>e.name===playerName)+1;
+  const _wlb=await getWeeklyLB();const _myWPos=Array.isArray(_wlb)?_wlb.findIndex(e=>e.name===playerName)+1:0;
   const _wEl=document.getElementById('goWeeklyCtx');
   if(_wEl&&_myWPos>0) _wEl.textContent='Posizione settimanale: #'+_myWPos+' di '+_wlb.length;
   // Messaggio motivazionale
@@ -5815,8 +5815,7 @@ async function sbWeeklyPost(name,score,week){
       method:'POST',
       body:JSON.stringify({
         name,score,week,
-        orb:selectedOrbId||'cyan',
-        country:playerCountry||localStorage.getItem('drift_country')||'IT'
+        orb:selectedOrbId||'cyan'
       })
     });
     console.log('[WEEKLY] Salvato:',name,score,week);
@@ -5827,7 +5826,7 @@ async function sbWeeklyPost(name,score,week){
 async function getWeeklyLB(wk){
   const week=wk||getWeekKey();
   try{
-    const rows=await sbFetch(`weekly?week=eq.${encodeURIComponent(week)}&order=score.desc&limit=20&select=name,score,orb,country`);
+    const rows=await sbFetch(`weekly?week=eq.${encodeURIComponent(week)}&order=score.desc&limit=20&select=name,score,orb`);
     console.log('[WEEKLY] Rows da Supabase:',rows?.length);
     if(Array.isArray(rows)&&rows.length>0) return rows;
   }catch(e){console.log('[WEEKLY] Errore get:',e);}
@@ -5874,12 +5873,13 @@ const WEEKLY_PRIZES={
 };
 
 // Controlla e assegna premi settimana precedente
-function checkWeeklyRewards(){
+async function checkWeeklyRewards(){
   const prevWk=getPrevWeekKey();
   const rewardKey='drift_wreward_'+prevWk;
   if(localStorage.getItem(rewardKey)) return; // già consegnato
 
-  const lb=getWeeklyLB(prevWk);
+  const lb=await getWeeklyLB(prevWk);
+  if(!Array.isArray(lb)){return;}
   const myPos=lb.findIndex(e=>e.name===playerName);
   if(myPos<0) return; // non ho partecipato
 
