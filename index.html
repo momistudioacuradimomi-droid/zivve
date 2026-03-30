@@ -24,7 +24,7 @@ if(!localStorage.getItem('drift_lang')){
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#03030a;--accent:#4af0d0;--accent2:#7ec8ff;--red:#ff2244;--red2:#ff6633;--gold:#ffe566;--dim:rgba(200,220,255,0.32);--white:#f0f4ff}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Rajdhani',sans-serif;touch-action:manipulation;user-select:none}
+html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;background:var(--bg);font-family:'Rajdhani',sans-serif;touch-action:manipulation;user-select:none}
 #shareCanvas{display:none;position:absolute;left:-9999px}
 #c{display:none;touch-action:none;position:fixed;inset:0;width:100%;height:100%}
 
@@ -346,6 +346,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <button class="ctrl-btn" onclick="goMenu()" title="Menu" id="menuBtn">⌂</button>
     <button class="ctrl-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
     <button class="ctrl-btn" onclick="toggleHaptic()" id="hapticBtn" title="Haptic">📳</button>
+    <button class="ctrl-btn" onclick="enterFullscreen()" title="Fullscreen" id="fsBtn">⛶</button>
   </div>
   <div id="msgWrap"><div id="msgText"></div></div>
   <div id="survivalBar"><div id="survivalFill"></div></div>
@@ -2445,6 +2446,7 @@ function freezePulseActivate(){
 
 function startGame(seed){
   if(G&&G.running)return; // già in gioco
+  enterFullscreen(); // nascondi barra indirizzi
 
   // Nascondi tutte le overlay
   document.querySelectorAll('.overlay').forEach(el=>el.classList.add('hidden'));
@@ -3004,6 +3006,42 @@ function setShadow(ctx2, blur, color){
   ctx2.shadowBlur=blur;
   if(color) ctx2.shadowColor=color;
 }
+
+
+// ══════════════════════════════════════════════════════════════
+//  FULLSCREEN — nascondi barra indirizzi durante il gioco
+// ══════════════════════════════════════════════════════════════
+function enterFullscreen(){
+  const el = document.documentElement;
+  try{
+    if(el.requestFullscreen) el.requestFullscreen();
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if(el.mozRequestFullScreen) el.mozRequestFullScreen();
+    else if(el.msRequestFullscreen) el.msRequestFullscreen();
+  }catch(e){}
+  // Scroll trick per Android Chrome (nasconde barra indirizzi)
+  window.scrollTo(0,1);
+  setTimeout(()=>window.scrollTo(0,0),100);
+}
+
+function exitFullscreen(){
+  try{
+    if(document.exitFullscreen) document.exitFullscreen();
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if(document.mozCancelFullScreen) document.mozCancelFullScreen();
+  }catch(e){}
+}
+
+// CSS trick: usa 100dvh (dynamic viewport height) per escludere la barra
+function applyViewportFix(){
+  const h = window.innerHeight;
+  document.documentElement.style.setProperty('--vh', h*0.01+'px');
+  document.getElementById('c').style.height = h+'px';
+}
+
+window.addEventListener('resize', applyViewportFix);
+window.addEventListener('orientationchange', ()=>setTimeout(applyViewportFix,200));
+applyViewportFix();
 
 // ══════════════════════════════════════
 //  LOOP
