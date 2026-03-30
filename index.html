@@ -5804,28 +5804,38 @@ function recordWeeklyScore(score){
 
 async function sbWeeklyPost(name,score,week){
   try{
-    // Prima controlla se esiste già un record migliore
-    const existing=await sbFetch(`weekly?name=eq.${encodeURIComponent(name)}&week=eq.${week}&select=score`);
-    if(existing&&existing.length>0&&existing[0].score>=score) return;
-    // Upsert
+    // Cerca record esistente per questa settimana
+    const existing=await sbFetch(`weekly?name=eq.${encodeURIComponent(name)}&week=eq.${encodeURIComponent(week)}&select=id,score&limit=1`);
+    if(Array.isArray(existing)&&existing.length>0){
+      if(score<=existing[0].score) return; // non migliorato
+      // DELETE + INSERT
+      await sbFetch(`weekly?id=eq.${existing[0].id}`,{method:'DELETE'});
+    }
     await sbFetch('weekly',{
-      name,score,week,
-      orb:selectedOrbId,
-      country:playerCountry||localStorage.getItem('drift_country')||''
+      method:'POST',
+      body:JSON.stringify({
+        name,score,week,
+        orb:selectedOrbId||'cyan',
+        country:playerCountry||localStorage.getItem('drift_country')||'IT'
+      })
     });
-  }catch(e){}
+    console.log('[WEEKLY] Salvato:',name,score,week);
+  }catch(e){console.log('[WEEKLY] Errore post:',e);}
 }
 
 // Recupera classifica settimanale (reale + bot)
-function getWeeklyLB(wk){
-  const key=getWeeklyLBKey(wk||getWeekKey());
+async function getWeeklyLB(wk){
+  const week=wk||getWeekKey();
+  try{
+    const rows=await sbFetch(`weekly?week=eq.${encodeURIComponent(week)}&order=score.desc&limit=20&select=name,score,orb,country`);
+    console.log('[WEEKLY] Rows da Supabase:',rows?.length);
+    if(Array.isArray(rows)&&rows.length>0) return rows;
+  }catch(e){console.log('[WEEKLY] Errore get:',e);}
+  // Fallback localStorage
+  const key=getWeeklyLBKey(week);
   const real=JSON.parse(localStorage.getItem(key)||'[]');
-  // Bot deterministici per la settimana
-  const seed=parseInt((wk||getWeekKey()).replace(/\D/g,''));
-  const bots=BOT_PLAYERS.map((b,i)=>({
-    name:b.name, score:getBotScore(b,seed+i*17),
-    isBot:true, orb:'cyan'
-  }));
+  const seed=parseInt(week.replace(/\D/g,''));
+  const bots=BOT_PLAYERS.map((b,i)=>({name:b.name,score:getBotScore(b,seed+i*17),isBot:true,orb:'cyan'}));
   const all=[...real,...bots.filter(b=>!real.find(r=>r.name===b.name))];
   return all.sort((a,b)=>b.score-a.score).slice(0,20);
 }
@@ -5984,11 +5994,11 @@ function getPlayerTitle(){
 }
 
 // Renderizza tab Weekly nella classifica
-function renderWeeklyLBTab(){
+async function renderWeeklyLBTab(){
   const el=document.getElementById('lbFullRows');
   if(!el) return;
   const wk=getWeekKey();
-  const lb=getWeeklyLB(wk);
+  const lb=await getWeeklyLB(wk);
   const secsLeft=getSecsToWeekEnd();
   const myMult=getWeeklyMultiplier();
 
