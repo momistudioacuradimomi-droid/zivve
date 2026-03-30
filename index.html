@@ -3822,7 +3822,7 @@ async function endGame(){
     saveMockLB(playerName,G.score);
     // Post su Supabase e poi ricarica classifica
     lbPost(playerName,G.score).then(()=>{
-      setTimeout(()=>loadLB(),1500); // aspetta 1.5s poi aggiorna classifica
+      setTimeout(()=>loadLB(),2500); // aspetta 2.5s poi aggiorna classifica
     });
   }
   maybeNotifyNearRecord(G.score);
@@ -3888,15 +3888,21 @@ async function endGame(){
 //  LEADERBOARD UI
 // ══════════════════════════════════════
 async function loadLB(){
-  document.getElementById('lbStatus').textContent=T('loading');
-  const rows=await lbGet(8);
-  // Pulisci mock se abbiamo dati reali
-  const hasReal=rows.some(r=>!['LYRA','KAON','VEXON','ZURI','ELYX','MIRA','THORN','PLEX','RIVEN','NEXO','KIRA','ARIA','ZEPH','VEGA','ORION','NOVA','AXEL','SERA'].includes(r.name));
-  renderLB(hasReal?rows:rows, 'lbRows');
+  try{
+    const statusEl=document.getElementById('lbStatus');
+    if(statusEl) statusEl.textContent=T('loading');
+    const rows=await lbGet(10);
+    console.log('[LB] loadLB rows:', rows?.length, rows?.map(r=>r.name+'='+r.score));
+    const lbEl=document.getElementById('lbRows');
+    if(!lbEl){console.log('[LB] lbRows non trovato nel DOM');return;}
+    renderLB(rows,'lbRows');
+  }catch(e){
+    console.log('[LB] loadLB error:',e);
+  }
 }
 
 /* showLeaderboard_dup_removed */
-function renderLB(rows,cid){const el=document.getElementById(cid);if(!rows||!rows.length){el.innerHTML=`<div id="lbStatus">Be the first!</div>`;return;}el.innerHTML=rows.map((r,i)=>{const isMe=r.name===playerName;const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';return `<div class="lb-row${isMe?' lb-me':''}"><span class="lb-rank${medal?' '+medal:''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span><span class="lb-name">${r.name}${isMe?' ◀':''}</span><span class="lb-score">${r.score}</span></div>`;}).join('');}
+function renderLB(rows,cid){const el=document.getElementById(cid);if(!el){console.log('[LB] renderLB: elemento',cid,'non trovato');return;}if(!rows||!rows.length){el.innerHTML=`<div id="lbStatus">Be the first!</div>`;return;}el.innerHTML=rows.map((r,i)=>{const isMe=r.name===playerName;const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';return `<div class="lb-row${isMe?' lb-me':''}"><span class="lb-rank${medal?' '+medal:''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span><span class="lb-name">${r.name}${isMe?' ◀':''}</span><span class="lb-score">${r.score}</span></div>`;}).join('');}
 
 // ══════════════════════════════════════
 //  SHARE CARD

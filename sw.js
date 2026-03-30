@@ -1,4 +1,4 @@
-const CACHE='zivve-202603302206';
+const CACHE='zivve-202603302218';
 const ALWAYS_FRESH=['/zivve/','/zivve/index.html'];
 
 self.addEventListener('install',e=>{
