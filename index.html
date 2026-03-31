@@ -3635,6 +3635,7 @@ async function endGame(){
   const isRec=G.score>bestScore;
   if(isRec){bestScore=G.score;localStorage.setItem('drift_best',bestScore);}
   const secs=Math.floor(G.frameCount/60);
+  flushPendingAch(); // mostra badge accumulati durante il gioco
   if(playerName){saveMockLB(playerName,G.score);lbPost(playerName,G.score);}
   maybeNotifyNearRecord(G.score);
   // Chiedi permesso notifiche dopo la 3a partita
@@ -4485,6 +4486,16 @@ function buildLiveStats(){
 }
 
 function showAchToast(a){
+  // Durante il gioco: accoda il badge, mostralo solo al game over
+  if(G&&G.running){
+    if(!window._pendingAch) window._pendingAch=[];
+    window._pendingAch.push(a);
+    return;
+  }
+  _displayAchToast(a);
+}
+
+function _displayAchToast(a){
   document.getElementById('achToastIcon').textContent=a.icon;
   const reward=BADGE_REWARDS[a.id];
   const rewardLine=reward?.msg?`<div style="font-size:9px;color:var(--accent);margin-top:3px;letter-spacing:.06em">🎁 ${reward.msg}</div>`:'';
@@ -4494,7 +4505,15 @@ function showAchToast(a){
   t.classList.add('show');
   sndAchievement();
   haptic([20,10,20,10,50]);
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),5000);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+function flushPendingAch(){
+  if(!window._pendingAch||!window._pendingAch.length) return;
+  const badges=window._pendingAch.splice(0);
+  window._pendingAch=[];
+  // Mostra in sequenza con 1.5s tra ciascuno
+  badges.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));
 }
 
 function showAchievements(){
