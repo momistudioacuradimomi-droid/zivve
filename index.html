@@ -4,18 +4,16 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#03030a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ZIVVE">
-<link rel="manifest" href="/zivve/manifest.json">
+<link rel="manifest" id="pwaManifest">
 <title>ZIVVE — Orbita. Schiva. Sopravvivi.</title>
 <meta name="description" content="Gioco mobile free-to-play. Orbita, schiva, sopravvivi. 45 sfere con poteri unici, sfide settimanali, badge e premi.">
 <meta property="og:title" content="ZIVVE">
-<meta name="author" content="Momi Digital Labs — A project by Momi Studio — Step by Step a cura di Momi">
 <meta property="og:description" content="Il gioco più semplice che non riesci a smettere di giocare.">
 <script>
 // Lingua: italiano di default, rispetta la scelta dell'utente
@@ -27,7 +25,7 @@ if(!localStorage.getItem('drift_lang')){
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#03030a;--accent:#4af0d0;--accent2:#7ec8ff;--red:#ff2244;--red2:#ff6633;--gold:#ffe566;--dim:rgba(200,220,255,0.32);--white:#f0f4ff}
-html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;background:var(--bg);font-family:'Rajdhani',sans-serif;touch-action:manipulation;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Rajdhani',sans-serif;touch-action:manipulation;user-select:none}
 #shareCanvas{display:none;position:absolute;left:-9999px}
 #c{display:none;touch-action:none;position:fixed;inset:0;width:100%;height:100%}
 
@@ -35,7 +33,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 
 /* ── UI ── */
 #ui{position:fixed;inset:0;pointer-events:none;z-index:10}
-#scoreWrap{position:absolute;top:52px;left:50%;transform:translateX(-50%);text-align:center}
+#scoreWrap{position:absolute;top:16px;left:50%;transform:translateX(-50%);text-align:center}
 #scoreLbl{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase}
 #scoreVal{font-family:'Orbitron',sans-serif;font-size:clamp(30px,7vw,48px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
 #scoreVal.pop{transform:scale(1.3);color:var(--gold);text-shadow:0 0 40px var(--gold)}
@@ -50,26 +48,26 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 #levelLbl{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
 #levelVal{font-family:'Orbitron',sans-serif;font-size:19px;font-weight:700;color:var(--accent);text-shadow:0 0 12px var(--accent);transition:all .2s}
 #levelVal.bump{transform:scale(1.45);color:var(--gold);text-shadow:0 0 30px var(--gold)}
-#enemyCount{position:absolute;top:55px;right:14px;font-size:9px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;text-align:right}
+#enemyCount{position:absolute;bottom:70px;right:14px;font-size:9px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;text-align:right}
 #enemyCount span{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--red);display:block;text-shadow:0 0 8px var(--red)}
 #msgWrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;text-align:center;opacity:0;transition:opacity .25s,transform .25s}
 #msgWrap.show{opacity:1;transform:translate(-50%,-65%)}
 #msgText{font-family:'Orbitron',sans-serif;font-size:clamp(13px,4vw,22px);font-weight:900;letter-spacing:.1em;white-space:nowrap}
-#survivalBar{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+#survivalBar{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
 #survivalFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:background .5s}
 #dangerRing{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;border-radius:50%;pointer-events:none;transition:all .3s;border:2px solid transparent}
 #dangerRing.active{border-color:rgba(255,34,68,.4);box-shadow:0 0 20px rgba(255,34,68,.3),inset 0 0 20px rgba(255,34,68,.1)}
 /* In-game controls bar */
-#gameControls{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;pointer-events:all;z-index:15;background:rgba(3,3,10,.7);padding:5px 10px;border-radius:30px;border:1px solid rgba(255,255,255,.1)}
+#gameControls{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:10px;pointer-events:all;z-index:15}
 .ctrl-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0}
 .ctrl-btn:active,.ctrl-btn:hover{background:rgba(74,240,208,.15);border-color:rgba(74,240,208,.4);color:var(--accent)}
 .ad-slot{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:min(320px,90vw);height:50px;border:1px dashed rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;border-radius:3px;pointer-events:none}
 /* Lang selector */
-#langBtn{position:absolute;top:55px;left:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--dim);font-size:13px;padding:4px 10px;border-radius:20px;cursor:pointer;pointer-events:all;letter-spacing:.05em;transition:all .2s}
+#langBtn{position:absolute;bottom:70px;left:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--dim);font-size:13px;padding:4px 10px;border-radius:20px;cursor:pointer;pointer-events:all;letter-spacing:.05em;transition:all .2s}
 #langBtn:hover{color:var(--white);background:rgba(74,240,208,.1)}
 
 /* ── OVERLAYS ── */
-.overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;justify-content:center;z-index:20;background:#03030a;padding:16px 18px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:#03030a;padding:24px 18px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .overlay.hidden{display:none!important}
 .game-title{font-family:'Orbitron',sans-serif;font-size:clamp(58px,17vw,110px);font-weight:900;letter-spacing:.06em;background:linear-gradient(150deg,#e8f4ff 0%,var(--accent2) 45%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(74,240,208,.45));line-height:1;animation:titlePulse 2.8s ease-in-out infinite}
 @keyframes titlePulse{0%,100%{filter:drop-shadow(0 0 25px rgba(74,240,208,.3))}50%{filter:drop-shadow(0 0 65px rgba(74,240,208,.8))}}
@@ -126,12 +124,12 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 .share-btn:active{background:rgba(74,240,208,.28)}
 /* ── SHOP ── */
 .shop-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,5vw,30px);font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);letter-spacing:.06em;margin-bottom:4px}
-.shop-subtitle{font-size:13px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;margin-bottom:18px}
+.shop-subtitle{font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:18px}
 .orb-categories{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;max-height:60vh;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
-.orb-cat-title{font-size:13px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;font-weight:700}
+.orb-cat-title{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .orb-cat-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
 .orb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
-.orb-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 8px;cursor:pointer;pointer-events:all;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;gap:6px;transition:border-color .2s,background .2s;position:relative;overflow:hidden;min-width:0;max-width:100%}
+.orb-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:6px;padding:10px 6px;cursor:pointer;pointer-events:all;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;gap:6px;transition:border-color .2s,background .2s;position:relative;overflow:hidden;min-width:0;max-width:100%}
 .orb-card.cat-gold,.orb-card.cat-glitter{border-color:rgba(255,229,102,.22);background:rgba(255,229,102,.03)}
 .orb-card.cat-festivity{border-color:rgba(255,100,50,.22);background:rgba(255,80,30,.03)}
 .orb-card.cat-earned{border-color:rgba(74,240,208,.2);background:rgba(74,240,208,.03)}
@@ -141,8 +139,8 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 .orb-card.locked{opacity:.6;cursor:default}
 .orb-card.locked:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
 .orb-preview{width:44px!important;height:44px!important;min-width:44px;min-height:44px;max-width:44px;max-height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative}
-.orb-name{font-size:11px;letter-spacing:.08em;color:rgba(200,220,255,.85);text-transform:uppercase;text-align:center;line-height:1.3;font-weight:600}
-.orb-price{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.orb-name{font-size:9px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;text-align:center;line-height:1.3}
+.orb-price{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.08em}
 .orb-badge{position:absolute;top:4px;right:4px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 5px;border-radius:10px;font-weight:700}
 .orb-badge.free{background:rgba(74,240,208,.2);color:var(--accent)}
 .orb-badge.owned{background:rgba(100,200,100,.2);color:#88ff88}
@@ -171,7 +169,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 .instr-text{font-size:12px;color:rgba(200,220,255,.75);line-height:1.5;letter-spacing:.03em}
 .instr-text b{color:var(--white)}
 /* ── LANG ── */
-.lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:320px;width:100%;margin-bottom:20px;max-height:55vh;overflow-y:auto}
+.lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;width:100%;margin-bottom:20px;max-height:55vh;overflow-y:auto}
 .lang-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dim);padding:10px 6px;border-radius:4px;cursor:pointer;pointer-events:all;font-size:12px;letter-spacing:.08em;transition:all .2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
 .lang-btn .lf{font-size:20px}.lang-btn .ln{font-size:9px;letter-spacing:.1em;text-transform:uppercase}
 .lang-btn:hover,.lang-btn.active{background:rgba(74,240,208,.1);border-color:rgba(74,240,208,.3);color:var(--white)}
@@ -221,7 +219,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 .ch-player-row.me .ch-player-name{color:var(--accent)}
 .ch-player-row.winner .ch-player-name{color:var(--gold)}
 /* In-game challenge HUD */
-#challengeHUD{position:absolute;top:55px;left:50%;transform:translateX(-50%);pointer-events:none;display:none;flex-direction:column;align-items:center;gap:4px;z-index:15}
+#challengeHUD{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);pointer-events:none;display:none;flex-direction:column;align-items:center;gap:4px;z-index:15}
 #challengeHUD.active{display:flex}
 .ch-hud-title{font-size:9px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase}
 .ch-hud-rows{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -253,7 +251,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 .ach-overlay-title{font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--gold);letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 18px var(--gold)}
 .ach-list{width:100%;max-width:340px;max-height:62vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
 .ach-item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:10px 14px;transition:all .2s}
-.ach-item.sbloccato{border-color:rgba(255,229,102,.3);background:rgba(255,229,102,.05)}
+.ach-item.unlocked{border-color:rgba(255,229,102,.3);background:rgba(255,229,102,.05)}
 .ach-item.locked{opacity:.5}
 .ach-icon{font-size:24px;flex-shrink:0;width:36px;text-align:center}
 .ach-body{flex:1}
@@ -337,8 +335,8 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 
 <!-- UI in-game -->
 <div id="ui">
-  <div id="levelWrap"><div id="levelLbl" data-i18n="level">Livello</div><div id="levelVal">1</div></div>
-  <div id="scoreWrap"><div id="scoreLbl" data-i18n="score">Punteggio</div><div id="scoreVal">0</div></div>
+  <div id="levelWrap"><div id="levelLbl" data-i18n="level">Level</div><div id="levelVal">1</div></div>
+  <div id="scoreWrap"><div id="scoreLbl" data-i18n="score">Score</div><div id="scoreVal">0</div></div>
   <div id="livesWrap"><div id="livesLbl" data-i18n="lives">Lives</div><div id="livesIcons"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div></div>
   <div id="enemyCount"><span id="enemyCountVal">3</span><span data-i18n="orbs">orbs</span></div>
   <!-- Game control buttons — center top -->
@@ -349,13 +347,12 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
     <button class="ctrl-btn" onclick="goMenu()" title="Menu" id="menuBtn">⌂</button>
     <button class="ctrl-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
     <button class="ctrl-btn" onclick="toggleHaptic()" id="hapticBtn" title="Haptic">📳</button>
-    <button class="ctrl-btn" onclick="enterFullscreen()" title="Fullscreen" id="fsBtn">⛶</button>
   </div>
   <div id="msgWrap"><div id="msgText"></div></div>
   <div id="survivalBar"><div id="survivalFill"></div></div>
   <div id="dangerRing"></div>
   <button id="langBtn" onclick="show('langOverlay')">🌐 <span id="langCurrent">EN</span></button>
-  <!-- ad-slot rimossa: interferiva col gameplay -->
+  <div class="ad-slot" data-i18n-ad>Advertisement</div>
 </div>
 
 <!-- Tutorial -->
@@ -373,15 +370,6 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   <div id="namePreview" style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--accent);letter-spacing:.2em;height:20px;margin:4px 0"></div>
   <button class="btn-play" onclick="saveName()">✓ INIZIA A GIOCARE</button>
   <button class="btn-outline" onclick="saveName('ZIVVER')" style="margin-top:6px;font-size:10px">Salta — gioca come ZIVVER</button>
-  <!-- BRANDING -->
-  <div style="margin-top:16px;text-align:center;padding-bottom:4px;border-top:1px solid rgba(255,255,255,.06);padding-top:14px;width:100%;max-width:300px">
-    <div style="font-size:11px;color:rgba(200,220,255,.75);letter-spacing:.12em;font-weight:700;font-family:'Rajdhani',sans-serif;text-transform:uppercase">
-      Momi Digital Labs
-    </div>
-    <div style="font-size:9px;color:rgba(200,220,255,.45);letter-spacing:.07em;margin-top:2px;font-family:'Rajdhani',sans-serif">
-      A project by Momi Studio — Step by Step
-    </div>
-  </div>
 </div>
 
 <!-- ONBOARDING -->
@@ -433,16 +421,12 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 <!-- START -->
 <div class="overlay hidden" id="startOverlay" style="display:none">
   <div class="game-title">ZIVVE</div>
-  <div style="margin-top:-6px;margin-bottom:6px;text-align:center;font-family:'Rajdhani',sans-serif;line-height:1.6">
-  <div style="font-size:10px;color:rgba(74,240,208,.7);letter-spacing:.15em;font-weight:700">by MOMI DIGITAL LABS</div>
-  <div style="font-size:9px;color:rgba(200,220,255,.45);letter-spacing:.08em">A project by Momi Studio — Step by Step</div>
-</div>
   <div class="subtitle" data-i18n="tagline">Orbita. Schiva. Sopravvivi.</div>
   <div id="menuPlayerTitle" style="font-size:10px;color:var(--gold);letter-spacing:.15em;margin-bottom:4px;min-height:14px;text-align:center"></div>
 
   <div class="best-row" data-i18n-best></div>
   <button class="btn-play" onclick="startGame()" data-i18n="play">▶ PLAY</button>
-  
+  <div id="streakBar" style="font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:14px;text-align:center;min-height:28px"></div>
 
   <!-- MENU PRINCIPALE: 4 bottoni grandi -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:300px;margin-bottom:12px">
@@ -453,12 +437,10 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
       <span class="micon">🏆</span><span data-i18n="leaderboard">Classifica</span>
     </button>
     <button class="menu-btn" style="padding:16px 8px" onclick="showProfile()" id="profileMenuBtn">
-      <span class="micon">👤</span><span>Profilo</span>
-      <span id="profileMenuName" style="font-size:8px;color:var(--accent);letter-spacing:.08em;margin-top:-2px"></span>
+      <span class="micon">👤</span><span id="profileMenuName">Profilo</span>
     </button>
     <button class="menu-btn" style="padding:16px 8px;border-color:rgba(255,100,50,.3);background:rgba(255,100,50,.05)" id="eventMenuBtn" onclick="showEventOverlay()">
-      <span class="micon" id="eventMenuIcon">🎪</span><span>Evento</span>
-      <span id="eventMenuLabel" style="font-size:8px;color:rgba(255,150,80,.7);letter-spacing:.05em;margin-top:-2px"></span>
+      <span class="micon" id="eventMenuIcon">🎪</span><span id="eventMenuLabel">Evento</span>
     </button>
   </div>
 
@@ -485,7 +467,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   <div class="instr-title" data-i18n="howToPlay">HOW TO PLAY</div>
   <div class="instr-sub" data-i18n="readCarefully">Read carefully</div>
   <div class="instr-body" id="instrBody"></div>
-  <button class="btn-play" style="margin-top:16px" onclick="hide('howOverlay');show('startOverlay')" data-i18n="back">← INDIETRO</button>
+  <button class="btn-play" style="margin-top:16px" onclick="hide('howOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
 <!-- PAUSE -->
@@ -546,16 +528,16 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 
 <!-- LEADERBOARD -->
 <div class="overlay hidden" id="lbOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);margin-bottom:14px;letter-spacing:.05em">🏆 TOP ZIVVERS</div>
+  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);margin-bottom:14px;letter-spacing:.05em">🏆 TOP DRIFTERS</div>
   <div class="lb-tabs">
-    <button class="lb-tab active" id="lbTabWorld" onclick="switchLbTab('world')">🌍 Mondo</button>
-    <button class="lb-tab" id="lbTabCountry" onclick="switchLbTab('country')">📍 Paese</button>
+    <button class="lb-tab active" id="lbTabWorld" onclick="switchLbTab('world')">🌍 World</button>
+    <button class="lb-tab" id="lbTabCountry" onclick="switchLbTab('country')">📍 Country</button>
     <button class="lb-tab" id="lbTabSurvival" onclick="switchLbTab('survival')">♾ Survival</button>
     <button class="lb-tab" id="lbTabEvent" onclick="switchLbTab('event')">🎪 Event</button>
     <button class="lb-tab" id="lbTabWeekly" onclick="switchLbTab('weekly')" style="color:var(--gold)">🏆 Weekly</button>
   </div>
   <div id="lbFullRows" style="width:100%;max-width:300px;max-height:52vh;overflow-y:auto"></div>
-  <button class="btn-play" style="margin-top:16px" onclick="hide('lbOverlay');show('startOverlay')" data-i18n="back">← INDIETRO</button>
+  <button class="btn-play" style="margin-top:16px" onclick="hide('lbOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
 <!-- WEEKLY REWARD BANNER -->
@@ -593,15 +575,15 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   </div>
   <div style="width:100%;max-width:320px;text-align:center;margin-bottom:12px" id="evOvMyScore" style="display:none"></div>
   <button class="btn-play" id="evOvPlayBtn" onclick="startEventGame()" style="min-width:200px">▶ PLAY EVENT</button>
-  <button class="btn-outline" style="margin-top:8px" onclick="hide('eventOverlay');show('startOverlay')">← INDIETRO</button>
+  <button class="btn-outline" style="margin-top:8px" onclick="hide('eventOverlay');show('startOverlay')">← BACK</button>
 </div>
 
 <!-- ACHIEVEMENTS -->
 <div class="overlay hidden" id="achOverlay" style="display:none">
   <div class="ach-overlay-title">🏅 BADGE & PREMI</div>
-  <div style="font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:16px" id="achProgress">0 / 0 sbloccato</div>
+  <div style="font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:16px" id="achProgress">0 / 0 unlocked</div>
   <div class="ach-list" id="achList"></div>
-  <button class="btn-play" style="margin-top:16px" onclick="hide('achOverlay');show('startOverlay')">← INDIETRO</button>
+  <button class="btn-play" style="margin-top:16px" onclick="hide('achOverlay');show('startOverlay')">← BACK</button>
 </div>
 
 <!-- PROFILE -->
@@ -703,10 +685,10 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 <!-- SURVIVAL MODE -->
 <div class="overlay hidden" id="survivalOverlay" style="display:none">
   <div style="font-family:'Orbitron',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">♾ SURVIVAL</div>
-  <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px">Nessuna vita. Pura resistenza.</div>
+  <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px">No lives. Pure endurance.</div>
   <div style="background:rgba(255,34,68,.06);border:1px solid rgba(255,34,68,.2);border-radius:6px;padding:16px 20px;max-width:300px;width:100%;margin-bottom:20px">
     <div style="font-size:12px;color:rgba(200,220,255,.7);line-height:1.7;letter-spacing:.04em">
-      ● Nessuna vita — un colpo e finisce<br>
+      ● No lives — one hit, game over<br>
       ● Speed increases every level<br>
       ● Score = frames survived<br>
       ● Separate leaderboard<br>
@@ -715,7 +697,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   </div>
   <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;margin-bottom:16px">Best survival: <span style="color:var(--accent);font-family:'Orbitron',sans-serif" id="survivalBest">0</span></div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.5)" onclick="startSurvivalMode()">▶ ENTER SURVIVAL</button>
-  <button class="btn-outline" style="margin-top:10px" onclick="hide('survivalOverlay');show('startOverlay')">← INDIETRO</button>
+  <button class="btn-outline" style="margin-top:10px" onclick="hide('survivalOverlay');show('startOverlay')">← BACK</button>
 </div>
 
 <!-- REPLAY UI -->
@@ -727,7 +709,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 </div>
 
 <!-- ACHIEVEMENT TOAST -->
-<div id="achToast"><div class="ach-toast-inner"><span class="ach-toast-icon" id="achToastIcon">🏅</span><div class="ach-toast-body"><div class="ach-toast-label">Badge Sbloccato</div><div class="ach-toast-name" id="achToastName"></div></div></div></div>
+<div id="achToast"><div class="ach-toast-inner"><span class="ach-toast-icon" id="achToastIcon">🏅</span><div class="ach-toast-body"><div class="ach-toast-label">Achievement Unlocked</div><div class="ach-toast-name" id="achToastName"></div></div></div></div>
 
 <!-- CHALLENGE MODE SELECT -->
 <div class="overlay hidden" id="challengeOverlay" style="display:none">
@@ -739,7 +721,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
       <div class="ch-mode-body">
         <div class="ch-mode-name">ASYNC CHALLENGE</div>
         <div class="ch-mode-desc">Play your best, generate a link. Friends play the same session and try to beat your score. Up to 50 challengers.</div>
-        <span class="ch-mode-badge async">▶ A tuo ritmo</span>
+        <span class="ch-mode-badge async">▶ Your pace</span>
       </div>
     </div>
     <div class="ch-mode-card" onclick="selectChallengeMode('sync')">
@@ -779,7 +761,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
     <input class="ch-input" id="asyncJoinCode" placeholder="PASTE CODE OR LINK" maxlength="40" autocomplete="off">
     <button class="btn-outline" onclick="joinAsyncChallenge()">JOIN CHALLENGE</button>
   </div>
-  <button class="btn-outline" style="margin-top:12px" onclick="hide('asyncOverlay');show('challengeOverlay')">← INDIETRO</button>
+  <button class="btn-outline" style="margin-top:12px" onclick="hide('asyncOverlay');show('challengeOverlay')">← BACK</button>
 </div>
 
 <!-- ASYNC RESULT (after game) -->
@@ -812,7 +794,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
       <button class="btn-outline" onclick="joinSyncRoom()">JOIN ROOM</button>
     </div>
   </div>
-  <button class="btn-outline" style="margin-top:14px" onclick="hide('syncOverlay');show('challengeOverlay')">← INDIETRO</button>
+  <button class="btn-outline" style="margin-top:14px" onclick="hide('syncOverlay');show('challengeOverlay')">← BACK</button>
 </div>
 
 <!-- SYNC ROOM WAITING -->
@@ -861,7 +843,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
       <button class="btn-outline" onclick="joinTourney()">JOIN</button>
     </div>
   </div>
-  <button class="btn-outline" style="margin-top:14px" onclick="hide('tourneyOverlay');show('challengeOverlay')">← INDIETRO</button>
+  <button class="btn-outline" style="margin-top:14px" onclick="hide('tourneyOverlay');show('challengeOverlay')">← BACK</button>
 </div>
 
 <!-- TOURNAMENT BRACKET -->
@@ -891,9 +873,9 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   <div class="shop-title" data-i18n="shopTitle">NEGOZIO SFERE</div>
   <div class="shop-subtitle" style="text-align:center;line-height:1.6">Ogni sfera ha un <strong style="color:var(--accent)">potere unico</strong> che cambia il gioco</div>
   <div style="font-size:10px;color:var(--dim);letter-spacing:.15em;margin-bottom:4px;text-align:center">
-    <span style="font-size:13px;color:var(--dim);letter-spacing:.08em">Selezionata: </span><span id="shopSelectedName" style="color:var(--accent);font-weight:700;font-size:14px">—</span>
+    Selezionata: <span id="shopSelectedName" style="color:var(--accent);font-weight:700">—</span>
   </div>
-  <div id="shopSelectedPower" style="font-size:13px;color:#4af0d0;letter-spacing:.04em;margin-bottom:8px;text-align:center;min-height:14px;padding:0 10px;line-height:1.5"></div>
+  <div id="shopSelectedPower" style="font-size:9px;color:#4af0d0;letter-spacing:.06em;margin-bottom:8px;text-align:center;min-height:14px;padding:0 10px;line-height:1.4"></div>
   <div class="orb-categories" id="orbCategories"></div>
   <div class="btn-row" style="margin-top:12px">
     <button class="btn-play" onclick="applyOrbSelection()" data-i18n="select">✓ SCEGLI</button>
@@ -906,7 +888,7 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
   <div style="font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:18px" data-i18n="chooseLang">Choose your language</div>
   <div class="lang-grid" id="langGrid"></div>
-  <button class="btn-play" onclick="hide('langOverlay');show('startOverlay')" data-i18n="back">← INDIETRO</button>
+  <button class="btn-play" onclick="hide('langOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
 <script>
@@ -914,12 +896,12 @@ html,body{width:100%;height:100%;height:calc(var(--vh,1vh)*100);overflow:hidden;
 //  i18n — 12 LANGUAGES
 // ══════════════════════════════════════
 const LANGS = {
-  en:{flag:'🇬🇧',name:'English',t:{level:'Level',score:'Score',lives:'Lives',orbs:'orbs',play:'▶ PLAY',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'Come Giocare',shop:'Orb Shop',leaderboard:'Leaderboard',language:'Language',gameOver:'GAME OVER',best:'Best',survived:'Survived',again:'↺ ANCORA',share:'⬆ CONDIVIDI',saveImage:'⬇ Save',shareBtn:'📤 Share',mainMenu:'⌂ Menu',back:'← INDIETRO',paused:'⏸ PAUSED',pauseSub:'Game is paused',resume:'▶ RESUME',newGame:'↺ NEW GAME',stopConfirm:'Stop this game?',progressLost:'Progress will be lost',yes:'YES, STOP',cancel:'Cancel',whoAreYou:'WHO ARE YOU?',nameSubtitle:'Your name on the leaderboard',namePlaceholder:'ENTER NAME',confirm:'CONFIRM',loading:'Loading...',newBest:'NUOVO RECORD',readCarefully:'Read carefully',shopTitle:'ORB SHOP',shopSub:'Choose your orb',select:'✓ SELECT',chooseLang:'Choose your language',bestLabel:'Best:',free:'FREE',owned:'OWNED',premium:'PREMIUM',locked:'LOCKED',buy:'BUY',tutStep0:'Your orb orbits the center automatically',tutStep1:'Tap anywhere to reverse direction ↺',tutStep2:'Red orbs are coming — dodge them!',tutStep3:'Survive as long as you can 🔴',instrTitle:'HOW TO PLAY',instrSub:'Master Zivve',s_goal:'Objective',s_controls:'Controls',s_enemies:'Enemy Types',s_tips:'Pro Tips',i_goal1:'Your orb orbits the center. Tap to reverse direction.',i_goal2:'Avoid all red orbs. Lose a life for each collision.',i_goal3:'Survive as long as possible to maximize your score.',i_ctrl1:'Tap screen or press Space to reverse orbit direction.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ New Game · ⌂ Menu',i_ctrl3:'Every tap triggers a direction change immediately.',i_e1:'Normal — standard size and speed.',i_e2:'Fast — small, quick, leaves a trail.',i_e3:'Heavy — large and slow, bigger hitbox.',i_e4:'Ghost — semi-transparent, unpredictable.',i_tip1:'Reverse direction before orbs reach you — anticipate.',i_tip2:'At high levels keep reversing rapidly to stay ahead.',i_tip3:'The center dot turns red when danger is near.'}},
-  it:{flag:'🇮🇹',name:'Italiano',t:{level:'Livello',score:'Punteggio',lives:'Vite',orbs:'sfere',play:'▶ GIOCA',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'Come Giocare',shop:'Negozio Sfere',leaderboard:'Classifica',language:'Lingua',gameOver:'GAME OVER',best:'Record',survived:'Sopravvissuto',again:'↺ ANCORA',share:'⬆ CONDIVIDI',saveImage:'⬇ Salva',shareBtn:'📤 Condividi',mainMenu:'⌂ Menu',back:'← INDIETRO',paused:'⏸ PAUSA',pauseSub:'Gioco in pausa',resume:'▶ RIPRENDI',newGame:'↺ NUOVA PARTITA',stopConfirm:'Interrompere la partita?',progressLost:'I progressi saranno persi',yes:'SÌ, STOP',cancel:'Annulla',whoAreYou:'CHI SEI?',nameSubtitle:'Il tuo nome in classifica',namePlaceholder:'INSERISCI NOME',confirm:'CONFERMA',loading:'Caricamento...',newBest:'NUOVO RECORD',readCarefully:'Leggi con attenzione',shopTitle:'NEGOZIO SFERE',shopSub:'Scegli la tua sfera',select:'✓ SCEGLI',chooseLang:'Scegli la lingua',bestLabel:'Record:',free:'GRATIS',owned:'POSSEDUTO',premium:'PREMIUM',locked:'BLOCCATO',buy:'ACQUISTA',tutStep0:'La tua sfera orbita automaticamente al centro',tutStep1:'Tocca ovunque per invertire la direzione ↺',tutStep2:'Le sfere rosse arrivano — schivale!',tutStep3:'Sopravvivi il più a lungo possibile 🔴',instrTitle:'COME GIOCARE',instrSub:'Padroneggia Zivve',s_goal:'Obiettivo',s_controls:'Controlli',s_enemies:'Tipi di Nemici',s_tips:'Consigli Pro',i_goal1:'La tua sfera orbita al centro. Tocca per invertire la direzione.',i_goal2:'Evita tutte le sfere rosse. Perdi una vita per ogni collisione.',i_goal3:'Sopravvivi il più a lungo possibile per massimizzare il punteggio.',i_ctrl1:'Tocca lo schermo o premi Spazio per invertire la direzione.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nuova Partita · ⌂ Menu',i_ctrl3:'Ogni tocco cambia immediatamente la direzione.',i_e1:'Normale — dimensione e velocità standard.',i_e2:'Veloce — piccola, rapida, lascia una scia.',i_e3:'Pesante — grande e lenta, hitbox maggiore.',i_e4:'Fantasma — semitrasparente, imprevedibile.',i_tip1:'Inverti prima che le sfere ti raggiungano — anticipa.',i_tip2:'Agli alti livelli inverti rapidamente per restare avanti.',i_tip3:'Il punto centrale diventa rosso quando il pericolo è vicino.'}},
-  es:{flag:'🇪🇸',name:'Español',t:{level:'Nivel',score:'Puntos',lives:'Vidas',orbs:'esferas',play:'▶ JUGAR',tagline:'Orbita. Esquiva. Sobrevive.',howToPlay:'Cómo Jugar',shop:'Tienda',leaderboard:'Clasificación',language:'Idioma',gameOver:'FIN DEL JUEGO',best:'Récord',survived:'Sobrevivido',again:'↺ OTRA VEZ',share:'⬆ COMPARTIR',saveImage:'⬇ Guardar',shareBtn:'📤 Compartir',mainMenu:'⌂ Menú',back:'← VOLVER',paused:'⏸ PAUSADO',pauseSub:'Juego en pausa',resume:'▶ REANUDAR',newGame:'↺ NUEVA PARTIDA',stopConfirm:'¿Detener la partida?',progressLost:'Se perderá el progreso',yes:'SÍ, PARAR',cancel:'Cancelar',whoAreYou:'¿QUIÉN ERES?',nameSubtitle:'Tu nombre en el ranking',namePlaceholder:'ESCRIBE NOMBRE',confirm:'CONFIRMAR',loading:'Cargando...',newBest:'NUEVO RÉCORD',readCarefully:'Lee con atención',shopTitle:'TIENDA',shopSub:'Elige tu esfera',select:'✓ ELEGIR',chooseLang:'Elige tu idioma',bestLabel:'Récord:',free:'GRATIS',owned:'TUYO',premium:'PREMIUM',locked:'BLOQUEADO',buy:'COMPRAR',tutStep0:'Tu esfera orbita el centro automáticamente',tutStep1:'Toca en cualquier lugar para invertir ↺',tutStep2:'¡Las esferas rojas vienen — esquívalas!',tutStep3:'Sobrevive el mayor tiempo posible 🔴',instrTitle:'CÓMO JUGAR',instrSub:'Domina Zivve',s_goal:'Objetivo',s_controls:'Controles',s_enemies:'Tipos de Enemigos',s_tips:'Consejos Pro',i_goal1:'Tu esfera orbita el centro. Toca para invertir.',i_goal2:'Evita todas las esferas rojas. Pierdes una vida por colisión.',i_goal3:'Sobrevive el máximo tiempo para maximizar puntos.',i_ctrl1:'Toca la pantalla o pulsa Espacio para invertir.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nueva · ⌂ Menú',i_ctrl3:'Cada toque cambia la dirección inmediatamente.',i_e1:'Normal — tamaño y velocidad estándar.',i_e2:'Rápida — pequeña, veloz, deja estela.',i_e3:'Pesada — grande y lenta, área mayor.',i_e4:'Fantasma — semitransparente, impredecible.',i_tip1:'Invierte antes de que lleguen — anticípate.',i_tip2:'En niveles altos invierte rápidamente.',i_tip3:'El punto central se vuelve rojo cerca del peligro.'}},
-  fr:{flag:'🇫🇷',name:'Français',t:{level:'Niveau',score:'Score',lives:'Vies',orbs:'sphères',play:'▶ JOUER',tagline:'Orbite. Esquive. Survie.',howToPlay:'Comment Jouer',shop:'Boutique',leaderboard:'Classement',language:'Langue',gameOver:'FIN DE PARTIE',best:'Record',survived:'Survécu',again:'↺ ENCORE',share:'⬆ PARTAGER',saveImage:'⬇ Sauver',shareBtn:'📤 Partager',mainMenu:'⌂ Menu',back:'← RETOUR',paused:'⏸ EN PAUSE',pauseSub:'Jeu en pause',resume:'▶ REPRENDRE',newGame:'↺ NOUVELLE PARTIE',stopConfirm:'Arrêter la partie?',progressLost:'La progression sera perdue',yes:'OUI, STOP',cancel:'Annuler',whoAreYou:'QUI ES-TU?',nameSubtitle:'Ton nom au classement',namePlaceholder:'ENTRE TON NOM',confirm:'CONFIRMER',loading:'Chargement...',newBest:'NOUVEAU RECORD',readCarefully:'Lis attentivement',shopTitle:'BOUTIQUE',shopSub:'Choisis ta sphère',select:'✓ CHOISIR',chooseLang:'Choisir la langue',bestLabel:'Record:',free:'GRATUIT',owned:'POSSÉDÉ',premium:'PREMIUM',locked:'VERROUILLÉ',buy:'ACHETER',tutStep0:'Ta sphère orbite automatiquement',tutStep1:'Touche pour inverser la direction ↺',tutStep2:'Les sphères rouges arrivent — esquive!',tutStep3:'Survive le plus longtemps possible 🔴',instrTitle:'COMMENT JOUER',instrSub:'Maîtrise Zivve',s_goal:'Objectif',s_controls:'Contrôles',s_enemies:'Types d\'Ennemis',s_tips:'Conseils Pro',i_goal1:'Ta sphère orbite le centre. Touche pour inverser.',i_goal2:'Évite toutes les sphères rouges. Tu perds une vie par collision.',i_goal3:'Survie le plus longtemps pour maximiser le score.',i_ctrl1:'Touche l\'écran ou Espace pour inverser.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Nouveau · ⌂ Menu',i_ctrl3:'Chaque touche change la direction immédiatement.',i_e1:'Normal — taille et vitesse standard.',i_e2:'Rapide — petite, vive, laisse une traînée.',i_e3:'Lourde — grande et lente, grande zone.',i_e4:'Fantôme — semi-transparente, imprévisible.',i_tip1:'Inverse avant qu\'elles arrivent — anticipe.',i_tip2:'À hauts niveaux inverse rapidement.',i_tip3:'Le point central devient rouge près du danger.'}},
-  de:{flag:'🇩🇪',name:'Deutsch',t:{level:'Level',score:'Punkte',lives:'Leben',orbs:'Kugeln',play:'▶ SPIELEN',tagline:'Orbit. Ausweichen. Überleben.',howToPlay:'Spielanleitung',shop:'Shop',leaderboard:'Bestenliste',language:'Sprache',gameOver:'SPIEL VORBEI',best:'Rekord',survived:'Überlebt',again:'↺ NOCHMAL',share:'⬆ TEILEN',saveImage:'⬇ Speichern',shareBtn:'📤 Teilen',mainMenu:'⌂ Menü',back:'← ZURÜCK',paused:'⏸ PAUSE',pauseSub:'Spiel pausiert',resume:'▶ WEITER',newGame:'↺ NEUES SPIEL',stopConfirm:'Spiel beenden?',progressLost:'Fortschritt geht verloren',yes:'JA, STOP',cancel:'Abbrechen',whoAreYou:'WER BIST DU?',nameSubtitle:'Dein Name auf der Bestenliste',namePlaceholder:'NAME EINGEBEN',confirm:'BESTÄTIGEN',loading:'Laden...',newBest:'NEUER REKORD',readCarefully:'Aufmerksam lesen',shopTitle:'SHOP',shopSub:'Wähle deine Kugel',select:'✓ WÄHLEN',chooseLang:'Sprache wählen',bestLabel:'Rekord:',free:'GRATIS',owned:'BESESSEN',premium:'PREMIUM',locked:'GESPERRT',buy:'KAUFEN',tutStep0:'Deine Kugel kreist automatisch um die Mitte',tutStep1:'Tippe um die Richtung umzukehren ↺',tutStep2:'Rote Kugeln kommen — weiche aus!',tutStep3:'Überlebe so lange wie möglich 🔴',instrTitle:'SPIELANLEITUNG',instrSub:'Meistere Zivve',s_goal:'Ziel',s_controls:'Steuerung',s_enemies:'Gegnertypen',s_tips:'Profi-Tipps',i_goal1:'Deine Kugel kreist. Tippe zum Umkehren.',i_goal2:'Weiche roten Kugeln aus. Eine Kollision = ein Leben.',i_goal3:'Überlebe so lang wie möglich für mehr Punkte.',i_ctrl1:'Tippe oder Leertaste zum Umkehren.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Neu · ⌂ Menü',i_ctrl3:'Jeder Tipp ändert sofort die Richtung.',i_e1:'Normal — Standardgröße und -geschwindigkeit.',i_e2:'Schnell — klein, flink, hinterlässt Spur.',i_e3:'Schwer — groß und langsam, größerer Bereich.',i_e4:'Geist — halbtransparent, unberechenbar.',i_tip1:'Kehre um bevor sie ankommen — antizipiere.',i_tip2:'Bei hohen Leveln schnell umkehren.',i_tip3:'Zentralpunkt wird rot bei naher Gefahr.'}},
-  pt:{flag:'🇧🇷',name:'Português',t:{level:'Nível',score:'Pontos',lives:'Vidas',orbs:'esferas',play:'▶ JOGAR',tagline:'Orbita. Desvia. Sobrevive.',howToPlay:'Como Jogar',shop:'Loja',leaderboard:'Classificação',language:'Idioma',gameOver:'FIM DE JOGO',best:'Recorde',survived:'Sobrevivido',again:'↺ OUTRA VEZ',share:'⬆ PARTILHAR',saveImage:'⬇ Guardar',shareBtn:'📤 Partilhar',mainMenu:'⌂ Menu',back:'← VOLTAR',paused:'⏸ PAUSADO',pauseSub:'Jogo pausado',resume:'▶ CONTINUAR',newGame:'↺ NOVO JOGO',stopConfirm:'Parar o jogo?',progressLost:'O progresso será perdido',yes:'SIM, PARAR',cancel:'Cancelar',whoAreYou:'QUEM ÉS TU?',nameSubtitle:'Teu nome no ranking',namePlaceholder:'INSERE NOME',confirm:'CONFIRMAR',loading:'Carregando...',newBest:'NOVO RECORDE',readCarefully:'Lê com atenção',shopTitle:'LOJA',shopSub:'Escolhe a tua esfera',select:'✓ ESCOLHER',chooseLang:'Escolher idioma',bestLabel:'Recorde:',free:'GRÁTIS',owned:'POSSUÍDO',premium:'PREMIUM',locked:'BLOQUEADO',buy:'COMPRAR',tutStep0:'A tua esfera orbita o centro automaticamente',tutStep1:'Toca para inverter a direção ↺',tutStep2:'Esferas vermelhas chegam — desvia!',tutStep3:'Sobrevive o máximo possível 🔴',instrTitle:'COMO JOGAR',instrSub:'Domina Zivve',s_goal:'Objetivo',s_controls:'Controlos',s_enemies:'Tipos de Inimigos',s_tips:'Dicas Pro',i_goal1:'A tua esfera orbita. Toca para inverter.',i_goal2:'Evita esferas vermelhas. Uma colisão = uma vida.',i_goal3:'Sobrevive o máximo para maximizar pontos.',i_ctrl1:'Toca ou prime Espaço para inverter.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Novo · ⌂ Menu',i_ctrl3:'Cada toque muda a direção imediatamente.',i_e1:'Normal — tamanho e velocidade padrão.',i_e2:'Rápida — pequena, veloz, deixa rasto.',i_e3:'Pesada — grande e lenta, área maior.',i_e4:'Fantasma — semitransparente, imprevisível.',i_tip1:'Inverte antes que cheguem — antecipa.',i_tip2:'A altos níveis inverte rapidamente.',i_tip3:'O ponto central fica vermelho perto do perigo.'}},
+  en:{flag:'🇬🇧',name:'English',t:{level:'Level',score:'Score',lives:'Lives',orbs:'orbs',play:'▶ PLAY',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'How to Play',shop:'Orb Shop',leaderboard:'Leaderboard',language:'Language',gameOver:'GAME OVER',best:'Best',survived:'Survived',again:'↺ AGAIN',share:'⬆ SHARE',saveImage:'⬇ Save',shareBtn:'📤 Share',mainMenu:'⌂ Menu',back:'← BACK',paused:'⏸ PAUSED',pauseSub:'Game is paused',resume:'▶ RESUME',newGame:'↺ NEW GAME',stopConfirm:'Stop this game?',progressLost:'Progress will be lost',yes:'YES, STOP',cancel:'Cancel',whoAreYou:'WHO ARE YOU?',nameSubtitle:'Your name on the leaderboard',namePlaceholder:'ENTER NAME',confirm:'CONFIRM',loading:'Loading...',newBest:'NEW BEST',readCarefully:'Read carefully',shopTitle:'ORB SHOP',shopSub:'Choose your orb',select:'✓ SELECT',chooseLang:'Choose your language',bestLabel:'Best:',free:'FREE',owned:'OWNED',premium:'PREMIUM',locked:'LOCKED',buy:'BUY',tutStep0:'Your orb orbits the center automatically',tutStep1:'Tap anywhere to reverse direction ↺',tutStep2:'Red orbs are coming — dodge them!',tutStep3:'Survive as long as you can 🔴',instrTitle:'HOW TO PLAY',instrSub:'Master the drift',s_goal:'Objective',s_controls:'Controls',s_enemies:'Enemy Types',s_tips:'Pro Tips',i_goal1:'Your orb orbits the center. Tap to reverse direction.',i_goal2:'Avoid all red orbs. Lose a life for each collision.',i_goal3:'Survive as long as possible to maximize your score.',i_ctrl1:'Tap screen or press Space to reverse orbit direction.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ New Game · ⌂ Menu',i_ctrl3:'Every tap triggers a direction change immediately.',i_e1:'Normal — standard size and speed.',i_e2:'Fast — small, quick, leaves a trail.',i_e3:'Heavy — large and slow, bigger hitbox.',i_e4:'Ghost — semi-transparent, unpredictable.',i_tip1:'Reverse direction before orbs reach you — anticipate.',i_tip2:'At high levels keep reversing rapidly to stay ahead.',i_tip3:'The center dot turns red when danger is near.'}},
+  it:{flag:'🇮🇹',name:'Italiano',t:{level:'Livello',score:'Punteggio',lives:'Vite',orbs:'sfere',play:'▶ GIOCA',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'Come Giocare',shop:'Negozio Sfere',leaderboard:'Classifica',language:'Lingua',gameOver:'GAME OVER',best:'Record',survived:'Sopravvissuto',again:'↺ ANCORA',share:'⬆ CONDIVIDI',saveImage:'⬇ Salva',shareBtn:'📤 Condividi',mainMenu:'⌂ Menu',back:'← INDIETRO',paused:'⏸ PAUSA',pauseSub:'Gioco in pausa',resume:'▶ RIPRENDI',newGame:'↺ NUOVA PARTITA',stopConfirm:'Interrompere la partita?',progressLost:'I progressi saranno persi',yes:'SÌ, STOP',cancel:'Annulla',whoAreYou:'CHI SEI?',nameSubtitle:'Il tuo nome in classifica',namePlaceholder:'INSERISCI NOME',confirm:'CONFERMA',loading:'Caricamento...',newBest:'NUOVO RECORD',readCarefully:'Leggi con attenzione',shopTitle:'NEGOZIO SFERE',shopSub:'Scegli la tua sfera',select:'✓ SCEGLI',chooseLang:'Scegli la lingua',bestLabel:'Record:',free:'GRATIS',owned:'POSSEDUTO',premium:'PREMIUM',locked:'BLOCCATO',buy:'ACQUISTA',tutStep0:'La tua sfera orbita automaticamente al centro',tutStep1:'Tocca ovunque per invertire la direzione ↺',tutStep2:'Le sfere rosse arrivano — schivale!',tutStep3:'Sopravvivi il più a lungo possibile 🔴',instrTitle:'COME GIOCARE',instrSub:'Padroneggia il drift',s_goal:'Obiettivo',s_controls:'Controlli',s_enemies:'Tipi di Nemici',s_tips:'Consigli Pro',i_goal1:'La tua sfera orbita al centro. Tocca per invertire la direzione.',i_goal2:'Evita tutte le sfere rosse. Perdi una vita per ogni collisione.',i_goal3:'Sopravvivi il più a lungo possibile per massimizzare il punteggio.',i_ctrl1:'Tocca lo schermo o premi Spazio per invertire la direzione.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nuova Partita · ⌂ Menu',i_ctrl3:'Ogni tocco cambia immediatamente la direzione.',i_e1:'Normale — dimensione e velocità standard.',i_e2:'Veloce — piccola, rapida, lascia una scia.',i_e3:'Pesante — grande e lenta, hitbox maggiore.',i_e4:'Fantasma — semitrasparente, imprevedibile.',i_tip1:'Inverti prima che le sfere ti raggiungano — anticipa.',i_tip2:'Agli alti livelli inverti rapidamente per restare avanti.',i_tip3:'Il punto centrale diventa rosso quando il pericolo è vicino.'}},
+  es:{flag:'🇪🇸',name:'Español',t:{level:'Nivel',score:'Puntos',lives:'Vidas',orbs:'esferas',play:'▶ JUGAR',tagline:'Orbita. Esquiva. Sobrevive.',howToPlay:'Cómo Jugar',shop:'Tienda',leaderboard:'Clasificación',language:'Idioma',gameOver:'FIN DEL JUEGO',best:'Récord',survived:'Sobrevivido',again:'↺ OTRA VEZ',share:'⬆ COMPARTIR',saveImage:'⬇ Guardar',shareBtn:'📤 Compartir',mainMenu:'⌂ Menú',back:'← VOLVER',paused:'⏸ PAUSADO',pauseSub:'Juego en pausa',resume:'▶ REANUDAR',newGame:'↺ NUEVA PARTIDA',stopConfirm:'¿Detener la partida?',progressLost:'Se perderá el progreso',yes:'SÍ, PARAR',cancel:'Cancelar',whoAreYou:'¿QUIÉN ERES?',nameSubtitle:'Tu nombre en el ranking',namePlaceholder:'ESCRIBE NOMBRE',confirm:'CONFIRMAR',loading:'Cargando...',newBest:'NUEVO RÉCORD',readCarefully:'Lee con atención',shopTitle:'TIENDA',shopSub:'Elige tu esfera',select:'✓ ELEGIR',chooseLang:'Elige tu idioma',bestLabel:'Récord:',free:'GRATIS',owned:'TUYO',premium:'PREMIUM',locked:'BLOQUEADO',buy:'COMPRAR',tutStep0:'Tu esfera orbita el centro automáticamente',tutStep1:'Toca en cualquier lugar para invertir ↺',tutStep2:'¡Las esferas rojas vienen — esquívalas!',tutStep3:'Sobrevive el mayor tiempo posible 🔴',instrTitle:'CÓMO JUGAR',instrSub:'Domina el drift',s_goal:'Objetivo',s_controls:'Controles',s_enemies:'Tipos de Enemigos',s_tips:'Consejos Pro',i_goal1:'Tu esfera orbita el centro. Toca para invertir.',i_goal2:'Evita todas las esferas rojas. Pierdes una vida por colisión.',i_goal3:'Sobrevive el máximo tiempo para maximizar puntos.',i_ctrl1:'Toca la pantalla o pulsa Espacio para invertir.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nueva · ⌂ Menú',i_ctrl3:'Cada toque cambia la dirección inmediatamente.',i_e1:'Normal — tamaño y velocidad estándar.',i_e2:'Rápida — pequeña, veloz, deja estela.',i_e3:'Pesada — grande y lenta, área mayor.',i_e4:'Fantasma — semitransparente, impredecible.',i_tip1:'Invierte antes de que lleguen — anticípate.',i_tip2:'En niveles altos invierte rápidamente.',i_tip3:'El punto central se vuelve rojo cerca del peligro.'}},
+  fr:{flag:'🇫🇷',name:'Français',t:{level:'Niveau',score:'Score',lives:'Vies',orbs:'sphères',play:'▶ JOUER',tagline:'Orbite. Esquive. Survie.',howToPlay:'Comment Jouer',shop:'Boutique',leaderboard:'Classement',language:'Langue',gameOver:'FIN DE PARTIE',best:'Record',survived:'Survécu',again:'↺ ENCORE',share:'⬆ PARTAGER',saveImage:'⬇ Sauver',shareBtn:'📤 Partager',mainMenu:'⌂ Menu',back:'← RETOUR',paused:'⏸ EN PAUSE',pauseSub:'Jeu en pause',resume:'▶ REPRENDRE',newGame:'↺ NOUVELLE PARTIE',stopConfirm:'Arrêter la partie?',progressLost:'La progression sera perdue',yes:'OUI, STOP',cancel:'Annuler',whoAreYou:'QUI ES-TU?',nameSubtitle:'Ton nom au classement',namePlaceholder:'ENTRE TON NOM',confirm:'CONFIRMER',loading:'Chargement...',newBest:'NOUVEAU RECORD',readCarefully:'Lis attentivement',shopTitle:'BOUTIQUE',shopSub:'Choisis ta sphère',select:'✓ CHOISIR',chooseLang:'Choisir la langue',bestLabel:'Record:',free:'GRATUIT',owned:'POSSÉDÉ',premium:'PREMIUM',locked:'VERROUILLÉ',buy:'ACHETER',tutStep0:'Ta sphère orbite automatiquement',tutStep1:'Touche pour inverser la direction ↺',tutStep2:'Les sphères rouges arrivent — esquive!',tutStep3:'Survive le plus longtemps possible 🔴',instrTitle:'COMMENT JOUER',instrSub:'Maîtrise le drift',s_goal:'Objectif',s_controls:'Contrôles',s_enemies:'Types d\'Ennemis',s_tips:'Conseils Pro',i_goal1:'Ta sphère orbite le centre. Touche pour inverser.',i_goal2:'Évite toutes les sphères rouges. Tu perds une vie par collision.',i_goal3:'Survie le plus longtemps pour maximiser le score.',i_ctrl1:'Touche l\'écran ou Espace pour inverser.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Nouveau · ⌂ Menu',i_ctrl3:'Chaque touche change la direction immédiatement.',i_e1:'Normal — taille et vitesse standard.',i_e2:'Rapide — petite, vive, laisse une traînée.',i_e3:'Lourde — grande et lente, grande zone.',i_e4:'Fantôme — semi-transparente, imprévisible.',i_tip1:'Inverse avant qu\'elles arrivent — anticipe.',i_tip2:'À hauts niveaux inverse rapidement.',i_tip3:'Le point central devient rouge près du danger.'}},
+  de:{flag:'🇩🇪',name:'Deutsch',t:{level:'Level',score:'Punkte',lives:'Leben',orbs:'Kugeln',play:'▶ SPIELEN',tagline:'Orbit. Ausweichen. Überleben.',howToPlay:'Spielanleitung',shop:'Shop',leaderboard:'Bestenliste',language:'Sprache',gameOver:'SPIEL VORBEI',best:'Rekord',survived:'Überlebt',again:'↺ NOCHMAL',share:'⬆ TEILEN',saveImage:'⬇ Speichern',shareBtn:'📤 Teilen',mainMenu:'⌂ Menü',back:'← ZURÜCK',paused:'⏸ PAUSE',pauseSub:'Spiel pausiert',resume:'▶ WEITER',newGame:'↺ NEUES SPIEL',stopConfirm:'Spiel beenden?',progressLost:'Fortschritt geht verloren',yes:'JA, STOP',cancel:'Abbrechen',whoAreYou:'WER BIST DU?',nameSubtitle:'Dein Name auf der Bestenliste',namePlaceholder:'NAME EINGEBEN',confirm:'BESTÄTIGEN',loading:'Laden...',newBest:'NEUER REKORD',readCarefully:'Aufmerksam lesen',shopTitle:'SHOP',shopSub:'Wähle deine Kugel',select:'✓ WÄHLEN',chooseLang:'Sprache wählen',bestLabel:'Rekord:',free:'GRATIS',owned:'BESESSEN',premium:'PREMIUM',locked:'GESPERRT',buy:'KAUFEN',tutStep0:'Deine Kugel kreist automatisch um die Mitte',tutStep1:'Tippe um die Richtung umzukehren ↺',tutStep2:'Rote Kugeln kommen — weiche aus!',tutStep3:'Überlebe so lange wie möglich 🔴',instrTitle:'SPIELANLEITUNG',instrSub:'Meistere den Drift',s_goal:'Ziel',s_controls:'Steuerung',s_enemies:'Gegnertypen',s_tips:'Profi-Tipps',i_goal1:'Deine Kugel kreist. Tippe zum Umkehren.',i_goal2:'Weiche roten Kugeln aus. Eine Kollision = ein Leben.',i_goal3:'Überlebe so lang wie möglich für mehr Punkte.',i_ctrl1:'Tippe oder Leertaste zum Umkehren.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Neu · ⌂ Menü',i_ctrl3:'Jeder Tipp ändert sofort die Richtung.',i_e1:'Normal — Standardgröße und -geschwindigkeit.',i_e2:'Schnell — klein, flink, hinterlässt Spur.',i_e3:'Schwer — groß und langsam, größerer Bereich.',i_e4:'Geist — halbtransparent, unberechenbar.',i_tip1:'Kehre um bevor sie ankommen — antizipiere.',i_tip2:'Bei hohen Leveln schnell umkehren.',i_tip3:'Zentralpunkt wird rot bei naher Gefahr.'}},
+  pt:{flag:'🇧🇷',name:'Português',t:{level:'Nível',score:'Pontos',lives:'Vidas',orbs:'esferas',play:'▶ JOGAR',tagline:'Orbita. Desvia. Sobrevive.',howToPlay:'Como Jogar',shop:'Loja',leaderboard:'Classificação',language:'Idioma',gameOver:'FIM DE JOGO',best:'Recorde',survived:'Sobrevivido',again:'↺ OUTRA VEZ',share:'⬆ PARTILHAR',saveImage:'⬇ Guardar',shareBtn:'📤 Partilhar',mainMenu:'⌂ Menu',back:'← VOLTAR',paused:'⏸ PAUSADO',pauseSub:'Jogo pausado',resume:'▶ CONTINUAR',newGame:'↺ NOVO JOGO',stopConfirm:'Parar o jogo?',progressLost:'O progresso será perdido',yes:'SIM, PARAR',cancel:'Cancelar',whoAreYou:'QUEM ÉS TU?',nameSubtitle:'Teu nome no ranking',namePlaceholder:'INSERE NOME',confirm:'CONFIRMAR',loading:'Carregando...',newBest:'NOVO RECORDE',readCarefully:'Lê com atenção',shopTitle:'LOJA',shopSub:'Escolhe a tua esfera',select:'✓ ESCOLHER',chooseLang:'Escolher idioma',bestLabel:'Recorde:',free:'GRÁTIS',owned:'POSSUÍDO',premium:'PREMIUM',locked:'BLOQUEADO',buy:'COMPRAR',tutStep0:'A tua esfera orbita o centro automaticamente',tutStep1:'Toca para inverter a direção ↺',tutStep2:'Esferas vermelhas chegam — desvia!',tutStep3:'Sobrevive o máximo possível 🔴',instrTitle:'COMO JOGAR',instrSub:'Domina o drift',s_goal:'Objetivo',s_controls:'Controlos',s_enemies:'Tipos de Inimigos',s_tips:'Dicas Pro',i_goal1:'A tua esfera orbita. Toca para inverter.',i_goal2:'Evita esferas vermelhas. Uma colisão = uma vida.',i_goal3:'Sobrevive o máximo para maximizar pontos.',i_ctrl1:'Toca ou prime Espaço para inverter.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Novo · ⌂ Menu',i_ctrl3:'Cada toque muda a direção imediatamente.',i_e1:'Normal — tamanho e velocidade padrão.',i_e2:'Rápida — pequena, veloz, deixa rasto.',i_e3:'Pesada — grande e lenta, área maior.',i_e4:'Fantasma — semitransparente, imprevisível.',i_tip1:'Inverte antes que cheguem — antecipa.',i_tip2:'A altos níveis inverte rapidamente.',i_tip3:'O ponto central fica vermelho perto do perigo.'}},
   zh:{flag:'🇨🇳',name:'中文',t:{level:'等级',score:'分数',lives:'生命',orbs:'球',play:'▶ 开始',tagline:'轨道. 躲避. 生存.',howToPlay:'玩法说明',shop:'商店',leaderboard:'排行榜',language:'语言',gameOver:'游戏结束',best:'最高分',survived:'存活',again:'↺ 再玩',share:'⬆ 分享',saveImage:'⬇ 保存',shareBtn:'📤 分享',mainMenu:'⌂ 菜单',back:'← 返回',paused:'⏸ 暂停',pauseSub:'游戏暂停',resume:'▶ 继续',newGame:'↺ 新游戏',stopConfirm:'停止游戏?',progressLost:'进度将丢失',yes:'是,停止',cancel:'取消',whoAreYou:'你是谁?',nameSubtitle:'你的名字将出现在排行榜上',namePlaceholder:'输入名字',confirm:'确认',loading:'加载中...',newBest:'新记录',readCarefully:'请仔细阅读',shopTitle:'商店',shopSub:'选择你的球',select:'✓ 选择',chooseLang:'选择语言',bestLabel:'最高分:',free:'免费',owned:'已拥有',premium:'高级',locked:'未解锁',buy:'购买',tutStep0:'你的球自动绕中心轨道运行',tutStep1:'点击任意位置反转方向 ↺',tutStep2:'红色球来了 — 躲开!',tutStep3:'尽可能长时间存活 🔴',instrTitle:'玩法说明',instrSub:'掌握漂移',s_goal:'目标',s_controls:'控制',s_enemies:'敌人类型',s_tips:'高手技巧',i_goal1:'你的球绕中心运行。点击以反转方向。',i_goal2:'避开所有红球。每次碰撞失去一条命。',i_goal3:'尽量长时间存活以最大化分数。',i_ctrl1:'点击屏幕或按空格键反转方向。',i_ctrl2:'⏸ 暂停 · ⏹ 停止 · ↺ 新游戏 · ⌂ 菜单',i_ctrl3:'每次点击立即改变方向。',i_e1:'普通 — 标准大小和速度。',i_e2:'快速 — 小而快,留有轨迹。',i_e3:'重型 — 大而慢,碰撞范围更大。',i_e4:'幽灵 — 半透明,不可预测。',i_tip1:'在球到来之前反转 — 要预判。',i_tip2:'高级别时快速反转。',i_tip3:'中心点在危险接近时变红。'}},
   ja:{flag:'🇯🇵',name:'日本語',t:{level:'レベル',score:'スコア',lives:'ライフ',orbs:'球',play:'▶ プレイ',tagline:'軌道. 回避. 生存.',howToPlay:'遊び方',shop:'ショップ',leaderboard:'ランキング',language:'言語',gameOver:'ゲームオーバー',best:'最高記録',survived:'生存時間',again:'↺ もう一度',share:'⬆ シェア',saveImage:'⬇ 保存',shareBtn:'📤 シェア',mainMenu:'⌂ メニュー',back:'← 戻る',paused:'⏸ 一時停止',pauseSub:'ゲーム一時停止中',resume:'▶ 再開',newGame:'↺ 新しいゲーム',stopConfirm:'ゲームを終了しますか?',progressLost:'進行状況が失われます',yes:'はい、終了',cancel:'キャンセル',whoAreYou:'あなたは誰?',nameSubtitle:'ランキングに表示される名前',namePlaceholder:'名前を入力',confirm:'確認',loading:'読み込み中...',newBest:'新記録',readCarefully:'注意して読む',shopTitle:'ショップ',shopSub:'球を選んでください',select:'✓ 選択',chooseLang:'言語を選択',bestLabel:'最高記録:',free:'無料',owned:'所持済み',premium:'プレミアム',locked:'ロック中',buy:'購入',tutStep0:'あなたの球は自動的に中心を周回します',tutStep1:'タップして方向を反転 ↺',tutStep2:'赤い球が来ます — 避けて!',tutStep3:'できる限り長く生き残れ 🔴',instrTitle:'遊び方',instrSub:'ドリフトをマスター',s_goal:'目標',s_controls:'操作',s_enemies:'敵のタイプ',s_tips:'プロのヒント',i_goal1:'球が中心を周回します。タップして反転。',i_goal2:'赤い球を全て避ける。衝突でライフ1つ失う。',i_goal3:'できるだけ長く生き残りスコアを最大化。',i_ctrl1:'画面タップまたはスペースで反転。',i_ctrl2:'⏸ 一時停止 · ⏹ 停止 · ↺ 新規 · ⌂ メニュー',i_ctrl3:'タップするたびに即座に方向変換。',i_e1:'通常 — 標準サイズと速度。',i_e2:'高速 — 小さく速く、軌跡あり。',i_e3:'重量 — 大きく遅い、広い当たり判定。',i_e4:'ゴースト — 半透明、予測不能。',i_tip1:'球が来る前に反転 — 予測して動く。',i_tip2:'高レベルでは素早く反転。',i_tip3:'中心点は危険が近づくと赤くなる。'}},
   ar:{flag:'🇸🇦',name:'العربية',t:{level:'مستوى',score:'نقاط',lives:'أرواح',orbs:'كرات',play:'▶ العب',tagline:'مدار. تجنب. اِنجُ.',howToPlay:'كيف تلعب',shop:'المتجر',leaderboard:'لوحة الصدارة',language:'اللغة',gameOver:'انتهت اللعبة',best:'الأفضل',survived:'نجا',again:'↺ مجدداً',share:'⬆ شارك',saveImage:'⬇ احفظ',shareBtn:'📤 شارك',mainMenu:'⌂ القائمة',back:'← رجوع',paused:'⏸ متوقف',pauseSub:'اللعبة متوقفة',resume:'▶ استمر',newGame:'↺ لعبة جديدة',stopConfirm:'إيقاف اللعبة؟',progressLost:'سيتم فقدان التقدم',yes:'نعم، أوقف',cancel:'إلغاء',whoAreYou:'من أنت؟',nameSubtitle:'اسمك سيظهر في لوحة الصدارة',namePlaceholder:'أدخل اسمك',confirm:'تأكيد',loading:'جار التحميل...',newBest:'رقم قياسي جديد',readCarefully:'اقرأ بعناية',shopTitle:'المتجر',shopSub:'اختر كرتك',select:'✓ اختر',chooseLang:'اختر اللغة',bestLabel:'الأفضل:',free:'مجاني',owned:'مملوك',premium:'مميز',locked:'مقفل',buy:'شراء',tutStep0:'كرتك تدور حول المركز تلقائياً',tutStep1:'انقر في أي مكان لعكس الاتجاه ↺',tutStep2:'الكرات الحمراء قادمة — تجنبها!',tutStep3:'انجُ أطول وقت ممكن 🔴',instrTitle:'كيف تلعب',instrSub:'أتقن الانجراف',s_goal:'الهدف',s_controls:'التحكم',s_enemies:'أنواع الأعداء',s_tips:'نصائح المحترفين',i_goal1:'كرتك تدور حول المركز. انقر للعكس.',i_goal2:'تجنب جميع الكرات الحمراء. كل تصادم = حياة.',i_goal3:'انجُ أطول وقت لتعظيم نقاطك.',i_ctrl1:'انقر الشاشة أو مسافة للعكس.',i_ctrl2:'⏸ توقف · ⏹ إيقاف · ↺ جديد · ⌂ قائمة',i_ctrl3:'كل نقرة تغير الاتجاه فوراً.',i_e1:'عادية — حجم وسرعة قياسية.',i_e2:'سريعة — صغيرة وسريعة، تترك أثراً.',i_e3:'ثقيلة — كبيرة وبطيئة، نطاق أوسع.',i_e4:'شبح — شفاف جزئياً، غير متوقع.',i_tip1:'اعكس قبل وصولها — توقع.',i_tip2:'في المستويات العالية اعكس بسرعة.',i_tip3:'تتحول النقطة المركزية للأحمر عند الخطر.'}},
@@ -1021,7 +1003,7 @@ const ORB_CATALOG = [
   {id:'flag_br', cat:'nations',name:'Brazil',        price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagBrazil(c,x,y,r), power:'carnival_rush', powerDesc:'Ogni 10 nemici schivati: +200 punti esplosivi'},
   {id:'flag_jp', cat:'nations',name:'Japan',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagJapan(c,x,y,r), power:'samurai', powerDesc:'Inversione di direzione istantanea — zero ritardo'},
   {id:'flag_cn', cat:'nations',name:'China',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagChina(c,x,y,r), power:'dragon', powerDesc:'Dopo 30s: compare un drago bonus. Schivalo per +500 pt'},
-  {id:'flag_gb', cat:'nations',name:'UK',            price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagUK(c,x,y,r), power:'stoic', powerDesc:'Una volta per partita: 3s di invulnerabilità quando perdi l\'ultima vita'},
+  {id:'flag_gb', cat:'nations',name:'UK',            price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagUK(c,x,y,r), power:'stoic', powerDesc:"Non puoi perdere l'ultima vita — minimo sempre 1"},
   {id:'flag_ru', cat:'nations',name:'Russia',        price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#ffffff','#0039a6','#d52b1e']), power:'iron_will', powerDesc:'Con 1 vita rimasta: velocità nemici -25%'},
   {id:'flag_ar', cat:'nations',name:'Argentina',     price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#74acdf','#ffffff','#74acdf']), power:'tango', powerDesc:'Ogni coppia di inversioni: la seconda vale x2 punteggio'},
   {id:'flag_in', cat:'nations',name:'India',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagIndia(c,x,y,r), power:'karma', powerDesc:'Più vite hai perso, più alto è il moltiplicatore score'},
@@ -1029,7 +1011,7 @@ const ORB_CATALOG = [
   // ── GUADAGNATE — si sbloccano automaticamente con gli obiettivi ──
   {id:'earn_perfect', cat:'earned', name:'✨ Perfetta',   price:0, earnedBy:'drift_perfect_dodges', earnThreshold:1,   draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#ffffff','#ccddff','#4488ff'), power:'perfect_chain', powerDesc:"Perfect Dodge a catena: x2, x3, x4... moltiplicatore"},
   {id:'earn_veteran', cat:'earned', name:'⭐ Veterana',   price:0, earnedBy:'drift_streak',         earnThreshold:7,   draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#aaddff','#2266aa','#001144'), power:'veteran_start', powerDesc:'Inizi al livello 3 con +200 punti di vantaggio'},
-  {id:'earn_king',    cat:'earned', name:'♛ Zivve King', price:0, earnedBy:'drift_best',            earnThreshold:500, draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#fff8cc','#ffd700','#884400'), power:'king_aura', powerDesc:"Ogni 100 pt: onda d'urto che respinge tutti i nemici"},
+  {id:'earn_king',    cat:'earned', name:'♛ Drift King', price:0, earnedBy:'drift_best',            earnThreshold:500, draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#fff8cc','#ffd700','#884400'), power:'king_aura', powerDesc:"Ogni 100 pt: onda d'urto che respinge tutti i nemici"},
 
   // ── STAGIONI (disponibili tutto l'anno, tema stagionale) ──
   {id:'s_spring', cat:'seasonal',name:'🌸 Spring',  price:'€1.49', season:'spring',  draw:(c,x,y,r)=>drawOrbSeason(c,x,y,r,'spring'), power:'bloom', powerDesc:'Ogni 30s di gioco: guarisci 1 vita (max 3)'},
@@ -1059,20 +1041,6 @@ const CAT_LABELS = {
 
 let selectedOrbId = localStorage.getItem('drift_orb')||'cyan';
 let ownedOrbs = JSON.parse(localStorage.getItem('drift_owned')||'["cyan","blue","white"]');
-// BETA TESTER MODE — tutte le sfere sbloccate gratuitamente
-const FREE_BONUS_ORBS=ORB_CATALOG?ORB_CATALOG.map(o=>o.id):[];
-// Sblocca dopo che ORB_CATALOG è definito
-setTimeout(()=>{
-  if(typeof ORB_CATALOG!=='undefined'){
-    ORB_CATALOG.forEach(o=>{
-      if(!ownedOrbs.includes(o.id)){
-        ownedOrbs.push(o.id);
-      }
-    });
-    localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
-    buildShop(); // aggiorna negozio
-  }
-},100);
 let tempSelectedOrbId = selectedOrbId;
 
 function getOrb(id){ return ORB_CATALOG.find(o=>o.id===id)||ORB_CATALOG[0]; }
@@ -1171,7 +1139,7 @@ function buildShop(){
         else if(owned){ badge='<span class="orb-badge owned">'+T('owned')+'</span>'; cardClass=''; }
         else if(orb.cat==='earned'){
           const cond={'earn_perfect':'1 Perfect Dodge','earn_veteran':'Streak 7gg','earn_king':'Record 500pt',
-                      'nova':'Badge First Zivve','endurance':'Badge 50 partite','ghost_touch':'Badge 10 near miss',
+                      'nova':'Badge First Drift','endurance':'Badge 50 partite','ghost_touch':'Badge 10 near miss',
                       'flame':'Badge Streak 3gg','prestige':'Badge Record 500','legend':'Badge Record 1000','duel':'Badge Challenge'};
           const condTxt=cond[orb.id]||'Guadagna';
           badge='<span class="orb-badge" style="background:rgba(255,200,50,.15);color:var(--gold);font-size:6px;white-space:nowrap">🏆 '+condTxt+'</span>';
@@ -1182,7 +1150,7 @@ function buildShop(){
         else { badge='<span class="orb-badge premium">'+(orb.cat==='festivity'?'🎉':T('premium'))+'</span>'; cardClass=' locked'; }
         const subtext=!owned?(orb.cat==='earned'?earnLabel:festBadge==='locked_time'?getEventWindowLabel(orb.eventId):orb.price===0?'':price):'';
         const powerBadge=orb.power&&orb.power!=='none'
-          ? `<div style="font-size:10px;color:#4af0d0;letter-spacing:.03em;line-height:1.4;margin-top:4px;text-align:center;padding:2px 4px;background:rgba(74,240,208,.08);border-radius:4px;border:1px solid rgba(74,240,208,.15)">⚡ ${orb.powerDesc}</div>`
+          ? `<div style="font-size:7px;color:#4af0d0;letter-spacing:.04em;line-height:1.3;margin-top:2px;text-align:center;padding:0 2px">⚡ ${orb.powerDesc}</div>`
           : (orb.cat==='free'?'<div style="font-size:7px;color:rgba(200,220,255,.25);margin-top:2px;text-align:center">nessun potere</div>':'');
         const catCls=orb.cat?(' cat-'+orb.cat):'';
         return `<div class="orb-card${cardClass}${catCls}" ${cardClickable?`onclick="selectOrb('${orb.id}')"`:''}  style="${cardClickable?'':'cursor:default;'}">` + badge + `<div class="orb-preview" id="orbprev_${orb.id}"></div><div class="orb-name">${orb.name}</div><div class="orb-price" style="font-size:8px;color:${orb.cat==='earned'?'var(--gold)':'var(--dim)'}">${subtext}</div>` + progressHTML + powerBadge + `</div>`;
@@ -1666,2243 +1634,51 @@ function runHeroCanvas(){
 const SUPABASE_URL='https://klxlkrmnpuemglcoxuaa.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseGxrcm1ucHVlbWdsY294dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMDY1NTgsImV4cCI6MjA4OTg4MjU1OH0.U4e0AgCg_VnDbv8Yx5YQhVOh9SufJEsjJxxwY4czd_4';
 const USE_LB=(SUPABASE_URL.indexOf('YOUR_PROJECT')===-1);
-async function sbFetch(path, opts={}){
-  const url = SUPABASE_URL+'/rest/v1/'+path;
-  const headers = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer '+SUPABASE_KEY,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation',
-    ...(opts.headers||{})
-  };
-  const res = await fetch(url, {...opts, headers});
-  if(!res.ok){
-    const err = await res.text();
-    console.log('[SB] Error', res.status, path, err);
-    throw new Error(res.status+': '+err);
-  }
-  const text = await res.text();
-  return text ? JSON.parse(text) : [];
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  const text=await res.text();
+  if(!res.ok){console.log('[SB]',res.status,path,text);throw new Error(res.status+':'+text);}
+  return text?JSON.parse(text):[];
 }
 async function lbPost(name,score){
-  if(!USE_LB) return;
+  if(!USE_LB||!name) return;
   try{
-    console.log('[LB] Post score:', name, score);
-    // Cerca record esistente
-    const existing = await sbFetch(
-      `scores?name=eq.${encodeURIComponent(name)}&select=id,score&limit=1`
-    );
-    console.log('[LB] Existing:', existing);
-
-    if(Array.isArray(existing) && existing.length > 0){
-      if(score > existing[0].score){
-        // DELETE vecchio + INSERT nuovo (più affidabile di PATCH)
-        await sbFetch(
-          `scores?id=eq.${existing[0].id}`,
-          {method:'DELETE'}
-        );
-        const ins = await sbFetch('scores', {
-          method:'POST',
-          body:JSON.stringify({
-            name, score,
-            orb: selectedOrbId||'cyan',
-            country: localStorage.getItem('drift_country')||'IT'
-          })
-        });
-        console.log('[LB] Replace done:', ins);
-      } else {
-        console.log('[LB] Score non migliorato, skip');
-      }
-    } else {
-      // Primo record
-      const ins = await sbFetch('scores', {
-        method:'POST',
-        body:JSON.stringify({
-          name, score,
-          orb: selectedOrbId||'cyan',
-          country: localStorage.getItem('drift_country')||'IT'
-        })
-      });
-      console.log('[LB] Inserted:', ins);
+    const orb=selectedOrbId||'cyan';
+    const existing=await sbFetch('scores?name=eq.'+encodeURIComponent(name)+'&select=id,score&limit=1');
+    if(Array.isArray(existing)&&existing.length>0){
+      if(score<=existing[0].score){console.log('[LB] score non migliorato');return;}
+      await sbFetch('scores?id=eq.'+existing[0].id,{method:'DELETE'});
     }
-  } catch(e){
-    console.log('[LB] Errore lbPost:', e);
-  }
+    const ins=await sbFetch('scores',{method:'POST',body:JSON.stringify({name,score,orb})});
+    console.log('[LB] Salvato:',name,score,ins);
+  }catch(e){console.log('[LB] lbPost error:',e.message);}
 }
-async function lbGet(limit=10){
+
+async function lbGet(limit=15){
   if(!USE_LB) return getMockLB();
   try{
-    const d=await sbFetch(`scores?order=score.desc&limit=${limit}&select=name,score,orb,country`);
-    console.log('[LB] Supabase scores:', d);
-    if(Array.isArray(d)&&d.length>0) return d;
-    return getMockLB();
-  }catch(e){
-    console.log('[LB] Errore lbGet:',e);
-    return getMockLB();
-  }
+    const rows=await sbFetch('scores?order=score.desc&limit='+limit+'&select=name,score,orb');
+    console.log('[LB] lbGet:',rows?.length,'records');
+    if(Array.isArray(rows)&&rows.length>0) return rows;
+  }catch(e){console.log('[LB] lbGet error:',e.message);}
+  return getMockLB();
 }
-const BOT_PLAYERS=[
-  {name:'LYRA',   base:530, var:150},
-  {name:'VEXON',  base:480, var:120},
-  {name:'ZURI',   base:410, var:110},
-  {name:'KAON',   base:380, var:95},
-  {name:'MIRA',   base:340, var:100},
-  {name:'THORN',  base:295, var:90},
-  {name:'ELYX',   base:280, var:85},
-  {name:'SORA',   base:245, var:75},
-  {name:'RIVEN',  base:200, var:80},
-  {name:'PLEX',   base:155, var:70},
-];
-function getBotScore(bot,seed){
-  const r=(Math.sin(seed+bot.base)*10000)%1;
-  return Math.round(bot.base + r*bot.var);
-}
-function getMockLB(seed){
-  const s=seed||getDailySeed();
-  const local=JSON.parse(localStorage.getItem('drift_lb')||'[]');
-  const bots=BOT_PLAYERS.map(b=>({name:b.name,score:getBotScore(b,s),isBot:true}));
-  return [...local,...bots].sort((a,b)=>b.score-a.score).slice(0,10);
-}
-function saveMockLB(name,score){const lb=JSON.parse(localStorage.getItem('drift_lb')||'[]');const ex=lb.find(e=>e.name===name);if(ex){if(score>ex.score)ex.score=score;}else lb.push({name,score});lb.sort((a,b)=>b.score-a.score);localStorage.setItem('drift_lb',JSON.stringify(lb.slice(0,20)));}
-
-// ══════════════════════════════════════
-//  CANVAS
-// ══════════════════════════════════════
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-const shareCanvas=document.getElementById('shareCanvas'),sctx=shareCanvas.getContext('2d');
-let W,H,CX,CY,ORBIT_R;
-function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;CX=W/2;CY=H/2;ORBIT_R=Math.min(W,H)*.32;}
-window.addEventListener('resize',resize);resize();
-
-// ══════════════════════════════════════
-//  AUDIO
-// ══════════════════════════════════════
-// ════════════════════════════════════════════
-//  AUDIO ENGINE — dual channel (music + sfx)
-// ════════════════════════════════════════════
-let audioCtx=null,masterGain=null,musicGain=null,sfxGain=null,bgGain=null;
-let musicOn=localStorage.getItem('drift_music')!=='0';
-let sfxOn  =localStorage.getItem('drift_sfx')  !=='0';
-let _menuActive=false,_gameActive=false;
-let _menuT=null,_bassT=null,_shimT=null;
-
-function getAudio(){
-  if(!audioCtx){
-    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    masterGain=audioCtx.createGain();masterGain.gain.value=1;
-    masterGain.connect(audioCtx.destination);
-    musicGain=audioCtx.createGain();musicGain.gain.value=musicOn?1:0;
-    musicGain.connect(masterGain);
-    sfxGain=audioCtx.createGain();sfxGain.gain.value=sfxOn?1:0;
-    sfxGain.connect(masterGain);
-    bgGain=audioCtx.createGain();bgGain.gain.value=.14;
-    bgGain.connect(musicGain);
-  }
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  return audioCtx;
-}
-function toggleMusic(){
-  musicOn=!musicOn;localStorage.setItem('drift_music',musicOn?'1':'0');
-  if(musicGain)musicGain.gain.setTargetAtTime(musicOn?1:0,audioCtx.currentTime,.15);
-  updateAudioUI();
-}
-function toggleSfx(){
-  sfxOn=!sfxOn;localStorage.setItem('drift_sfx',sfxOn?'1':'0');
-  if(sfxGain)sfxGain.gain.setTargetAtTime(sfxOn?1:0,audioCtx.currentTime,.15);
-  updateAudioUI();
-  if(sfxOn)playTone(660,'sine',.1,.3);
-}
-function toggleMute(){
-  const anyOn=musicOn||sfxOn;musicOn=!anyOn;sfxOn=!anyOn;
-  localStorage.setItem('drift_music',musicOn?'1':'0');
-  localStorage.setItem('drift_sfx',sfxOn?'1':'0');
-  if(musicGain)musicGain.gain.setTargetAtTime(musicOn?1:0,audioCtx?.currentTime||0,.15);
-  if(sfxGain)sfxGain.gain.setTargetAtTime(sfxOn?1:0,audioCtx?.currentTime||0,.15);
-  updateAudioUI();
-}
-function updateAudioUI(){
-  const none=!musicOn&&!sfxOn;
-  const mb=document.getElementById('muteBtn');if(mb)mb.textContent=none?'🔇':musicOn?'🔊':'🔈';
-  const ml=document.getElementById('musicLabel');if(ml)ml.textContent=musicOn?'Music ON':'Music OFF';
-  const sl=document.getElementById('sfxLabel');  if(sl)sl.textContent=sfxOn?'SFX ON':'SFX OFF';
-  const mu=document.getElementById('muteLabel'); if(mu)mu.textContent=none?'Sound OFF':'Sound ON';
-}
-
-// ── Core tone/noise → sfxGain ──
-function playTone(freq,type,dur,vol=0.3,delay=0){
-  try{
-    const ac=getAudio(),o=ac.createOscillator(),g=ac.createGain();
-    o.connect(g);g.connect(sfxGain);
-    o.type=type;
-    o.frequency.setValueAtTime(freq,ac.currentTime+delay);
-    o.frequency.exponentialRampToValueAtTime(freq*.5,ac.currentTime+delay+dur*.8);
-    g.gain.setValueAtTime(0,ac.currentTime+delay);
-    g.gain.linearRampToValueAtTime(vol,ac.currentTime+delay+.01);
-    g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+delay+dur);
-    o.start(ac.currentTime+delay);o.stop(ac.currentTime+delay+dur);
-  }catch(e){}
-}
-function playNoise(dur,vol=.15,bfreq=800){
-  try{
-    const ac=getAudio(),buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate);
-    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
-    const src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
-    f.type='bandpass';f.frequency.value=bfreq;f.Q.value=.5;
-    src.buffer=buf;src.connect(f);f.connect(g);g.connect(sfxGain);
-    g.gain.setValueAtTime(vol,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+dur);
-    src.start();src.stop(ac.currentTime+dur);
-  }catch(e){}
-}
-
-// ── SFX functions ──
-function sndTap(){
-  // Suono ZIVVE iconico: swoosh + click metalico
-  playNoise(.04,.06,800);
-  playTone(600,'sine',.03,.18);
-  playTone(900,'triangle',.05,.22,.025);
-  playTone(1400,'sine',.04,.12,.05);
-}
-function sndNearMiss(freq){playTone(freq||800,'sine',.06,.12);}
-function sndHit(){playNoise(.12,.35,300);playTone(90,'sawtooth',.28,.45);playTone(55,'sine',.4,.22,.08);}
-function sndLastLife(){playNoise(.15,.4,400);playTone(220,'sawtooth',.07,.55);playTone(160,'sawtooth',.14,.5,.07);playTone(110,'sawtooth',.32,.45,.15);}
-function sndDie(){playNoise(.1,.7,600);[300,200,130,80,40].forEach((f,i)=>playTone(f,'sawtooth',.18+i*.08,.55-i*.08,i*.1));}
-function sndNewRecord(){[523,659,784,880,1047,1319].forEach((f,i)=>playTone(f,'sine',.2,.32,i*.058));setTimeout(()=>playNoise(.1,.18,1200),380);}
-function sndGameOverNoRecord(){[440,370,311,262].forEach((f,i)=>playTone(f,'triangle',.2,.22,i*.09));}
-function sndLevelUp(major=false){
-  if(major){[262,330,392,523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.18,.38,i*.062));setTimeout(()=>playNoise(.1,.22,900),480);}
-  else{[523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.13,.26,i*.07));}
-}
-function sndBoost(){[440,660,880,1100].forEach((f,i)=>playTone(f,'sine',.1,.32,i*.05));setTimeout(()=>playNoise(.06,.12,1200),200);}
-function sndSlow(){[440,330,220].forEach((f,i)=>playTone(f,'triangle',.22,.3,i*.1));playNoise(.18,.14,280);}
-function sndPowerupEnd(){playTone(330,'sine',.16,.2);playTone(220,'sine',.22,.15,.09);}
-function sndZigzag(){[330,440,330,550,440].forEach((f,i)=>playTone(f,'sawtooth',.06,.32,i*.075));}
-function sndPause(){playTone(330,'sine',.12,.22);playTone(220,'sine',.1,.15,.07);}
-function sndCountdownTick(){playTone(440,'sine',.12,.38);}
-function sndCountdownGo(){playTone(660,'sine',.08,.42);playTone(880,'sine',.16,.5,.06);}
-function sndAchievement(){[660,880,1100,1320].forEach((f,i)=>playTone(f,'sine',.14,.3,i*.055));}
-function sndWin(){[523,659,784,1047,1319,1568].forEach((f,i)=>playTone(f,'sine',.2,.38,i*.055));}
-function sndLose(){[440,392,349,294,262].forEach((f,i)=>playTone(f,'triangle',.2,.26,i*.07));}
-function sndShield(){
-  // Suono attivazione scudo — tono cristallino ascendente
-  [440,554,659,880,1108].forEach((f,i)=>playTone(f,'sine',.15,.28,i*.06));
-  setTimeout(()=>playNoise(.08,.12,1600),350);
-}
-function sndShieldHit(){
-  // Rimbalzo sul scudo — metallico
-  playTone(800,'triangle',.04,.4);
-  playTone(600,'sine',.12,.25,.03);
-  playNoise(.06,.18,1200);
-}
-function sndPerfectDodge(){[880,1100,1320,1760].forEach((f,i)=>playTone(f,'sine',.18,.45,i*.06));setTimeout(()=>playNoise(.08,.2,1400),300);}
-
-// ── MUSIC ──
-function startMenuMusic(){
-  _menuActive=true;_gameActive=false;
-  clearTimeout(_menuT);_menuLoop();
-  setTimeout(playDriftMelody, 500);
-}
-function stopMenuMusic(){_menuActive=false;clearTimeout(_menuT);}
-
-// ── Melodia ZIVVE — 8 note iconiche ──
-const DRIFT_MELODY=[
-  // [freq, duration_ms, delay_ms]
-  [659,200,0],[523,200,220],[587,200,440],[698,300,660],
-  [659,200,1000],[523,200,1220],[784,400,1440],
-  [740,200,1900],[698,200,2120],[659,600,2340],
-];
-let _melodyInterval=null;
-
-function playDriftMelody(){
-  if(_melodyInterval) return;
-  let cycle=0;
-  function playOneCycle(){
-    DRIFT_MELODY.forEach(([freq,dur,delay])=>{
-      setTimeout(()=>{
-        if(!_menuActive)return;
-        playTone(freq,'sine',.06,dur/1000);
-      },delay+cycle);
-    });
-  }
-  playOneCycle();
-  _melodyInterval=setInterval(()=>{playOneCycle();},3200);
-}
-
-function stopDriftMelody(){
-  if(_melodyInterval){clearInterval(_melodyInterval);_melodyInterval=null;}
-}
-
-function startGameMusic(){
-  stopMenuMusic();_gameActive=true;
-  clearTimeout(_bassT);clearTimeout(_shimT);
-  _bassLoop();setTimeout(_shimLoop,400);
-}
-function stopGameMusic(){_gameActive=false;clearTimeout(_bassT);clearTimeout(_shimT);}
-function _menuLoop(){
-  if(!_menuActive)return;
-  try{
-    const ac=getAudio();
-    [261,329,392,523,392,329].forEach((freq,i)=>{
-      const o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(bgGain);o.type='triangle';o.frequency.value=freq;
-      const t=ac.currentTime+i*.44;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.055,t+.18);g.gain.linearRampToValueAtTime(0,t+.75);
-      o.start(t);o.stop(t+.9);
-    });
-    _menuT=setTimeout(_menuLoop,6*440+900);
-  }catch(e){}
-}
-function _bassLoop(){
-  if(!_gameActive)return;
-  try{
-    const ac=getAudio();
-    const o=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
-    f.type='lowpass';f.frequency.value=190;
-    o.connect(f);f.connect(g);g.connect(bgGain);
-    o.type='sawtooth';o.frequency.value=55+Math.random()*6;
-    g.gain.setValueAtTime(0,ac.currentTime);
-    g.gain.linearRampToValueAtTime(.38,ac.currentTime+1.4);
-    g.gain.linearRampToValueAtTime(0,ac.currentTime+5);
-    o.start();o.stop(ac.currentTime+5.5);
-    _bassT=setTimeout(_bassLoop,4000+Math.random()*2500);
-  }catch(e){}
-}
-function _shimLoop(){
-  if(!_gameActive)return;
-  try{
-    const ac=getAudio();
-    const freq=[220,277,330,440,554][Math.floor(Math.random()*5)];
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.connect(g);g.connect(bgGain);o.type='triangle';o.frequency.value=freq;
-    g.gain.setValueAtTime(0,ac.currentTime);
-    g.gain.linearRampToValueAtTime(.065,ac.currentTime+.28);
-    g.gain.linearRampToValueAtTime(0,ac.currentTime+1.1);
-    o.start();o.stop(ac.currentTime+1.3);
-    _shimT=setTimeout(_shimLoop,950+Math.random()*1900);
-  }catch(e){}
-}
-
-/* setAmbientTension_dup_removed */
-function startAmbient(){
-  try{
-    const ac=getAudio();
-    function bassDrone(){
-      const o=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
-      f.type='lowpass';f.frequency.value=180;
-      o.connect(f);f.connect(g);g.connect(bgGain);
-      o.type='sawtooth';o.frequency.value=55+Math.random()*5;
-      g.gain.setValueAtTime(0,ac.currentTime);
-      g.gain.linearRampToValueAtTime(.4,ac.currentTime+1.5);
-      g.gain.linearRampToValueAtTime(0,ac.currentTime+5);
-      o.start();o.stop(ac.currentTime+5.5);
-      setTimeout(bassDrone,4000+Math.random()*2500);
-    }
-    function shimmer(){
-      const freq=[220,277,330,440,554][Math.floor(Math.random()*5)];
-      const o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(bgGain);
-      o.type='triangle';o.frequency.value=freq;
-      g.gain.setValueAtTime(0,ac.currentTime);
-      g.gain.linearRampToValueAtTime(.08,ac.currentTime+.3);
-      g.gain.linearRampToValueAtTime(0,ac.currentTime+1.2);
-      o.start();o.stop(ac.currentTime+1.5);
-      setTimeout(shimmer,1000+Math.random()*2000);
-    }
-    bassDrone();setTimeout(shimmer,600);
-  }catch(e){}
-}
-function setAmbientTension(level){
-  if(!bgGain||!audioCtx)return;
-  const urgency=G&&G.lives===1?1.5:1;
-  bgGain.gain.setTargetAtTime(Math.min((.05+level*.022)*urgency,.38),audioCtx.currentTime,.8);
-}
-// setAmbientTension merged into startAmbient above
-let hapticOn=localStorage.getItem('drift_haptic')!=='0';
-function haptic(p){if(!hapticOn)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
-function toggleHaptic(){
-  hapticOn=!hapticOn;
-  localStorage.setItem('drift_haptic',hapticOn?'1':'0');
-  const btn=document.getElementById('hapticBtn');if(btn)btn.textContent=hapticOn?'📳':'🔕';
-  const lbl=document.getElementById('hapticLabel');if(lbl)lbl.textContent=hapticOn?'Haptic ON':'Haptic OFF';
-  if(hapticOn)haptic([20,10,20]);
-}
-
-
-// ══════════════════════════════════════
-//  PLAYER NAME
-// ══════════════════════════════════════
-let playerName=localStorage.getItem('drift_name')||'';
-// Se non c'è nome, usa ZIVVER come default silenzioso
-if(!playerName){ playerName='ZIVVER'; localStorage.setItem('drift_name','ZIVVER'); }
-function checkName(cb){if(playerName){cb();return;}show('nameOverlay');document.getElementById('nameInput').value='';document.getElementById('nameInput').focus();window._nameCb=cb;}
-function saveName(forced){
-  const raw=forced||document.getElementById('nameInput').value;
-  const v=raw.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)||'ZIVVER';
-  playerName=v;
-  localStorage.setItem('drift_name',v);
-  localStorage.setItem('drift_name_set','1');
-  hide('nameOverlay');
-  show('startOverlay');
-  // Aggiorna bottone profilo
-  const mn=document.getElementById('profileMenuName');
-  if(mn&&v!=='ZIVVER') mn.textContent=v;
-  if(window._nameCb){const cb=window._nameCb;window._nameCb=null;cb();}
-}
-
-// Anteprima nome in tempo reale
-(function(){
-  setTimeout(()=>{
-    const inp=document.getElementById('nameInput');
-    const prev=document.getElementById('namePreview');
-    if(!inp||!prev)return;
-    inp.addEventListener('input',()=>{
-      const v=inp.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
-      prev.textContent=v?'👾 '+v:'';
-    });
-  },500);
-})();
-document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
-
-// ══════════════════════════════════════
-//  GLOBALS
-// ══════════════════════════════════════
-let CH={mode:null,roomCode:null,isHost:false,seed:0,asyncLink:null,tourneySize:4,currentRound:0,bracket:[],pollInterval:null,myScore:0,eventId:null,eventModifier:{},eventScoreKey:'score'};
-let G={running:false,paused:false},raf;
-let bestScore=parseInt(localStorage.getItem('drift_best')||'0');
-const scoreValEl=document.getElementById('scoreVal');
-const levelValEl=document.getElementById('levelVal');
-const msgWrapEl=document.getElementById('msgWrap');
-const msgTextEl=document.getElementById('msgText');
-const flashEl=document.getElementById('flash');
-const survivalFill=document.getElementById('survivalFill');
-const enemyCountEl=document.getElementById('enemyCountVal');
-
-const FRAMES_PER_LEVEL=420,BASE_SPEED=2.4,SPEED_PER_LEVEL=0.35,BASE_ENEMIES=1,SPAWN_INTERVAL=65;
-const ENEMY_TYPES=[
-  {key:'normal',rMult:.065,spdMult:1.0,color0:'#ffddcc',color1:'#ff3355',color2:'#990022',haloCols:['rgba(255,34,68,.38)','rgba(255,80,30,.12)','rgba(255,0,0,0)'],haloR:5},
-  {key:'fast',  rMult:.042,spdMult:1.7,color0:'#ffeecc',color1:'#ff8800',color2:'#993300',haloCols:['rgba(255,136,0,.38)','rgba(255,80,0,.12)','rgba(255,60,0,0)'],haloR:4},
-  {key:'heavy', rMult:.095,spdMult:.6, color0:'#ffcccc',color1:'#cc0044',color2:'#550011',haloCols:['rgba(200,0,60,.45)','rgba(150,0,40,.15)','rgba(100,0,20,0)'],haloR:6},
-  {key:'ghost', rMult:.058,spdMult:1.1,color0:'rgba(255,200,200,.7)',color1:'rgba(200,50,80,.7)',color2:'rgba(100,0,30,.7)',haloCols:['rgba(255,100,150,.2)','rgba(200,50,80,.06)','rgba(0,0,0,0)'],haloR:5},
-  // Power-ups — not enemies, special collision
-  {key:'boost', rMult:.060,spdMult:.8, color0:'#ccffee',color1:'#00ffaa',color2:'#009966',haloCols:['rgba(0,255,170,.45)','rgba(0,200,130,.15)','rgba(0,150,80,0)'],haloR:5,isPowerup:true},
-  {key:'slow',  rMult:.060,spdMult:.8, color0:'#ddccff',color1:'#8833ff',color2:'#440099',haloCols:['rgba(136,51,255,.45)','rgba(100,30,200,.15)','rgba(60,0,150,0)'],haloR:5,isPowerup:true},
-  {key:'zigzag',rMult:.072,spdMult:1.0, color0:'#ffeecc',color1:'#ffaa00',color2:'#cc5500',haloCols:['rgba(255,180,0,.55)','rgba(255,120,0,.18)','rgba(200,60,0,0)'],haloR:5.5,isZigzag:true},
-  {key:'shield',rMult:.060,spdMult:.8, color0:'#cceeff',color1:'#44aaff',color2:'#0044aa',haloCols:['rgba(68,170,255,.55)','rgba(0,120,255,.18)','rgba(0,60,200,0)'],haloR:5,isPowerup:true},
-];
-function pickEnemyType(l){
-  // Event forced type
-  if(G&&G._forceEnemyType){const t=ENEMY_TYPES.find(e=>e.key===G._forceEnemyType);if(t)return t;}
-  if(l<3)return ENEMY_TYPES[0];
-  const r=Math.random();
-  if(l<5)return r<.75?ENEMY_TYPES[0]:ENEMY_TYPES[1];
-  if(l<8)return r<.5?ENEMY_TYPES[0]:r<.8?ENEMY_TYPES[1]:ENEMY_TYPES[2];
-  return ENEMY_TYPES[Math.floor(Math.random()*ENEMY_TYPES.length)];
-}
-
-// Tutorial
-let tutDone=localStorage.getItem('drift_tut')==='1',tutStep=0;
-function getTutSteps(){return [{frame:30,msg:T('tutStep0')},{frame:90,msg:T('tutStep1')},{frame:160,msg:T('tutStep2')},{frame:280,msg:T('tutStep3')}];}
-function tutUpdate(){if(tutDone)return;const steps=getTutSteps();const step=steps[tutStep];if(!step){tutDone=true;localStorage.setItem('drift_tut','1');hideTut();return;}if(G.frameCount===step.frame){showTut(step.msg);tutStep++;}}
-function showTut(msg){const b=document.getElementById('tutBox');document.getElementById('tutMsg').textContent=msg;b.classList.add('show');}
-function hideTut(){document.getElementById('tutBox').classList.remove('show');}
-
-// ══════════════════════════════════════
-//  GAME CONTROLS
-// ══════════════════════════════════════
-function pauseGame(){
-  if(!G.running&&!G.paused)return;
-  G.paused=true;G.running=false;
-  show('pauseOverlay');
-  sndPause();haptic(20);
-}
-function resumeGame(){
-  hide('pauseOverlay');hide('stopOverlay');
-  G.paused=false;G.running=true;
-  // masterLoop già in esecuzione
-}
-function newGame(){ hide('pauseOverlay');hide('stopOverlay');startGame(); }
-function confirmStop(){
-  if(!G.running&&!G.paused)return;
-  G.running=false;G.paused=false;
-  show('stopOverlay');
-}
-function forceStop(){ hide('stopOverlay');G.running=false;G.paused=false;setTimeout(endGame,100); }
-function goMenu(){ hide('pauseOverlay');hide('stopOverlay');G.running=false;G.paused=false;showStart(); }
-
-// ══════════════════════════════════════
-//  START
-// ══════════════════════════════════════
-
-// ══════════════════════════════════════════════════════════════
-//  ORB POWER SYSTEM
-// ══════════════════════════════════════════════════════════════
-function getOrbPower(){ return getOrb(selectedOrbId)?.power||'none'; }
-function getOrbDesc(){  return getOrb(selectedOrbId)?.powerDesc||''; }
-
-function applyOrbPower(){
-  const p=getOrbPower();
-  if(p==='none') return;
-
-  // ── Stat modifiers immediati ──
-  if(p==='extra_life')        { G.lives=4; updateLivesUI(); }
-  if(p==='nova_shield')       { G.novaHits=2; } // assorbe 2 colpi prima vita
-  if(p==='invincible_start')  { G.orbShieldFrames=8*60; }
-  if(p==='lucky_start')       { setTimeout(()=>applyPowerup('shield',CX,CY),300); }
-  if(p==='veteran_start')     { G.score+=200; G.level=3; G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL; G.maxEnemies=BASE_ENEMIES+2; updateLevelUI(); }
-  if(p==='endurance_start')   { G.orbShieldFrames=10*60; } // 10s invulnerabile
-  if(p==='ferrari_speed')     { G.speed*=1.15; }
-  if(p==='glitter_purple_init'){ G.orbShieldFrames=8*60; }
-
-  // ── Init contatori ──
-  G.orbPower=p;
-  G.orbPowerData={
-    ghostSaveUsed:false,
-    stoicUsed:false,
-    loveShieldUsed:false,
-    ghostModeActive:false,
-    ghostModeFrames:0,
-    bloomTimer:0,
-    freezePulseReady:true,
-    freezePulseCooldown:0,
-    dragonSpawned:false,
-    dragonTimer:0,
-    masqueradeTimer:0,
-    masqueradeActive:false,
-    karmaMultiplier:1,
-    tangoCount:0,
-    healTimer:0,
-    countdownTimer:0,
-    orbShieldTimer:0,
-    nearMissChain:0,
-    lastNearMissScore:0,
-    perfectChain:0,
-    dodgesCount:0,
-  };
-  if(p==='glitter_purple'||p==='invincible_start') G.orbShieldFrames=8*60;
-}
-
-function updateOrbPower(){
-  if(!G.orbPower||G.orbPower==='none') return;
-  const p=G.orbPower;
-  const d=G.orbPowerData;
-  const px=CX+Math.cos(G.angle)*ORBIT_R;
-  const py=CY+Math.sin(G.angle)*ORBIT_R;
-
-  // ── Invulnerabilità iniziale ──
-  if(G.orbShieldFrames>0){
-    G.orbShieldFrames--;
-    if(G.orbShieldFrames>0) G.invincible=2; // mantieni invulnerabile
-    if(G.orbShieldFrames===1) showMsg('⚡ Protezione esaurita!','#ffe566');
-  }
-
-  // ── BLOOM: guarigione ogni 30s ──
-  if(p==='bloom'){
-    d.bloomTimer++;
-    if(d.bloomTimer>=30*60){
-      d.bloomTimer=0;
-      if(G.lives<3){G.lives++;updateLivesUI();showMsg('🌸 BLOOM — +1 vita!','#ffaadd');flashScreen('rgba(255,150,200,.2)');}
-    }
-  }
-
-  // ── HEAL ON DODGE: guarisce dopo 60s senza perdere vite ──
-  if(p==='heal_on_dodge'){
-    if(!d.healTimer) d.healTimer=0;
-    d.healTimer++;
-    if(d.healTimer>=60*60&&G.lives<3){
-      G.lives++;updateLivesUI();d.healTimer=0;
-      showMsg('🌹 GUARIGIONE!','#ff88cc');flashScreen('rgba(255,100,150,.18)');
-    }
-  }
-
-  // ── FREEZE ON HIT: gestito in registerHit ──
-
-  // ── DIAMOND: scudo auto ogni 90s ──
-  if(p==='shield_charge'){
-    if(!d.orbShieldTimer) d.orbShieldTimer=0;
-    d.orbShieldTimer++;
-    if(d.orbShieldTimer>=90*60&&!G.shieldActive){
-      d.orbShieldTimer=0;
-      applyPowerup('shield',px,py);
-      showMsg('💎 SCUDO RICARICATO!','#aaddff');
-    }
-  }
-
-  // ── DOUBLE SCORE: x2 oltre livello 5 ──
-  if(p==='double_score'&&G.level>=5){
-    if(!d._dsMsgShown){d._dsMsgShown=true;showMsg('👑 PUNTEGGIO x2 ATTIVO!','#ffe566');}
-  }
-
-  // ── RAINBOW: powerup durano doppio (gestito in applyPowerup) ──
-
-  // ── KARMA: moltiplicatore cresce con vite perse ──
-  if(p==='karma'){
-    const livesLost=3-G.lives;
-    d.karmaMultiplier=1+livesLost*0.5;
-  }
-
-  // ── IRON_WILL: rallenta nemici con 1 vita ──
-  if(p==='iron_will'&&G.lives===1){
-    G.enemies.forEach(e=>{if(!e.type.isPowerup&&!e._ironSlowed){e.vx*=0.75;e.vy*=0.75;e._ironSlowed=true;}});
-  }
-
-  // ── BLOOM / SPRING cooldown ──
-  if(p==='freeze_pulse'){
-    if(d.freezePulseCooldown>0) d.freezePulseCooldown--;
-    else d.freezePulseReady=true;
-  }
-
-  // ── DRAGON: spawna drago dopo 30s ──
-  if(p==='dragon'){
-    d.dragonTimer=(d.dragonTimer||0)+1;
-    if(d.dragonTimer===30*60&&!d.dragonSpawned){
-      d.dragonSpawned=true;
-      spawnDragonBonus();
-    }
-  }
-
-  // ── MASQUERADE: ogni 15s, 3s di invisibilità ai nemici ──
-  if(p==='masquerade'){
-    d.masqueradeTimer=(d.masqueradeTimer||0)+1;
-    if(d.masqueradeTimer>=15*60){
-      d.masqueradeTimer=0; d.masqueradeActive=true;
-      setTimeout(()=>{if(G.orbPowerData)G.orbPowerData.masqueradeActive=false;},3000);
-      showMsg('🎭 MASCHERATA — nemici disorientati!','#ff88ff');
-      flashScreen('rgba(200,50,255,.15)');
-    }
-  }
-
-  // ── COUNTDOWN BONUS: ogni minuto ──
-  if(p==='countdown_bonus'){
-    d.countdownTimer=(d.countdownTimer||0)+1;
-    if(d.countdownTimer>=60*60){
-      const bonus=Math.floor(G.frameCount/60)*10;
-      G.score+=bonus; d.countdownTimer=0;
-      showMsg('🎆 BONUS COUNTDOWN! +'+bonus,'#ffdd44');
-      flashScreen('rgba(255,220,50,.2)');
-    }
-  }
-
-  // ── HEATWAVE: +40% punteggio a velocità massima ──
-  if(p==='heatwave'){
-    if(!d._hwActive&&G.speed>=BASE_SPEED+(9*SPEED_PER_LEVEL)){
-      d._hwActive=true;showMsg('☀️ HEATWAVE! +40% score','#ff8800');
-    }
-    if(d._hwActive&&G.speed<BASE_SPEED+(9*SPEED_PER_LEVEL)) d._hwActive=false;
-  }
-
-  // ── GHOST MODE: 10s fantasma con 1 vita ──
-  if(p==='ghost_mode'&&G.lives===1&&!d.ghostModeActive&&!d._ghostModeUsed){
-    d._ghostModeUsed=true; d.ghostModeActive=true; d.ghostModeFrames=10*60;
-    showMsg('🎃 GHOST MODE! Attraversa i nemici!','#ff6600');
-    flashScreen('rgba(255,100,0,.3)');
-  }
-  if(d.ghostModeActive){
-    d.ghostModeFrames--;
-    if(d.ghostModeFrames<=0){d.ghostModeActive=false;showMsg('🎃 Ghost mode esaurito','#ff6600');}
-  }
-
-  // ── KING AURA: onda ogni 100 punti ──
-  if(p==='king_aura'){
-    const threshold=Math.floor(G.score/100)*100;
-    if(threshold>0&&threshold!==(d._lastKingThreshold||0)){
-      d._lastKingThreshold=threshold;
-      G.enemies.forEach(e=>{
-        if(!e.type.isPowerup){
-          const dx=e.x-CX,dy=e.y-CY,dist=Math.sqrt(dx*dx+dy*dy);
-          const push=150/dist;e.vx+=dx/dist*push;e.vy+=dy/dist*push;
-        }
-      });
-      for(let i=0;i<3;i++) G.rings.push({x:CX,y:CY,r:i*20,alpha:.8,color:'#ffe566',grow:15});
-      flashScreen('rgba(255,200,50,.15)');
-    }
-  }
-
-  // ── PERFECT CHAIN: moltiplicatore catena ──
-  if(p==='perfect_chain'){
-    // gestito in triggerPerfectDodge
-  }
-}
-
-function orbPowerOnHit(){
-  if(!G.orbPower) return false; // false = subisci danno normalmente
-  const p=G.orbPower;
-  const d=G.orbPowerData||{};
-
-  // NOVA SHIELD: assorbe 2 colpi prima di perdere prima vita
-  if(p==='nova_shield'&&G.lives>=3&&(G.novaHits||0)>0){
-    G.novaHits--;
-    showMsg(`🌟 NOVA SHIELD! ${G.novaHits} rimasti`,'#7ec8ff');
-    flashScreen('rgba(126,200,255,.25)');
-    G.invincible=60;
-    return true;
-  }
-  // GHOST MODE attivo: ignora colpo
-  if(d.ghostModeActive) return true;
-
-  // GHOST SAVE: 1x per partita quando perdi la prima vita
-  if(p==='ghost_save'&&G.lives===2&&!d.ghostSaveUsed){
-    d.ghostSaveUsed=true;
-    G.invincible=3*60; // 3s invisibile
-    showMsg('🌌 GHOST SAVE! Sei intoccabile!','#aaddff');
-    flashScreen('rgba(100,150,255,.35)');
-    sndShield();haptic([20,10,20,10,50]);
-    return true; // nessun danno
-  }
-
-  // STOIC: non puoi perdere l'ultima vita
-  if(p==='stoic'&&G.lives===1&&!d.stoicUsed){
-    d.stoicUsed=true; // una sola volta per partita
-    showMsg('🏴󠁧󠁢󠁥󠁮󠁧󠁿 STOIC — ultima chance!','#cc4444');
-    G.invincible=3*60; // 3 secondi di grazia
-    flashScreen('rgba(200,50,50,0.2)');
-    return true;
-  }
-
-  // LOVE SHIELD: 1x assorbi colpo mortale
-  if(p==='love_shield'&&G.lives===1&&!d.loveShieldUsed){
-    d.loveShieldUsed=true;
-    showMsg('💔 LOVE SHIELD — salvo!','#ff6688');
-    flashScreen('rgba(255,50,100,.3)');
-    G.invincible=1*60;
-    sndShield();
-    return true;
-  }
-
-  // FREEZE ON HIT: congela nemici
-  if(p==='freeze_on_hit'){
-    G.enemies.forEach(e=>{
-      if(!e.type.isPowerup){e._frozen=120;} // 2s a 60fps
-    });
-    showMsg('❄️ FREEZE!','#88ccff');
-    flashScreen('rgba(100,180,255,.2)');
-  }
-
-  // HEAL ON DODGE reset
-  if(p==='heal_on_dodge'&&d) d.healTimer=0;
-
-  return false; // subisci danno
-}
-
-function orbPowerOnNearMiss(){
-  if(!G.orbPower) return;
-  const p=G.orbPower;
-  const d=G.orbPowerData||{};
-
-  // NEAR MISS BONUS: vale doppio
-  if(p==='near_miss_bonus') G.score+=5;
-
-  // GOLD TRAIL: catena near miss
-  if(p==='gold_trail'){
-    d.nearMissChain=(d.nearMissChain||0)+1;
-    const bonus=d.nearMissChain*100;
-    G.score+=bonus;
-    if(d.nearMissChain>=3) showMsg('✨ GOLD CHAIN x'+d.nearMissChain+'! +'+bonus,'#ffe566');
-  }
-
-  // ELEGANCE: zona più ampia (gestita in update collision)
-  // FLUO_PINK: già gestito con near_miss_bonus
-  // CARNIVAL RUSH
-  if(p==='carnival_rush'){
-    d.dodgesCount=(d.dodgesCount||0)+1;
-    if(d.dodgesCount%10===0){
-      G.score+=200;
-      showMsg('🎉 CARNIVAL RUSH! +200','#ff8800');
-      flashScreen('rgba(255,130,0,.2)');
-    }
-  }
-}
-
-function orbPowerOnPerfect(){
-  if(!G.orbPower) return;
-  const p=G.orbPower;
-  const d=G.orbPowerData||{};
-
-  // PERFECT CHAIN: moltiplicatore crescente
-  if(p==='perfect_chain'){
-    d.perfectChain=(d.perfectChain||0)+1;
-    const mult=Math.min(d.perfectChain,8);
-    const bonus=100*mult;
-    G.score+=bonus;
-    showMsg('⚡ PERFECT CHAIN x'+mult+'! +'+bonus,'#4af0d0');
-  }
-
-  // DODGE TIMER: +1.5s slow-mo
-  if(p==='dodge_timer') G.slowMo=(G.slowMo||0)+90;
-}
-
-function getScoreMultiplier(){
-  const p=getOrbPower();
-  if(!G.orbPowerData) return 1;
-  const d=G.orbPowerData;
-  let mult=1;
-  if(p==='score_boost'){
-    // Flame orb: +20% base + 5% per ogni giorno di streak
-    const _streak=parseInt(localStorage.getItem('drift_streak')||'0');
-    mult*=1.2+Math.min(_streak*.05,.5);
-  }
-  if(p==='double_score'&&G.level>=5) mult*=2;
-  if(p==='rainbow_power') mult*=1.3;
-  if(p==='heatwave'&&d._hwActive) mult*=1.4;
-  if(p==='karma') mult*=d.karmaMultiplier||1;
-  if(p==='tango'){
-    d.tangoCount=(d.tangoCount||0)+1;
-    if(d.tangoCount%2===0) mult*=2;
-  }
-  mult*=getWeeklyMultiplier();
-  return mult;
-}
-
-function spawnDragonBonus(){
-  // Sfera speciale dorata che se schivata dà +500
-  const angle=Math.random()*Math.PI*2;
-  const r=ORBIT_R*(1.2+Math.random()*.3);
-  const x=CX+Math.cos(angle)*r,y=CY+Math.sin(angle)*r;
-  const toC=Math.atan2(CY-y,CX-x);
-  G.enemies.push({
-    x,y,vx:Math.cos(toC)*.6,vy:Math.sin(toC)*.6,
-    life:0,pulsePhase:0,driftX:0,driftY:0,
-    type:{key:'dragon',rMult:.09,spdMult:.5,color0:'#fff8cc',color1:'#ffd700',color2:'#cc4400',
-          haloCols:['rgba(255,180,0,.6)','rgba(255,100,0,.2)','rgba(0,0,0,0)'],haloR:7,isDragon:true},
-    totalLife:600,_isDragon:true
-  });
-  showMsg('🐉 DRAGONE! Schivalo per +500!','#ffd700');
-  flashScreen('rgba(255,200,0,.2)');
-}
-
-function freezePulseActivate(){
-  const p=getOrbPower();
-  if(p!=='freeze_pulse') return;
-  const d=G.orbPowerData;
-  if(!d||!d.freezePulseReady) return;
-  d.freezePulseReady=false;d.freezePulseCooldown=45*60;
-  G.enemies.forEach(e=>{if(!e.type.isPowerup)e._frozen=3*60;});
-  for(let i=0;i<4;i++) G.rings.push({x:CX,y:CY,r:i*15,alpha:.9,color:'#88ccff',grow:20});
-  showMsg('❄️ FREEZE PULSE!','#88ccff');
-  flashScreen('rgba(100,180,255,.3)');
-  sndShield();
-}
-
-function startGame(seed){
-  if(G&&G.running)return; // già in gioco
-  enterFullscreen(); // nascondi barra indirizzi
-
-  // Nascondi tutte le overlay
-  document.querySelectorAll('.overlay').forEach(el=>el.classList.add('hidden'));
-  document.getElementById('nameOverlay').classList.add('hidden');
-
-  if(typeof seed==='number') Math.seedrandom&&Math.seedrandom(seed);
-  tutStep=0;hideTut();
-
-  if(!['async','sync','tournament','event','daily','survival'].includes(CH.mode)){
-    CH.mode=null;
-  }
-  G={running:true,paused:false,angle:0,dir:1,speed:BASE_SPEED,
-     enemies:[],particles:[],trails:[],rings:[],shockwaves:[],
-     spawnTimer:0,maxEnemies:BASE_ENEMIES,frameCount:0,score:0,spawnShield:120,
-     lives:3,level:1,shaking:0,invincible:0,slowMo:0,
-     nearMissStreak:0,_lastNearMissFrame:0,perfectDodgeCount:0,
-     survivedZigzag:false,survivedZigzagCount:0,survivalMode:false,
-     _forceEnemyType:null,_noPowerup:false,_nmMult:1,_perfectMult:1,
-     _collectCount:0,_zigzagLevelMod:null,
-     shieldActive:false,
-     adapt:{framesSinceTap:0,nearMissAccum:0,wasClose:false}};
-  for(let i=0;i<BASE_ENEMIES;i++)spawnEnemy(true);
-  applyOrbPower(); // attiva potere sfera
-  updateLivesUI();updateLevelUI();
-  try{getAudio();stopMenuMusic();stopDriftMelody();startGameMusic();}catch(e){}
-  document.getElementById('c').style.display='block';
-  setTimeout(startGameRecording,500); // avvia registrazione
-  if(G.level===1) setTimeout(detectPerformance,1000);
-}
-function showStart(){
-  hideAll();
-  show('startOverlay');
-  document.getElementById('c').style.display='none';
-  stopGameRecording();
-  applyLang();
-  updateStreakDisplay();
-  if(audioCtx){try{stopGameMusic();startMenuMusic();}catch(e){}}
-}
-
-// ══════════════════════════════════════
-//  INPUT
-// ══════════════════════════════════════
-function reverseDir(){
-  if(!G.running)return;
-  hideTut();
-  const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R;
-  // Perfect Dodge: inversione entro 4 frame da near-miss
-  const lastNM=G._lastNearMissFrame||0;
-  if((G.frameCount-lastNM)<=4&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
-  G.dir*=-1;if(G.adapt)G.adapt.framesSinceTap=0;
-  G.rings.push({x:px,y:py,r:0,alpha:.7,color:'#4af0d0',grow:6});
-  for(let i=0;i<7;i++){const a=Math.random()*Math.PI*2;G.particles.push({x:px,y:py,vx:Math.cos(a)*2.5,vy:Math.sin(a)*2.5,life:22,color:'#4af0d0',r:Math.random()*2+.8});}
-  sndTap();haptic(15);
-}
-function triggerPerfectDodge(px,py){
-  G.dir*=-1;if(G.adapt)G.adapt.framesSinceTap=0;
-  G.slowMo=480;
-  G.perfectDodgeCount=(G.perfectDodgeCount||0)+1;
-  const bonus=50*(G._perfectMult||1)*G.perfectDodgeCount;G.score+=bonus;
-  for(let i=0;i<55;i++){
-    const a=Math.random()*Math.PI*2,sp=Math.random()*9+3;
-    G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
-      life:80+Math.random()*30,color:['#ffe566','#4af0d0','#ffffff','#ff8844','#7ec8ff'][i%5],r:Math.random()*5+2});
-  }
-  for(let i=0;i<4;i++)setTimeout(()=>G.rings.push({x:px,y:py,r:0,alpha:.9,
-    color:['#ffe566','#4af0d0','#ffffff','#ffe566'][i],grow:14}),i*100);
-  showMsg('✨ PERFECT DODGE! +'+bonus,'#ffe566');
-  flashScreen('rgba(255,229,102,0.15)');
-  sndPerfectDodge();haptic([10,5,10,5,30,5,60]);
-  const pd=parseInt(localStorage.getItem('drift_perfect_dodges')||'0')+1;
-  localStorage.setItem('drift_perfect_dodges',pd);
-  G.rings.push({x:px,y:py,r:0,alpha:.6,color:'#4af0d0',grow:5});
-  orbPowerOnPerfect();
-  // Dopo 2s, mostra invito condivisione
-  if(pd===1||pd%5===0){
-    setTimeout(()=>{
-      if(G&&G.running){
-        // Mostra solo il toast — no download automatico
-        showPerfectDodgeToastOnly(pd,bonus);
-      }
-    },2200);
-  }
-}
-
-function showPerfectDodgeShare(count,bonus){
-  // Crea una share card istantanea con screenshot del momento
-  const sc=document.getElementById('shareCanvas');
-  sc.width=400;sc.height=300;
-  const sx=sc.getContext('2d');
-  // Copia il frame corrente del canvas di gioco
-  sx.drawImage(canvas,0,0,W,H,0,0,400,300);
-  // Overlay
-  sx.fillStyle='rgba(3,3,10,.65)';sx.fillRect(0,0,400,300);
-  // Stelle
-  sx.fillStyle='rgba(255,229,102,.9)';
-  sx.font='bold 48px serif';sx.textAlign='center';sx.textBaseline='middle';
-  sx.fillText('✨',200,80);
-  // Testo
-  sx.font='900 28px Orbitron,sans-serif';sx.fillStyle='#ffe566';
-  sx.fillText('PERFECT DODGE',200,130);
-  sx.font='600 16px Rajdhani,sans-serif';sx.fillStyle='rgba(200,220,255,.8)';
-  sx.fillText('+'+bonus+' punti  ·  #'+count+' in questa partita',200,162);
-  sx.font='600 13px Rajdhani,sans-serif';sx.fillStyle='rgba(74,240,208,.7)';
-  sx.fillText(playerName+' · ZIVVE · punteggio: '+G.score,200,195);
-  sx.font='600 11px Rajdhani,sans-serif';sx.fillStyle='rgba(200,220,255,.4)';
-  sx.fillText('zivve-game.html',200,240);
-  // Mostra toast con pulsante condividi
-  showShareToast(sc.toDataURL('image/png'));
-}
-
-let _lastPDDataUrl='';
-function showShareToast(dataUrl){
-  _lastPDDataUrl=dataUrl; // salva globalmente — evita problemi con base64 nell'onclick
-  const old=document.getElementById('pdShareToast');if(old)old.remove();
-  const toast=document.createElement('div');
-  toast.id='pdShareToast';
-  toast.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(8,8,20,.97);border:1px solid rgba(255,229,102,.5);border-radius:10px;padding:10px 14px;z-index:99;display:flex;align-items:center;gap:10px;max-width:300px;box-shadow:0 0 20px rgba(255,229,102,.2);animation:slideUp .3s ease';
-  // Crea img
-  const img=document.createElement('img');
-  img.src=dataUrl;img.style.cssText='width:52px;height:39px;border-radius:4px;object-fit:cover;flex-shrink:0';
-  // Testo
-  const txt=document.createElement('div');
-  txt.style.flex='1';
-  txt.innerHTML='<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.08em">✨ Momento epico!</div><div style="font-size:9px;color:rgba(200,220,255,.5);margin-top:2px">Condividi con i tuoi amici</div>';
-  // Bottone share
-  const btnShare=document.createElement('button');
-  btnShare.textContent='📤';
-  btnShare.style.cssText='background:linear-gradient(135deg,#ffe566,#ffaa00);color:#000;border:none;border-radius:6px;padding:6px 10px;font-size:14px;cursor:pointer;touch-action:manipulation;flex-shrink:0';
-  btnShare.onclick=()=>shareOrDownloadPD(_lastPDDataUrl);
-  // Bottone chiudi
-  const btnClose=document.createElement('button');
-  btnClose.textContent='✕';
-  btnClose.style.cssText='background:rgba(255,255,255,.1);color:rgba(200,220,255,.5);border:none;border-radius:6px;padding:6px 8px;font-size:12px;cursor:pointer;touch-action:manipulation;flex-shrink:0';
-  btnClose.onclick=()=>toast.remove();
-  toast.appendChild(img);toast.appendChild(txt);toast.appendChild(btnShare);toast.appendChild(btnClose);
-  document.body.appendChild(toast);
-  setTimeout(()=>{if(toast.parentNode)toast.remove();},6000);
-}
-
-function shareOrDownloadPD(dataUrl){
-  if(navigator.share){
-    fetch(dataUrl).then(r=>r.blob()).then(blob=>{
-      const file=new File([blob],'zivve-perfect-dodge.png',{type:'image/png'});
-      navigator.share({title:'ZIVVE — Perfect Dodge!',text:'Ho fatto un Perfect Dodge! '+G.score+' punti',files:[file]}).catch(()=>{});
-    });
-  } else {
-    const a=document.createElement('a');a.href=dataUrl;a.download='zivve-perfect-dodge.png';a.click();
-  }
-  const toast=document.getElementById('pdShareToast');if(toast)toast.remove();
-}
-// Tap per invertire direzione — SOLO pointerdown
-// (pointerdown unifica touch e mouse; touchstart crea doppio trigger su Android)
-const _gameCanvas=document.getElementById('c');
-let _lastTapTime=0;
-_gameCanvas.addEventListener('pointerdown',e=>{
-  e.preventDefault();
-  e.stopPropagation();
-  const now=Date.now();
-  if(now-_lastTapTime<80)return; // debounce 80ms anti-doppio
-  _lastTapTime=now;
-  if(G&&G.running) reverseDir();
-},{passive:false});
-document.addEventListener('keydown',e=>{
-  if(e.code==='Space'||e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();reverseDir();}
-  if(e.code==='Escape'&&G.running)pauseGame();
-  if(e.code==='Escape'&&G.paused)resumeGame();
-});
-
-
-// ══════════════════════════════════════════════════════════════
-//  VIDEO SHARE — Perfect Dodge recorder
-// ══════════════════════════════════════════════════════════════
-let _mediaRecorder=null;
-let _recordedChunks=[];
-let _recordingActive=false;
-const VIDEO_BUFFER_SECS=6; // cattura 6 secondi in loop
-
-function startGameRecording(){
-  if(!window.MediaRecorder||_recordingActive) return;
-  try{
-    const stream=document.getElementById('c').captureStream(30);
-    _mediaRecorder=new MediaRecorder(stream,{
-      mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-        ?'video/webm;codecs=vp9':'video/webm',
-      videoBitsPerSecond:800000 // 800kbps — bilanciato
-    });
-    _recordedChunks=[];
-    _mediaRecorder.ondataavailable=e=>{
-      if(e.data.size>0){
-        _recordedChunks.push(e.data);
-        // Mantieni solo gli ultimi VIDEO_BUFFER_SECS secondi (~bucket sliding)
-        // Ogni chunk dura ~0.5s, teniamo max 12
-        if(_recordedChunks.length>12) _recordedChunks.shift();
-      }
-    };
-    _mediaRecorder.start(500); // chunk ogni 500ms
-    _recordingActive=true;
-  }catch(e){
-    _recordingActive=false;
-  }
-}
-
-function stopGameRecording(){
-  if(_mediaRecorder&&_recordingActive){
-    try{_mediaRecorder.stop();}catch(e){}
-    _recordingActive=false;
-  }
-}
-
-function captureVideoClip(){
-  // Ritorna una Promise con il Blob video degli ultimi secondi
-  return new Promise(resolve=>{
-    if(!_recordedChunks.length){resolve(null);return;}
-    const blob=new Blob([..._recordedChunks],{type:'video/webm'});
-    resolve(blob);
-  });
-}
-
-function showPerfectDodgeToastOnly(count, bonus){
-  const old=document.getElementById('pdShareToast');if(old)old.remove();
-  const toast=document.createElement('div');
-  toast.id='pdShareToast';
-  toast.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(8,8,20,.95);border:1px solid rgba(255,229,102,.5);border-radius:8px;padding:8px 14px;z-index:99;display:flex;align-items:center;gap:8px;max-width:280px;pointer-events:none';
-  toast.innerHTML=`<span style="font-size:20px">✨</span><div><div style="font-size:12px;color:var(--gold);font-weight:700">PERFECT DODGE #${count}!</div><div style="font-size:10px;color:rgba(200,220,255,.5)">+${bonus} pt</div></div>`;
-  document.body.appendChild(toast);
-  setTimeout(()=>{if(toast.parentNode)toast.remove();},3000);
-}
-
-async function sharePerfectDodgeVideo(count, bonus){
-  const videoBlob=await captureVideoClip();
-  if(!videoBlob){
-    // Fallback all'immagine statica
-    showPerfectDodgeShare(count,bonus);
-    return;
-  }
-  const url=URL.createObjectURL(videoBlob);
-
-  // Rimuovi toast precedente
-  const old=document.getElementById('pdShareToast');if(old)old.remove();
-  const toast=document.createElement('div');
-  toast.id='pdShareToast';
-  toast.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(8,8,20,.97);border:1px solid rgba(255,229,102,.5);border-radius:10px;padding:10px 14px;z-index:99;display:flex;align-items:center;gap:10px;max-width:310px;width:92%;box-shadow:0 0 20px rgba(255,229,102,.2);animation:slideUp .3s ease';
-
-  // Video preview
-  const vid=document.createElement('video');
-  vid.src=url;vid.autoplay=true;vid.muted=true;vid.loop=true;vid.playsInline=true;
-  vid.style.cssText='width:70px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0';
-
-  const txt=document.createElement('div');
-  txt.style.flex='1';
-  txt.innerHTML='<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.08em">✨ PERFECT DODGE!</div><div style="font-size:9px;color:rgba(200,220,255,.5);margin-top:2px">+'+bonus+' pt · Video pronto</div>';
-
-  const btnShare=document.createElement('button');
-  btnShare.textContent='📤';
-  btnShare.style.cssText='background:linear-gradient(135deg,#ffe566,#ffaa00);color:#000;border:none;border-radius:6px;padding:8px 12px;font-size:16px;cursor:pointer;touch-action:manipulation;flex-shrink:0';
-  btnShare.onclick=async()=>{
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([videoBlob],'zivve-pd.webm',{type:'video/webm'})]})){
-      try{
-        await navigator.share({
-          title:'ZIVVE — Perfect Dodge!',
-          text:`Ho fatto un Perfect Dodge #${count}! Score: ${G.score} 🔥`,
-          files:[new File([videoBlob],'zivve-perfect-dodge.webm',{type:'video/webm'})]
-        });
-      }catch(e){
-        // Fallback: download
-        const a=document.createElement('a');a.href=url;a.download='zivve-perfect-dodge.webm';a.click();
-      }
-    } else {
-      const a=document.createElement('a');a.href=url;a.download='zivve-perfect-dodge.webm';a.click();
-    }
-    toast.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  const btnClose=document.createElement('button');
-  btnClose.textContent='✕';
-  btnClose.style.cssText='background:rgba(255,255,255,.1);color:rgba(200,220,255,.5);border:none;border-radius:6px;padding:6px 8px;font-size:12px;cursor:pointer;touch-action:manipulation;flex-shrink:0';
-  btnClose.onclick=()=>{toast.remove();URL.revokeObjectURL(url);};
-
-  toast.appendChild(vid);toast.appendChild(txt);toast.appendChild(btnShare);toast.appendChild(btnClose);
-  document.body.appendChild(toast);
-  setTimeout(()=>{if(toast.parentNode){toast.remove();URL.revokeObjectURL(url);}},10000);
-}
-
-
-// ══════════════════════════════════════════════════════════════
-//  STRIPE PAGAMENTI
-//  Usa Stripe Payment Links — zero backend, zero server
-//  Sostituisci i link con i tuoi da dashboard.stripe.com
-// ══════════════════════════════════════════════════════════════
-
-// ══════════════════════════════════════════════════════════════
-//  STRIPE — 4 link per fascia di prezzo
-//  Sostituisci i 4 link con quelli reali da stripe.com
-// ══════════════════════════════════════════════════════════════
-
-// STEP 1: Crea questi 4 Payment Links su stripe.com
-// STEP 2: Sostituisci i valori qui sotto
-const STRIPE_PRICE_LINKS = {
-  '€0.99': 'https://buy.stripe.com/eVq7sL6q6aXB4KGcMk7kc00',  // Fluo
-  '€1.49': 'https://buy.stripe.com/bJe4gz9Ci6Hlb94cMk7kc01',  // Smile, Nations, Seasonal
-  '€1.99': 'https://buy.stripe.com/4gM9AT3dU2r5elg6nW7kc02',  // Glitter
-  '€2.49': 'https://buy.stripe.com/3cIbJ1eWC2r5fpk5jS7kc04',  // Festività
-  '€2.99': 'https://buy.stripe.com/8x29ATbKqfdR90WdQo7kc03',  // Gold
-};
-
-// Mappa automatica orb → link corretto per prezzo (popolata al primo uso)
-const STRIPE_LINKS = {};
-
-const STRIPE_CONFIGURED=Object.values(STRIPE_PRICE_LINKS).every(l=>!l.includes('INSERISCI'));
-
-function openStripeCheckout(orbId, orbName, price){
-  // Popola STRIPE_LINKS al momento dell'uso (ORB_CATALOG è già definito)
-  if(Object.keys(STRIPE_LINKS).length===0&&typeof ORB_CATALOG!=='undefined'){
-    ORB_CATALOG.forEach(orb=>{
-      if(orb.price&&orb.price!==0&&typeof orb.price==='string'){
-        STRIPE_LINKS[orb.id]=STRIPE_PRICE_LINKS[orb.price]||'';
-      }
-    });
-  }
-  const link = STRIPE_LINKS[orbId];
-  if(!link||link.includes('SOSTITUISCI')){
-    // DEMO: simula acquisto
-    showStripeDemo(orbId, orbName, price);
-    return;
-  }
-  // Aggiungi parametri per riconoscere l'utente al ritorno
-  const params = new URLSearchParams({
-    client_reference_id: playerName||'ZIVVER',
-    prefilled_email: '',
-  });
-  // Apri Stripe in una nuova tab
-  const checkoutUrl = link + '?' + params.toString();
-  window.open(checkoutUrl, '_blank');
-  // Mostra modal "In attesa del pagamento"
-  showPaymentWaitModal(orbId, orbName);
-}
-
-function showStripeDemo(orbId, orbName, price){
-  if(confirm(`🎯 ACQUISTO DEMO\n\n${orbName} — ${price}\n\n✅ Potere: ${getOrb(orbId)?.powerDesc||'—'}\n\n⚠️ Demo: configura Stripe per acquisti reali.\n\nClicca OK per sbloccare in demo.`)){
-    if(!ownedOrbs.includes(orbId)){
-      ownedOrbs.push(orbId);
-      localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
-      showMsg(`✅ ${orbName} sbloccata!`,'#ffe566');
-      buildShop();
-    }
-  }
-}
-
-function showPaymentWaitModal(orbId, orbName){
-  const d=document.createElement('div');
-  d.id='paymentWait';
-  d.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.95);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;font-family:Rajdhani,sans-serif';
-  d.innerHTML=`
-    <div style="font-size:48px;margin-bottom:16px">💳</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--accent);margin-bottom:8px">PAGAMENTO IN CORSO</div>
-    <div style="font-size:13px;color:rgba(200,220,255,.7);text-align:center;line-height:1.6;max-width:280px;margin-bottom:20px">
-      Completa il pagamento nella finestra Stripe.<br>Torna qui dopo — la sfera verrà sbloccata automaticamente.
-    </div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:20px">${orbName}</div>
-    <button onclick="checkPaymentReturn('${orbId}','${orbName}')" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:12px 24px;font-weight:700;font-size:13px;cursor:pointer;touch-action:manipulation;letter-spacing:.1em">✓ HO COMPLETATO IL PAGAMENTO</button>
-    <button onclick="document.getElementById('paymentWait').remove()" style="background:none;color:var(--dim);border:none;padding:10px;margin-top:8px;cursor:pointer;font-size:12px">Annulla</button>`;
-  document.body.appendChild(d);
-}
-
-function checkPaymentReturn(orbId, orbName){
-  // In produzione: verifica via Supabase/webhook
-  // In demo: sblocca direttamente
-  document.getElementById('paymentWait')?.remove();
-  if(!ownedOrbs.includes(orbId)){
-    ownedOrbs.push(orbId);
-    localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
-    showMsg(`🎉 ${orbName} sbloccata!`,'#ffe566');
-    buildShop();
-    checkAchievements();
-  }
-}
-
-// Esporta per uso nel negozio
-window._openStripeCheckout = openStripeCheckout;
-
-
-// ══════════════════════════════════════════════════════════════
-//  ANALYTICS (privacy-first, no cookies, no PII)
-// ══════════════════════════════════════════════════════════════
-const ANALYTICS_ENDPOINT=''; // es: 'https://plausible.io/api/event' o tuo endpoint
-
-function trackEvent(name, props={}){
-  if(!ANALYTICS_ENDPOINT) return;
-  // Non traccia dati personali — solo eventi aggregati
-  fetch(ANALYTICS_ENDPOINT,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','User-Agent':navigator.userAgent},
-    body:JSON.stringify({
-      n:name,
-      u:location.href.split('?')[0],
-      d:location.hostname||'zivve-game',
-      r:document.referrer,
-      w:window.innerWidth,
-      p:{...props, streak:localStorage.getItem('drift_streak')||0}
-    })
-  }).catch(()=>{});
-}
-
-// Traccia eventi chiave (senza dati utente)
-// Chiamate nei punti giusti del codice
-
-
-// ══════════════════════════════════════════════════════════════
-//  SISTEMA REFERRAL
-// ══════════════════════════════════════════════════════════════
-function getReferralLink(){
-  const base=location.href.split('?')[0];
-  const ref=encodeURIComponent(playerName||'ZIVVER');
-  return `${base}?ref=${ref}&challenge=weekly`;
-}
-
-function showReferralPanel(){
-  const link=getReferralLink();
-  const d=document.createElement('div');
-  d.id='referralPanel';
-  d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,20,.98);border-top:1px solid rgba(74,240,208,.3);padding:20px;z-index:90;font-family:Rajdhani,sans-serif;max-height:60vh;overflow-y:auto';
-  d.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--accent)">⚔️ SFIDA UN AMICO</div>
-      <button onclick="document.getElementById('referralPanel').remove()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer">✕</button>
-    </div>
-    <div style="font-size:12px;color:rgba(200,220,255,.6);margin-bottom:12px;line-height:1.6">
-      Condividi il tuo link personale. Se il tuo amico supera il tuo punteggio, ricevi un badge esclusivo 🏅
-    </div>
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--accent);word-break:break-all;letter-spacing:.02em" id="refLinkText">${link}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="copyReferralLink('${link}')" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:6px;padding:10px;font-weight:700;font-size:12px;cursor:pointer;touch-action:manipulation">📋 Copia Link</button>
-      <button onclick="shareReferralLink('${link}')" style="flex:1;background:rgba(74,240,208,.15);color:var(--accent);border:1px solid rgba(74,240,208,.3);border-radius:6px;padding:10px;font-weight:700;font-size:12px;cursor:pointer;touch-action:manipulation">📤 Condividi</button>
-    </div>
-    <div style="margin-top:12px;padding:10px;background:rgba(255,229,102,.06);border:1px solid rgba(255,229,102,.2);border-radius:8px">
-      <div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:.1em;margin-bottom:4px">🎁 BONUS REFERRAL</div>
-      <div style="font-size:11px;color:rgba(200,220,255,.6)">Il tuo amico ottiene <strong style="color:var(--white)">sfera Nova gratis</strong> al primo avvio.<br>Tu ottieni badge <strong style="color:var(--gold)">Recruiter</strong> se il tuo amico gioca 5 partite.</div>
-    </div>`;
-  document.body.appendChild(d);
-}
-
-function copyReferralLink(link){
-  navigator.clipboard?.writeText(link).then(()=>{
-    showMsg('📋 Link copiato!','#4af0d0');
-  }).catch(()=>{
-    const inp=document.createElement('input');inp.value=link;document.body.appendChild(inp);inp.select();document.execCommand('copy');inp.remove();
-    showMsg('📋 Link copiato!','#4af0d0');
-  });
-}
-
-async function shareReferralLink(link){
-  const score=localStorage.getItem('drift_best')||0;
-  const text=`Sfidami su ZIVVE! Il mio record è ${score} pt 🔥`;
-  if(navigator.share){
-    try{ await navigator.share({title:'ZIVVE — Sfida lanciata!',text,url:link}); }
-    catch(e){}
-  } else {
-    copyReferralLink(link);
-  }
-}
-
-// Controlla ref al caricamento — regala Nova al nuovo utente
-(()=>{
-  const params=new URLSearchParams(location.search);
-  const ref=params.get('ref');
-  if(ref&&!localStorage.getItem('drift_ref_claimed')){
-    localStorage.setItem('drift_ref_claimed','1');
-    localStorage.setItem('drift_ref_from',decodeURIComponent(ref));
-    // Regala Nova
-    if(!ownedOrbs.includes('nova')&&getOrb('nova')){
-      ownedOrbs.push('nova');
-      localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
-      setTimeout(()=>showMsg('🎁 Sfera NOVA in regalo dal tuo amico!','#7ec8ff'),2000);
-    }
-  }
-})();
-
-// ══════════════════════════════════════════════════════════════
-//  TUTORIAL CONTESTUALE
-//  Mostra tooltip la prima volta che appare ogni elemento
-// ══════════════════════════════════════════════════════════════
-const TUTS_SHOWN=JSON.parse(localStorage.getItem('drift_tuts_shown')||'{}');
-
-function showContextTip(id, text, duration=3500){
-  if(TUTS_SHOWN[id]) return; // già mostrato
-  TUTS_SHOWN[id]=1;
-  localStorage.setItem('drift_tuts_shown',JSON.stringify(TUTS_SHOWN));
-  showMsg(text,'#ffe566',duration);
-}
-
-// Hooks per tutorial contestuali
-function onFirstPowerup(key){
-  const tips={
-    boost:'⚡ SPEED BOOST! Tocca velocemente per schivare!',
-    slow:'🔮 ULTRA SLOW! Perfetto per i near miss!',
-    shield:'🛡 SCUDO! Sei invulnerabile per 30 secondi!'
-  };
-  if(tips[key]) showContextTip('powerup_'+key, tips[key]);
-}
-
-function onFirstNearMiss(){
-  showContextTip('near_miss','💨 NEAR MISS! Sfiora i nemici per punti bonus!');
-}
-
-function onFirstPerfectDodge(){
-  showContextTip('perfect_dodge','✨ PERFECT DODGE! Inverti appena prima dell\'impatto!');
-}
-
-function onHighLevel(level){
-  if(level===5) showContextTip('level_5','🔥 Livello 5! Da qui il punteggio raddoppia con la sfera Gold!');
-  if(level===10) showContextTip('level_10','⚡ Livello 10! Sei a metà strada per il badge Level 20!');
-}
-
-
-// ══════════════════════════════════════════════════════════════
-//  PERFORMANCE MANAGER
-//  Rileva dispositivi lenti e riduce effetti
-// ══════════════════════════════════════════════════════════════
-let _perfMode='high'; // 'high' | 'medium' | 'low'
-let _fpsHistory=[];
-let _fpsMeasureStart=0;
-
-function detectPerformance(){
-  // Misura FPS per 2 secondi dopo l'avvio del gioco
-  _fpsMeasureStart=performance.now();
-  let frames=0;
-  function measure(){
-    frames++;
-    const elapsed=performance.now()-_fpsMeasureStart;
-    if(elapsed<2000){
-      requestAnimationFrame(measure);
-    } else {
-      const fps=frames/(elapsed/1000);
-      if(fps>=55)      _perfMode='high';
-      else if(fps>=35) _perfMode='medium';
-      else             _perfMode='low';
-      applyPerfMode();
-    }
-  }
-  requestAnimationFrame(measure);
-}
-
-function applyPerfMode(){
-  if(_perfMode==='low'){
-    // Disabilita shadow/glow pesanti
-    _shadowEnabled=false;
-    _maxParticles=30;
-    _glowEnabled=false;
-    console.log('ZIVVE: modalità performance bassa attivata');
-  } else if(_perfMode==='medium'){
-    _shadowEnabled=true;
-    _maxParticles=80;
-    _glowEnabled=false;
-  } else {
-    _shadowEnabled=true;
-    _maxParticles=200;
-    _glowEnabled=true;
-  }
-}
-
-let _shadowEnabled=true, _maxParticles=200, _glowEnabled=true;
-
-// Wrapper per shadowBlur che rispetta _perfMode
-function setShadow(ctx2, blur, color){
-  if(!_shadowEnabled){ctx2.shadowBlur=0;return;}
-  ctx2.shadowBlur=blur;
-  if(color) ctx2.shadowColor=color;
-}
-
-
-// ══════════════════════════════════════════════════════════════
-//  FULLSCREEN — nascondi barra indirizzi durante il gioco
-// ══════════════════════════════════════════════════════════════
-function enterFullscreen(){
-  const el = document.documentElement;
-  try{
-    if(el.requestFullscreen) el.requestFullscreen();
-    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if(el.mozRequestFullScreen) el.mozRequestFullScreen();
-    else if(el.msRequestFullscreen) el.msRequestFullscreen();
-  }catch(e){}
-  // Scroll trick per Android Chrome (nasconde barra indirizzi)
-  window.scrollTo(0,1);
-  setTimeout(()=>window.scrollTo(0,0),100);
-}
-
-function exitFullscreen(){
-  try{
-    if(document.exitFullscreen) document.exitFullscreen();
-    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
-    else if(document.mozCancelFullScreen) document.mozCancelFullScreen();
-  }catch(e){}
-}
-
-// CSS trick: usa 100dvh (dynamic viewport height) per escludere la barra
-function applyViewportFix(){
-  const h = window.innerHeight;
-  document.documentElement.style.setProperty('--vh', h*0.01+'px');
-  document.getElementById('c').style.height = h+'px';
-}
-
-window.addEventListener('resize', applyViewportFix);
-window.addEventListener('orientationchange', ()=>setTimeout(applyViewportFix,200));
-applyViewportFix();
-
-// ══════════════════════════════════════
-//  LOOP
-// ══════════════════════════════════════
-// ── MASTER RAF — un solo loop per tutto ──
-let _masterRaf=null;
-function masterLoop(){
-  if(G&&G.running){update();draw();}
-  _masterRaf=requestAnimationFrame(masterLoop);
-}
-function loop(){} // alias vuoto — non più usato direttamente
-
-// ══════════════════════════════════════
-//  UPDATE
-// ══════════════════════════════════════
-function update(){
-  if(!G||!G.running)return;
-  G.frameCount++;
-  const _sm2=getScoreMultiplier();
-  G.score=Math.floor(G.frameCount/5*_sm2);
-  const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
-  if(nl!==G.level){G.level=nl;
-    // Aggiorna velocità base mantenendo i power-up attivi
-    const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-    if(!G.activePowerup){
-      G.speed=baseSpd;
-    } else if(G.activePowerup.key==='boost'){
-      // Boost: mantieni il moltiplicatore 1.5x sulla nuova velocità base
-      G.speed=Math.min(baseSpd*1.5, baseSpd+5);
-    } else if(G.activePowerup.key==='slow'){
-      // Slow: aggiorna savedSpeed ma mantieni la riduzione
-      G.activePowerup.savedSpeed=baseSpd;
-      // G.speed rimane rallentato tramite _sm — non toccare
-    }
-    // shield: nessun effetto sulla velocità
-    G.maxEnemies=Math.min(BASE_ENEMIES+(G.level-1),15);levelBump();}
-  survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
-  survivalFill.style.background=G.lives===1?'linear-gradient(90deg,#ff2244,#ff6633)':G.lives===2?'linear-gradient(90deg,#ff8800,#ffcc00)':'linear-gradient(90deg,#4af0d0,#7ec8ff)';
-  const _sm=G.slowMo>0?(G.slowMo--,Math.max(0.15,0.25*(BASE_SPEED/G.speed))):1;
-  G.angle+=(G.speed*G.dir*_sm)*(Math.PI/180);
-  G.trails.push({x:CX+Math.cos(G.angle)*ORBIT_R,y:CY+Math.sin(G.angle)*ORBIT_R});
-  if(G.trails.length>26)G.trails.shift();
-  G.spawnTimer++;
-  if(G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
-
-  // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=500+Math.floor(Math.random()*300);
-  G.powerupTimer--;
-  if(G.powerupTimer<=0){
-    G.powerupTimer=600+Math.floor(Math.random()*300);
-    const hasBoost =G.enemies.some(e=>e.type.key==='boost');
-    const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
-    const hasShield=G.enemies.some(e=>e.type.key==='shield');
-    if(!hasBoost&&!hasSlow&&!hasShield){
-      // Spawn uno dei tre power-up — shield meno frequente (20%)
-      const r=Math.random();
-      const type=r<0.4?ENEMY_TYPES[4]:r<0.8?ENEMY_TYPES[5]:ENEMY_TYPES[7];
-      spawnPowerup(type);
-    }
-  }
-  const boundary=ORBIT_R*1.72;
-  for(let ei=G.enemies.length-1;ei>=0;ei--){
-    const e=G.enemies[ei];
-    e.life++;
-
-    if(e.isZigzag){
-      // Movimento zigzag: traslazione lineare + oscillazione perpendicolare
-      const t=e.life*e.zigFreq+e.zigPhase;
-      const zigOff=Math.sin(t)*e.zigAmp;
-      if(e.mainDir==='down'||e.startSide==='top'){
-        // Si muove verticalmente, oscilla orizzontalmente
-        e.y+=e.vy||2.8+(G.level-10)*.15;
-        e.x=e.baseX+zigOff;
-      } else {
-        // Si muove orizzontalmente, oscilla verticalmente
-        e.x+=e.vx;
-        e.y=e.baseY+zigOff;
-      }
-      // Rimuovi quando esce dallo schermo
-      if(e.x<-60||e.x>W+60||e.y<-60||e.y>H+60){
-        G.enemies.splice(ei,1);
-        G.survivedZigzag=true;
-        continue;
-      }
-      continue; // no drift/boundary per zigzag
-    }
-
-    e.vx+=e.driftX;e.vy+=e.driftY;
-    if(e.life%130===0){e.driftX=(Math.random()-.5)*.022;e.driftY=(Math.random()-.5)*.022;}
-    const spd=Math.hypot(e.vx,e.vy),maxSpd=(1.6+(G.level-1)*.1)*e.type.spdMult;
-    if(spd>maxSpd){e.vx=(e.vx/spd)*maxSpd;e.vy=(e.vy/spd)*maxSpd;}
-    if(e._frozen>0){e._frozen--;} else {e.x+=e.vx;e.y+=e.vy;}
-    const dx=e.x-CX,dy=e.y-CY,dc=Math.hypot(dx,dy);
-    if(dc>boundary){const nx=dx/dc,ny=dy/dc,dot=e.vx*nx+e.vy*ny;e.vx-=2*dot*nx;e.vy-=2*dot*ny;e.x=CX+nx*(boundary-2);e.y=CY+ny*(boundary-2);}
-
-    // Expire powerup after totalLife
-    if(e.type.isPowerup&&e.totalLife!==undefined&&e.life>e.totalLife){
-      G.enemies.splice(ei,1);continue;
-    }
-  }
-  const _spActive=G.frameCount<120||G.spawnShield>0;
-  if(G.invincible>0){G.invincible--;}
-  else if(_spActive){if(G.spawnShield>0)G.spawnShield--;} // spawn protection
-  else{
-    const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13;
-    for(let i=G.enemies.length-1;i>=0;i--){
-      const e=G.enemies[i];
-      if(e.type.isPowerup){
-        // Power-up collection — wider pickup radius
-        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.2:1)*(getOrbPower()==='harvest'?1.6:1);
-        if(Math.hypot(px-e.x,py-e.y)<_collectR){
-          G.enemies.splice(i,1);
-          applyPowerup(e.type.key,px,py);
-          onFirstPowerup(e.type.key);
-        }
-        // (expire handled in update loop)
-        continue;
-      }
-      const _prec=getOrbPower()==='precision'?0.8:1;
-      const eHitR=hitR*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1)*_prec;
-      const _elegR=hitR*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1)*1.15;
-      const _dist=Math.hypot(px-e.x,py-e.y);
-      // Near miss elegance zone
-      if(_dist<_elegR*1.25&&_dist>eHitR&&getOrbPower()==='elegance'){
-        if(!e._elegNM){e._elegNM=true;orbPowerOnNearMiss();}
-      } else {e._elegNM=false;}
-      if(_dist<eHitR){registerHit(px,py,e);G.enemies.splice(i,1);spawnEnemy(false);break;}
-    }
-  }
-
-  // Active powerup countdown
-  if(G.activePowerup){
-    G.activePowerup.timer--;
-    if(G.activePowerup.timer<=0){
-      clearPowerup();
-    }
-  }
-  for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.vx*=.98;p.life--;if(p.life<=0)G.particles.splice(i,1);}
-  for(let i=G.rings.length-1;i>=0;i--){const r=G.rings[i];r.r+=r.grow||6;r.alpha-=.028;if(r.alpha<=0)G.rings.splice(i,1);}
-  for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=9;s.alpha-=.022;if(s.alpha<=0)G.shockwaves.splice(i,1);}
-  if(G.shaking>0)G.shaking--;
-  // Adaptive
-  if(G.adapt){
-    G.adapt.framesSinceTap++;
-    if(G.adapt.framesSinceTap>120)G.speed=Math.max(G.speed*.999,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL*.7);
-    const px2=CX+Math.cos(G.angle)*ORBIT_R,py2=CY+Math.sin(G.angle)*ORBIT_R;
-    let nearCount=0;
-    for(const e of G.enemies){
-      const d=Math.hypot(px2-e.x,py2-e.y);
-      if(d<ORBIT_R*.22)nearCount++;
-      const hitR2=ORBIT_R*.13*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1);
-      if(d>hitR2&&d<hitR2*2.4&&!e._nm){
-        e._nm=true;
-        G.nearMissStreak=(G.nearMissStreak||0)+1;
-        G._lastNearMissFrame=G.frameCount;
-        orbPowerOnNearMiss();
-        onFirstNearMiss();
-        const sa=Math.atan2(py2-e.y,px2-e.x);
-        for(let k=0;k<6;k++){const a2=sa+(.5-Math.random())*1.2;G.particles.push({x:px2,y:py2,vx:Math.cos(a2)*3,vy:Math.sin(a2)*3,life:18,color:'#ffee44',r:1.5});}
-        if(G.nearMissStreak>=3){showMsg('🔥 NEAR MISS x'+G.nearMissStreak,'#ffee44');if(G.nearMissStreak%3===0)G.score+=G.nearMissStreak*2;}
-        const angle2=Math.atan2(py2-e.y,px2-e.x);
-        sndNearMiss(600+Math.cos(angle2)*200+(G.nearMissStreak||1)*40);
-      } else if(d>hitR2*3){e._nm=false;}
-    }
-    G.adapt.nearMissAccum=(G.adapt.nearMissAccum||0)+nearCount;
-    if(G.frameCount%180===0){if(G.adapt.nearMissAccum<3)G.speed=Math.min(G.speed*1.008,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL*1.3+1.5);else if(G.adapt.nearMissAccum>15)G.speed=Math.max(G.speed*.994,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL*.8);G.adapt.nearMissAccum=0;}
-    const anyClose=G.enemies.some(e=>Math.hypot(px2-e.x,py2-e.y)<ORBIT_R*.3);
-    if(anyClose!==G.adapt.wasClose){G.adapt.wasClose=anyClose;const dr=document.getElementById('dangerRing');const sz=ORBIT_R*2.2;dr.style.width=sz+'px';dr.style.height=sz+'px';dr.style.marginLeft=(-sz/2)+'px';dr.style.marginTop=(-sz/2)+'px';dr.classList.toggle('active',anyClose);}
-  }
-  tutUpdate();
-  if(audioCtx)setAmbientTension(G.level);
-  scoreValEl.textContent=G.score;
-  enemyCountEl.textContent=G.enemies.length;
-  // Record replay frame every 2 frames for performance
-  if(G.frameCount%2===0) recordReplayFrame();
-}
-
-// ══════════════════════════════════════
-//  SPAWN
-// ══════════════════════════════════════
-function spawnEnemy(scattered){
-  const type=pickEnemyType(G.level);let x,y;
-  if(scattered){const a=Math.random()*Math.PI*2,r=ORBIT_R*(.5+Math.random()*.6);x=CX+Math.cos(a)*r;y=CY+Math.sin(a)*r;}
-  else{const a=Math.random()*Math.PI*2,r=ORBIT_R*(1.28+Math.random()*.35);x=CX+Math.cos(a)*r;y=CY+Math.sin(a)*r;}
-  const toC=Math.atan2(CY-y,CX-x),dir=toC+(Math.random()-.5)*Math.PI*1.1,spd=(.7+Math.random()*.9+(G.level-1)*.08)*type.spdMult;
-  G.enemies.push({x,y,vx:Math.cos(dir)*spd,vy:Math.sin(dir)*spd,life:0,pulsePhase:Math.random()*Math.PI*2,driftX:(Math.random()-.5)*.018,driftY:(Math.random()-.5)*.018,type});
-}
-
-// ══════════════════════════════════════
-//  SPAWN POWERUP
-// ══════════════════════════════════════
-function spawnPowerup(type){
-  if(G&&G._noPowerup)return; // Event: no powerups
-  const a=Math.random()*Math.PI*2,r=ORBIT_R*(1.3+Math.random()*.3);
-  const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
-  const toC=Math.atan2(CY-y,CX-x),dir=toC+(Math.random()-.5)*Math.PI*.6;
-  const spd=.5+Math.random()*.5;
-  G.enemies.push({x,y,vx:Math.cos(dir)*spd,vy:Math.sin(dir)*spd,life:0,
-    pulsePhase:Math.random()*Math.PI*2,
-    driftX:(Math.random()-.5)*.012,driftY:(Math.random()-.5)*.012,
-    type,totalLife:720});
-}
-
-// ══════════════════════════════════════
-//  ZIGZAG WAVE SPAWNER
-// ══════════════════════════════════════
-function spawnZigzagWave(){
-  if(!G.running) return;
-  // Spawn 3 sfere zigzag in sequenza con breve delay
-  const variants=[
-    {startSide:'left',  dir:'down'},
-    {startSide:'top',   dir:'right'},
-    {startSide:'right', dir:'down'},
-  ];
-  // Scegli una variante a caso
-  const v=variants[Math.floor(Math.random()*variants.length)];
-  spawnZigzag(v.startSide, v.dir, 0);
-  // Alle difficoltà maggiori ne manda 2-3 in sequenza
-  const count=G.level>=20?3:G.level>=10?2:1;
-  for(let i=1;i<count;i++) setTimeout(()=>{ if(G.running) spawnZigzag(v.startSide,v.dir,i); }, i*600);
-  // Avvisa il giocatore
-  G.survivedZigzag=false;
-  showMsg('⚡ ZAP INCOMING!','#ffaa00');
-  flashScreen('rgba(255,170,0,0.1)');
-  sndZigzag();
-  haptic([20,15,20,15,40]);
-}
-
-function spawnZigzag(startSide, mainDir, index){
-  const type=ENEMY_TYPES[6]; // zigzag type
-  const zigAmp = ORBIT_R * (.55 + Math.random()*.3);  // ampiezza zig
-  const speed  = 2.8 + (G.level-10)*.15 + Math.random()*.5; // velocità trasversale
-  const zigFreq= .045 + Math.random()*.02;  // frequenza oscillazione
-
-  let x,y,vx,vy;
-  // Offset laterale per non partire sempre dallo stesso punto
-  const off=(index-.5)*ORBIT_R*.6;
-
-  if(startSide==='left'){
-    x=-30; y=CY+off;
-    vx=speed; vy=0;
-  } else if(startSide==='right'){
-    x=W+30; y=CY+off;
-    vx=-speed; vy=0;
-  } else { // top
-    x=CX+off; y=-30;
-    vx=0; vy=speed;
-  }
-
-  G.enemies.push({
-    x,y,vx,vy,
-    life:0,
-    pulsePhase:Math.random()*Math.PI*2,
-    driftX:0,driftY:0,
-    type,
-    // Zigzag params
-    zigAmp, zigFreq,
-    mainDir,   // 'right','left','down'
-    startSide,
-    isZigzag:true,
-    baseX:x, baseY:y,  // per calcolo zig relativo
-    zigPhase: index*Math.PI*.7, // sfasamento tra sfere multiple
-  });
-}
-
-// ══════════════════════════════════════
-//  POWERUP LOGIC
-// ══════════════════════════════════════
-function applyPowerup(key, px, py){
-  const DURATION=(getOrbPower()==='rainbow_power'?2:1)*60*60;
-  // Rimuovi eventuale powerup precedente
-  if(G.activePowerup) clearPowerup();
-
-  if(key==='boost'){
-    G.activePowerup={key,timer:DURATION,savedSpeed:null};
-    G.speed = Math.min(G.speed * 1.5, BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL + 5); // boost moderato
-    showMsg('⚡ SPEED BOOST!','#00ffaa');
-    flashScreen('rgba(0,255,170,0.18)');
-    sndBoost();
-    haptic([15,10,15,10,30]);
-  } else if(key==='slow'){
-    const _siesta=getOrbPower()==='siesta'?3:1;
-    G.activePowerup={key,timer:DURATION*_siesta,savedSpeed:G.speed};
-    G.speed = Math.max(0.4, G.speed * 0.18);
-    showMsg('🔮 ULTRA SLOW!','#8833ff');
-    flashScreen('rgba(136,51,255,0.18)');
-    sndSlow();
-    haptic([50,30,80]);
-  } else if(key==='shield'){
-    const SHIELD_DUR=15*60; // 15 secondi
-    G.activePowerup={key,timer:SHIELD_DUR,savedSpeed:null};
-    G.shieldActive=true;
-    showMsg('🛡 SCUDO ATTIVO!','#44aaff');
-    flashScreen('rgba(68,170,255,0.22)');
-    sndShield();
-    haptic([20,10,20,10,60]);
-  }
-
-  // Particelle colorate
-  const col=key==='boost'?'#00ffaa':key==='shield'?'#44aaff':'#aa66ff';
-  for(let i=0;i<25;i++){
-    const a=Math.random()*Math.PI*2,sp=Math.random()*5+1;
-    G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:50,color:col,r:Math.random()*3+1});
-  }
-  for(let i=0;i<3;i++) G.rings.push({x:px,y:py,r:i*8,alpha:.7,color:col,grow:7+i*2});
-}
-
-function clearPowerup(){
-  if(!G.activePowerup)return;
-  const key=G.activePowerup.key;
-  if(key==='boost'){
-    G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-  } else if(key==='slow'){
-    G.speed = G.activePowerup.savedSpeed||BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-  } else if(key==='shield'){
-    G.shieldActive=false;
-    showMsg('🛡 SCUDO ESAURITO','#44aaff');
-    flashScreen('rgba(68,170,255,0.1)');
-  }
-  sndPowerupEnd();
-  G.activePowerup=null;
-}
-
-// ══════════════════════════════════════
-//  HIT
-// ══════════════════════════════════════
-function registerHit(px,py,e){
-  // Potere orb: verifica se il colpo viene assorbito
-  if(orbPowerOnHit()) return;
-  // Scudo attivo: nessun danno, rimbalzo visivo
-  if(G.shieldActive){
-    flashScreen('rgba(68,170,255,0.1)');
-    G.rings.push({x:px,y:py,r:0,alpha:1,color:'#44aaff',grow:12});
-    for(let i=0;i<15;i++){
-      const a=Math.random()*Math.PI*2,sp=Math.random()*5+2;
-      G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:30,color:'#44aaff',r:Math.random()*3+1});
-    }
-    sndShieldHit();haptic([10,5,10]);
-    return; // nessun danno
-  }
-  G.lives--;G.shaking=24;G.invincible=48;G.spawnShield=120;updateLivesUI();
-  for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*3+1;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:55+Math.random()*20,color:i<16?'#ff2244':'#ff6633',r:Math.random()*4+1.5});}
-  for(let i=0;i<12;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*3+.5;G.particles.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:35,color:'#ff8866',r:Math.random()*3+1});}
-  G.rings.push({x:px,y:py,r:0,alpha:.85,color:'#ff2244',grow:10});
-  flashScreen('rgba(255,34,68,0.22)');
-  showMsg(G.lives===2?'CLOSE!':G.lives===1?'LAST LIFE!':'',G.lives===1?'#ff2244':'#ff6633');
-  if(G.lives<=1)sndLastLife();else sndHit();
-  haptic([40,20,60]);
-  if(G.lives<=0){
-    G.running=false;
-    G.deathX=px;G.deathY=py;G.deathZoom=1;G.deathFrame=0;
-    for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*10+2;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:100+Math.random()*40,color:['#ffe566','#ff2244','#4af0d0','#ff6633','#ffffff'][i%5],r:Math.random()*6+2});}
-    sndDie();haptic([80,30,80,30,120]);
-    // Cinematic death: 2s zoom-out + fade
-    document.getElementById('c').style.display='block';
-    (function deathAnim(){
-      if(G.deathFrame<120){
-        G.deathFrame++;G.deathZoom=1+G.deathFrame*.012;
-        for(let i=G.particles.length-1;i>=0;i--){
-          const p=G.particles[i];p.x+=p.vx*.35;p.y+=p.vy*.35;p.vy+=.025;p.life-=.65;
-          if(p.life<=0)G.particles.splice(i,1);
-        }
-        ctx.clearRect(0,0,W,H);drawBg();
-        ctx.save();ctx.translate(CX,CY);ctx.scale(G.deathZoom,G.deathZoom);ctx.translate(-CX,-CY);
-        drawParticles();drawCenter();ctx.restore();
-        if(G.deathFrame>75){ctx.fillStyle=`rgba(3,3,10,${((G.deathFrame-75)/45)*.92})`;ctx.fillRect(0,0,W,H);}
-        requestAnimationFrame(deathAnim);
-      } else {stopGameMusic();endGame();}
-    })();
-  }
-}
-
-function levelBump(){
-  const isMajor=G.level%10===0;
-  for(let i=0;i<(isMajor?5:3);i++)setTimeout(()=>G.shockwaves.push({r:0,alpha:.15}),i*110);
-  flashScreen(isMajor?'rgba(255,100,30,0.08)':'rgba(255,229,102,0.06)');
-  for(let i=0;i<(isMajor?20:8);i++){
-    const a=Math.random()*Math.PI*2,sp=Math.random()*(isMajor?8:4)+2;
-    G.particles.push({x:CX,y:CY,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:isMajor?80:45,color:isMajor?['#ff6633','#ff2244','#ffe566'][i%3]:'#ffe566',r:Math.random()*(isMajor?4:2.5)+1.5});
-  }
-  showMsg(isMajor?'🔥 LEVEL '+G.level+' 🔥':'LEVEL '+G.level,isMajor?'#ff8844':'#ffe566');
-  levelValEl.classList.add('bump');setTimeout(()=>levelValEl.classList.remove('bump'),420);
-  updateLevelUI();sndLevelUp(isMajor);haptic(isMajor?[30,15,30,15,60]:[20,10,20,10,40]);
-  if(isMajor)setTimeout(spawnZigzagWave,1200);
-  G.nearMissStreak=0;
-}
-
-// ══════════════════════════════════════
-//  DRAW
-// ══════════════════════════════════════
-function draw(){
-  if(!G||!G.running)return;
-  ctx.clearRect(0,0,W,H);
-  if(G.shaking>0){const i=G.shaking*.4;ctx.save();ctx.translate((Math.random()-.5)*i,(Math.random()-.5)*i);}
-  drawBg();drawShockwaves();drawRings();drawTrail();drawEnemies();drawPlayer();drawParticles();drawCenter();drawPowerupHUD();drawOrbPowerHUD();drawBranding();
-  if(G.shaking>0)ctx.restore();
-}
-let _stars=null;
-function getStars(){if(!_stars)_stars=Array.from({length:110},()=>({x:Math.random()*3000,y:Math.random()*3000,r:Math.random()*1.4+.2,a:Math.random()*.65+.05,tw:Math.random()*Math.PI*2}));return _stars;}
-function drawBranding(){
-  // Branding in basso al centro — visibile ma non invasivo
-  ctx.save();
-  ctx.globalAlpha=.4;
-  ctx.fillStyle='#4af0d0';
-  ctx.font='600 10px Rajdhani,sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('by MOMI DIGITAL LABS',CX,H-20);
-  ctx.globalAlpha=.25;
-  ctx.fillStyle='rgba(200,220,255,1)';
-  ctx.font='500 8px Rajdhani,sans-serif';
-  ctx.fillText('A project by Momi Studio — Step by Step',CX,H-8);
-  ctx.restore();
-}
-function drawBg(){
-  const t=Date.now()/1000;
-  const hue=G.level?(30*(G.level-1))%360:200;
-  const sat=G.level?Math.min(60,20+(G.level*3)):20;
-  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,Math.max(W,H)*.85);
-  g.addColorStop(0,`hsla(${hue},${sat}%,8%,1)`);
-  g.addColorStop(.5,`hsla(${(hue+30)%360},${sat*.6}%,4%,1)`);
-  g.addColorStop(1,'rgba(1,1,4,1)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.save();
-  [[CX*.6,CY*.7],[CX*1.4,CY*1.3],[CX,CY*.4]].forEach(([nx,ny],i)=>{
-    const drift=Math.sin(t*.08+i*2.1)*40;
-    const ng=ctx.createRadialGradient(nx+drift,ny,0,nx+drift,ny,Math.min(W,H)*.45);
-    ng.addColorStop(0,`hsla(${(hue+i*40)%360},50%,15%,0.16)`);
-    ng.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=ng;ctx.fillRect(0,0,W,H);
-  });
-  ctx.restore();
-  ctx.save();
-  for(const s of getStars()){ctx.globalAlpha=s.a*(.6+.4*Math.sin(t*1.4+s.tw));ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x%W,s.y%H,s.r,0,Math.PI*2);ctx.fill();}
-  const sSeed=Math.floor(t/8);
-  const ssRng=(n)=>{let x=Math.sin(n*9301+49297)*233280;return x-Math.floor(x);};
-  const ssT=(t%8)/8;
-  if(ssT<.12){
-    const sx=ssRng(sSeed)*W,sy=ssRng(sSeed+1)*H*.5,len=120*ssT/.12,alpha=ssT<.06?ssT/.06:1-(ssT-.06)/.06;
-    ctx.globalAlpha=alpha*.7;
-    const sg=ctx.createLinearGradient(sx,sy,sx+len*.7,sy+len*.3);
-    sg.addColorStop(0,'rgba(255,255,255,0)');sg.addColorStop(1,'rgba(255,255,255,.8)');
-    ctx.strokeStyle=sg;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+len*.7,sy+len*.3);ctx.stroke();
-  }
-  ctx.globalAlpha=1;ctx.restore();
-  const v=ctx.createRadialGradient(CX,CY,ORBIT_R*.3,CX,CY,Math.max(W,H)*.72);
-  v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.6)');
-  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
-  if(G.lives===1){
-    const dp=ctx.createRadialGradient(CX,CY,ORBIT_R,CX,CY,Math.max(W,H));
-    dp.addColorStop(0,'rgba(0,0,0,0)');dp.addColorStop(1,`rgba(255,0,30,${(.5+.5*Math.sin(t*4))*.18})`);
-    ctx.fillStyle=dp;ctx.fillRect(0,0,W,H);
-  }
-}
-function drawCenter(){
-  const t=Date.now()/1000;
-  const beat=.5+.5*Math.pow(Math.abs(Math.sin(t*Math.PI*2)),8);
-  const p=1+beat*.22;
-  const col=G.lives===1?'255,34,68':G.lives===2?'255,136,0':'74,240,208';
-  const field=ctx.createRadialGradient(CX,CY,0,CX,CY,38*p);
-  field.addColorStop(0,`rgba(${col},.07)`);field.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=field;ctx.beginPath();ctx.arc(CX,CY,38*p,0,Math.PI*2);ctx.fill();
-  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,16*p);
-  g.addColorStop(0,`rgba(${col},.75)`);g.addColorStop(.6,`rgba(${col},.2)`);g.addColorStop(1,`rgba(${col},0)`);
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(CX,CY,16*p,0,Math.PI*2);ctx.fill();
-  ctx.save();
-  ctx.strokeStyle=`rgba(${col},${.05+beat*.04})`;ctx.lineWidth=1;
-  ctx.setLineDash([4,16]);ctx.lineDashOffset=-t*18;
-  ctx.beginPath();ctx.arc(CX,CY,ORBIT_R,0,Math.PI*2);ctx.stroke();
-  ctx.setLineDash([]);ctx.restore();
-  ctx.fillStyle='rgba(220,245,255,.95)';ctx.beginPath();ctx.arc(CX,CY,2.5,0,Math.PI*2);ctx.fill();
-}
-function drawTrail(){
-  const r0=ORBIT_R*.072;
-  for(let i=0;i<G.trails.length;i++){const t=G.trails[i],ratio=i/G.trails.length;ctx.save();ctx.globalAlpha=ratio*.32;ctx.fillStyle='#4af0d0';ctx.beginPath();ctx.arc(t.x,t.y,r0*ratio*.88,0,Math.PI*2);ctx.fill();ctx.restore();}
-}
-function drawPlayer(){
-  const x=CX+Math.cos(G.angle)*ORBIT_R,y=CY+Math.sin(G.angle)*ORBIT_R,r=ORBIT_R*.072;
-  // Spawn protection: anello visivo primi 2 secondi
-  const _spVis=G&&(G.frameCount<120||(G.spawnShield>0));
-  if(_spVis){const _a=G.spawnShield>0?(G.spawnShield/120):Math.max(0,1-G.frameCount/120);ctx.save();ctx.globalAlpha=_a*.5;ctx.strokeStyle='#4af0d0';ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(x,y,r+10,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
-  if(G.invincible>0&&Math.floor(G.invincible/5)%2===0){ctx.save();ctx.globalAlpha=.28;}
-  const orb=getOrb(selectedOrbId);
-  // Aura
-  const aura=ctx.createRadialGradient(x,y,0,x,y,r*4.5);aura.addColorStop(0,'rgba(74,240,208,.25)');aura.addColorStop(1,'rgba(74,240,208,0)');ctx.save();ctx.fillStyle=aura;ctx.beginPath();ctx.arc(x,y,r*4.5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(74,240,208,.3)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r*1.65,0,Math.PI*2);ctx.stroke();
-  ctx.restore();
-  // Draw selected orb
-  orb.draw(ctx,x,y,r);
-  if(G.invincible>0&&Math.floor(G.invincible/5)%2===0)ctx.restore();
-
-  // Scudo visivo — anello azzurro pulsante attorno alla sfera
-  if(G.shieldActive){
-    const pulse=.5+.5*Math.sin(Date.now()*.008);
-    const shieldR=r*1.6;
-    ctx.save();
-    // Alone
-    const sg=ctx.createRadialGradient(x,y,r,x,y,shieldR*1.5);
-    sg.addColorStop(0,'rgba(68,170,255,'+(0.3*pulse)+')');
-    sg.addColorStop(1,'rgba(68,170,255,0)');
-    ctx.fillStyle=sg;ctx.beginPath();ctx.arc(x,y,shieldR*1.5,0,Math.PI*2);ctx.fill();
-    // Anello principale
-    ctx.strokeStyle='rgba(100,200,255,'+(0.7+0.3*pulse)+')';
-    ctx.lineWidth=r*.16;
-    ctx.shadowColor='#44aaff';ctx.shadowBlur=14*pulse;
-    ctx.beginPath();ctx.arc(x,y,shieldR,0,Math.PI*2);ctx.stroke();
-    // Esagono ruotante interno
-    ctx.strokeStyle='rgba(200,235,255,'+(0.25+0.15*pulse)+')';
-    ctx.lineWidth=r*.07;ctx.shadowBlur=0;
-    ctx.save();ctx.translate(x,y);ctx.rotate(Date.now()*.0012);
-    ctx.beginPath();
-    for(let i=0;i<6;i++){
-      const a=(i/6)*Math.PI*2;
-      i===0?ctx.moveTo(Math.cos(a)*shieldR*.8,Math.sin(a)*shieldR*.8)
-           :ctx.lineTo(Math.cos(a)*shieldR*.8,Math.sin(a)*shieldR*.8);
-    }
-    ctx.closePath();ctx.stroke();
-    ctx.restore();
-    ctx.restore();
-  }
-}
-function drawEnemies(){
-  for(const e of G.enemies){
-    const x=e.x,y=e.y,t=e.type,r=ORBIT_R*t.rMult*(1+.11*Math.sin(e.life*.17+e.pulsePhase));
-    const alpha=e.life<20?e.life/20:1,finalAlpha=t.key==='ghost'?alpha*(.5+.5*Math.sin(e.life*.08+e.pulsePhase)):alpha;
-    ctx.save();ctx.globalAlpha=finalAlpha;
-    const h=ctx.createRadialGradient(x,y,0,x,y,r*t.haloR);h.addColorStop(0,t.haloCols[0]);h.addColorStop(.5,t.haloCols[1]);h.addColorStop(1,t.haloCols[2]);ctx.fillStyle=h;ctx.beginPath();ctx.arc(x,y,r*t.haloR,0,Math.PI*2);ctx.fill();
-    const c=ctx.createRadialGradient(x-r*.3,y-r*.35,0,x,y,r);c.addColorStop(0,t.color0);c.addColorStop(.3,t.color1);c.addColorStop(1,t.color2);ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='rgba(255,220,210,.5)';ctx.beginPath();ctx.arc(x-r*.28,y-r*.3,r*.24,0,Math.PI*2);ctx.fill();
-    if(t.key==='fast'&&e.life>3){ctx.globalAlpha=finalAlpha*.3;ctx.fillStyle=t.color1;ctx.beginPath();ctx.arc(x-e.vx*3,y-e.vy*3,r*.6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x-e.vx*6,y-e.vy*6,r*.3,0,Math.PI*2);ctx.fill();}
-
-    // Zigzag: scia lunga + bordo lampeggiante arancione
-    if(e.isZigzag){
-      // Scia zigzag (5 ghost)
-      for(let s=1;s<=5;s++){
-        const st=e.life*e.zigFreq+e.zigPhase-(s*.08);
-        const so=Math.sin(st)*e.zigAmp;
-        let gx,gy;
-        if(e.mainDir==='down'||e.startSide==='top'){
-          gy=e.y-s*((e.vy||2.8+(G.level-10)*.12)*1.1);gx=e.baseX+so;
-        } else {
-          gx=e.x-s*(e.vx*1.1);gy=e.baseY+so;
-        }
-        ctx.globalAlpha=finalAlpha*((5-s)/5)*.35;
-        ctx.fillStyle='#ffaa00';
-        ctx.beginPath();ctx.arc(gx,gy,r*(.9-s*.1),0,Math.PI*2);ctx.fill();
-      }
-      // Bordo lampeggiante
-      const blink=.6+.4*Math.sin(e.life*.25);
-      ctx.globalAlpha=finalAlpha*blink*.8;
-      ctx.strokeStyle='#ffdd44';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.arc(x,y,r*1.2,0,Math.PI*2);ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-}
-function drawParticles(){for(const p of G.particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle=p.color;ctx.shadowBlur=6;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}}
-function drawRings(){for(const r of G.rings){ctx.save();ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
-function drawShockwaves(){for(const s of G.shockwaves){ctx.save();ctx.globalAlpha=s.alpha;ctx.strokeStyle=`rgba(255,229,102,${s.alpha})`;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
-
-// ══════════════════════════════════════
-//  POWERUP HUD
-// ══════════════════════════════════════
-function drawOrbPowerHUD(){
-  const orb=getOrb(selectedOrbId);
-  if(!orb) return;
-  ctx.save();
-
-  // ── Barra stato poteri attivi (bottom left) ──
-  const bx=14, by=H-68;
-  const items=[];
-
-  // Potere sfera
-  if(orb.power&&orb.power!=='none'){
-    items.push({icon:'⚡',label:orb.powerDesc.slice(0,22)+(orb.powerDesc.length>22?'…':''),color:'#4af0d0'});
-  }
-  // Nova shield rimanenti
-  if((G.novaHits||0)>0){
-    items.push({icon:'🌟'.repeat(G.novaHits),label:'Nova Shield',color:'#7ec8ff'});
-  }
-  // Weekly multiplier
-  const wm=getWeeklyMultiplier();
-  if(wm>1) items.push({icon:'⚡',label:'x'+wm+' score',color:'var(--gold)'});
-
-  if(items.length===0){ctx.restore();return;}
-
-  // Disegna badge compatto
-  let iy=by;
-  items.forEach(item=>{
-    const text=item.label;
-    const tw=Math.min(text.length*5.2+28,200);
-    ctx.globalAlpha=.72;
-    ctx.fillStyle='rgba(0,0,0,.6)';
-    ctx.beginPath();ctx.roundRect(bx,iy-12,tw,16,3);ctx.fill();
-    ctx.globalAlpha=.9;
-    ctx.fillStyle=item.color;
-    ctx.font='600 9px Rajdhani,sans-serif';
-    ctx.textAlign='left';ctx.textBaseline='middle';
-    ctx.fillText(item.icon+' '+text,bx+5,iy-4);
-    iy-=20;
-  });
-
-  // ── Indicatore vite Nova sopra i cuori se attivo ──
-  if((G.novaHits||0)>0){
-    const nx=W-14, ny=56;
-    for(let i=0;i<G.novaHits;i++){
-      ctx.globalAlpha=.8;
-      ctx.fillStyle='#7ec8ff';
-      ctx.font='10px serif';
-      ctx.textAlign='right';
-      ctx.fillText('🛡',nx-i*14,ny);
-    }
-  }
-
-  ctx.restore();
-}
-function drawPowerupHUD(){
-  // Icona power-up attivo sulla sfera
-  if(G.powerup){
-    const px2=CX+Math.cos(G.angle)*ORBIT_R;
-    const py2=CY+Math.sin(G.angle)*ORBIT_R;
-    const icons={boost:'⚡',slow:'🔮',shield:'🛡'};
-    const icon=icons[G.powerup]||'';
-    if(icon){
-      ctx.save();
-      ctx.font='16px serif';
-      ctx.textAlign='center';
-      ctx.globalAlpha=0.9;
-      const bounce=Math.sin(G.frameCount*.15)*3;
-      ctx.fillText(icon,px2,py2-ORB_R-18+bounce);
-      ctx.restore();
-    }
-  }
-
-  if(!G.activePowerup)return;
-  const pu=G.activePowerup;
-  const secsLeft=Math.ceil(pu.timer/60);
-  const FULL_DUR=pu.key==='shield'?30*60:60*60;
-  const ratio=pu.timer/FULL_DUR;
-  const col=pu.key==='boost'?'#00ffaa':pu.key==='shield'?'#44aaff':'#aa66ff';
-  const label=pu.key==='boost'?'⚡ BOOST':pu.key==='shield'?'🛡 SCUDO':'🔮 SLOW';
-
-  // Bar position: just below survival bar
-  const bx=CX,by=H-88,bw=Math.min(200,W*.55),bh=4;
-  ctx.save();
-
-  // Pulsing glow
-  const pulse=.6+.4*Math.sin(Date.now()*.006);
-  ctx.shadowBlur=10*pulse;ctx.shadowColor=col;
-
-  // Background bar
-  ctx.globalAlpha=.25;ctx.fillStyle=col;
-  ctx.beginPath();ctx.roundRect(bx-bw/2,by,bw,bh,2);ctx.fill();
-
-  // Fill bar
-  ctx.globalAlpha=.9;ctx.fillStyle=col;
-  ctx.beginPath();ctx.roundRect(bx-bw/2,by,bw*ratio,bh,2);ctx.fill();
-
-  // Label + seconds
-  ctx.globalAlpha=.9;ctx.shadowBlur=8;ctx.fillStyle=col;
-  ctx.font=`700 11px Rajdhani, sans-serif`;ctx.textAlign='center';ctx.letterSpacing='2px';
-  ctx.fillText(`${label}  ${secsLeft}s`,bx,by-5);
-
-  ctx.restore();
-}
-
-// ══════════════════════════════════════
-//  MENU BG DRAW (solo sfondo, no sfere)
-// ══════════════════════════════════════
-function drawMenuBg(){
-  ctx.clearRect(0,0,W,H);
-  // Sfondo gradiente scuro
-  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,Math.max(W,H));
-  g.addColorStop(0,'rgba(4,6,18,1)');g.addColorStop(1,'rgba(2,2,8,1)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  // Stelle twinkle
-  const t=Date.now()/1000;
-  ctx.save();
-  for(const s of getStars()){
-    ctx.globalAlpha=s.a*(.5+.5*Math.sin(t*1.2+s.tw));
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(s.x%W,s.y%H,s.r*.8,0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;ctx.restore();
-}
-
-// ══════════════════════════════════════
-//  IDLE DRAW (usato solo in drawMenuBg ora)
-// ══════════════════════════════════════
-function drawIdle(){
-  if(!W||!H||!ORBIT_R)return; // canvas non ancora inizializzato
-  ctx.clearRect(0,0,W,H);
-  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,Math.max(W,H)*.75);
-  g.addColorStop(0,'rgba(5,8,22,1)');g.addColorStop(1,'rgba(2,2,7,1)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  const t=Date.now()/1000;
-  ctx.save();
-  for(const s of getStars()){
-    ctx.globalAlpha=s.a*(.7+.3*Math.sin(t*1.4+s.tw));
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x%W,s.y%H,s.r,0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;ctx.restore();
-  const ax=t*1.1,ox=CX+Math.cos(ax)*ORBIT_R,oy=CY+Math.sin(ax)*ORBIT_R,rr=ORBIT_R*.072;
-  for(let i=1;i<=12;i++){
-    const ta=ax-i*.065;
-    ctx.save();ctx.globalAlpha=((12-i)/12)*.2;ctx.fillStyle='#4af0d0';
-    ctx.beginPath();ctx.arc(CX+Math.cos(ta)*ORBIT_R,CY+Math.sin(ta)*ORBIT_R,rr*(1-i/14),0,Math.PI*2);ctx.fill();ctx.restore();
-  }
-  const aura=ctx.createRadialGradient(ox,oy,0,ox,oy,rr*4);
-  aura.addColorStop(0,'rgba(74,240,208,.28)');aura.addColorStop(1,'rgba(74,240,208,0)');
-  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(ox,oy,rr*4,0,Math.PI*2);ctx.fill();
-  getOrb(selectedOrbId).draw(ctx,ox,oy,rr);
-  const dg=ctx.createRadialGradient(CX,CY,0,CX,CY,20);
-  dg.addColorStop(0,'rgba(74,240,208,.5)');dg.addColorStop(1,'rgba(74,240,208,0)');
-  ctx.fillStyle=dg;ctx.beginPath();ctx.arc(CX,CY,20,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='rgba(200,240,255,.9)';ctx.beginPath();ctx.arc(CX,CY,2.8,0,Math.PI*2);ctx.fill();
-}
-
-// ══════════════════════════════════════
-//  END GAME
-// ══════════════════════════════════════
-async function endGame(){
-  G.running=false;
-  document.getElementById('c').style.display='none';
-  trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
-  const isRec=G.score>bestScore;
-  if(isRec){bestScore=G.score;localStorage.setItem('drift_best',bestScore);}
-  const secs=Math.floor(G.frameCount/60);
-  if(playerName){
-    saveMockLB(playerName,G.score);
-    // Post su Supabase e poi ricarica classifica
-    lbPost(playerName,G.score).then(()=>{
-      setTimeout(()=>loadLB(),2500); // aspetta 2.5s poi aggiorna classifica
-    });
-  }
-  maybeNotifyNearRecord(G.score);
-  // Chiedi permesso notifiche dopo la 3a partita
-  const gp=parseInt(localStorage.getItem('drift_games_played')||'0');
-  if(gp===3&&localStorage.getItem('drift_push_enabled')!=='1'){
-    setTimeout(()=>showPushPrompt(),3000);
-  }
-  setTimeout(()=>isRec?sndNewRecord():sndGameOverNoRecord(),350);
-  recordDailyPlay(G.score);updateStreakDisplay();
-  if(playerName) recordWeeklyScore(G.score);
-  const streak=parseInt(localStorage.getItem('drift_streak')||'0');
-  const weeklyMult=getWeeklyMultiplier();
-  const playerTitle=getPlayerTitle();
-  if(streak>=3){
-    const streakMsgs={3:'🔥 3 giorni!',5:'⚡ 5 giorni!',7:'🏆 7 giorni! Leggenda!',10:'👑 10 GIORNI! INARRESTABILE!',30:'🌟 30 GIORNI — ZIVVE GOD!'};
-    const msg=streakMsgs[streak]||( streak>7?`🏆 ${streak} giorni!`:null);
-    if(msg) setTimeout(()=>showMsg(msg,'#ffe566'),1400);
-  }
-  // Record full stats
-  recordGameStats(G.score,secs,G.level,G.nearMissStreak||0);
-  // Survival leaderboard
-  if(G.survivalMode&&playerName){saveSurvivalLB(playerName,G.score);localStorage.setItem('drift_survival_level',G.level);localStorage.setItem('drift_survival_best',G.score);}
-  // Save zigzag survival
-  if(G.survivedZigzag){const z=parseInt(localStorage.getItem('drift_zigzag')||'0')+1;localStorage.setItem('drift_zigzag',z);}
-  // Save country with score
-  if(playerCountry&&playerName) saveMockLB(playerName,G.score);
-  document.getElementById('goScore').textContent=G.score;
-  document.getElementById('goBest').textContent=bestScore;
-  document.getElementById('goBest').classList.toggle('record',isRec);
-  document.getElementById('recBadge').style.display=isRec?'inline-block':'none';
-  document.getElementById('goTime').textContent=secs+'s';
-  document.getElementById('goLevel').textContent=G.level;
-  // Contesto settimanale
-  const _wlb=await getWeeklyLB();const _myWPos=Array.isArray(_wlb)?_wlb.findIndex(e=>e.name===playerName)+1:0;
-  const _wEl=document.getElementById('goWeeklyCtx');
-  if(_wEl&&_myWPos>0) _wEl.textContent='Posizione settimanale: #'+_myWPos+' di '+_wlb.length;
-  // Messaggio motivazionale
-  const _mot=document.getElementById('goMotivation');
-  if(_mot){
-    const _msgs=['Ancora! Ce la fai!','Stai migliorando 💪','Quasi! Riprova!','Concentrazione — sei pronto!','Una partita ancora? 🎯'];
-    _mot.textContent=_msgs[Math.floor(Math.random()*_msgs.length)];
-  }
-  buildShareCard(G.score,G.level,secs,isRec);
-  // Challenge post-game routing
-  if(CH.mode==='bot_challenge'){ afterBotGame(G.score); show('overOverlay');loadLB();applyLang(); }
-  else if(CH.mode==='survival'){
-    const sb=parseInt(localStorage.getItem('drift_survival_best')||'0');
-    if(G.score>sb){localStorage.setItem('drift_survival_best',G.score);saveSurvivalLB(playerName||'YOU',G.score);}
-    localStorage.setItem('drift_survival_level',G.level);
-    show('overOverlay');loadLB();applyLang();
-  } else if(CH.mode==='event'){ afterEventGame(G.score); show('overOverlay');loadLB();applyLang(); }
-  else if(CH.mode==='async'&&CH.roomCode){ afterAsyncGame(G.score); }
-  else if(CH.mode==='sync'&&CH.roomCode){ clearInterval(CH.hudPoll); updateSyncScore(G.score).then(()=>setTimeout(showSyncResult,1500)); }
-  else if(CH.mode==='tournament'&&CH.roomCode){ afterTourneyRound(G.score); }
-  else { show('overOverlay'); loadLB(); applyLang(); if(!playerName)setTimeout(()=>checkName(()=>{}),600); }
-
-  // Always update sync score every 5s while alive (moved here from loop for perf)
-  if((CH.mode==='sync')&&CH.roomCode) updateSyncScore(G.score);
-}
 
-// ══════════════════════════════════════
-//  LEADERBOARD UI
-// ══════════════════════════════════════
 async function loadLB(){
   try{
-    const statusEl=document.getElementById('lbStatus');
-    if(statusEl) statusEl.textContent=T('loading');
-    const rows=await lbGet(10);
-    console.log('[LB] loadLB rows:', rows?.length, rows?.map(r=>r.name+'='+r.score));
-    const lbEl=document.getElementById('lbRows');
-    if(!lbEl){console.log('[LB] lbRows non trovato nel DOM');return;}
+    const st=document.getElementById('lbStatus');if(st)st.textContent=T('loading');
+    const rows=await lbGet(15);
+    console.log('[LB] loadLB:',rows?.length);
+    const el=document.getElementById('lbRows');if(!el)return;
     renderLB(rows,'lbRows');
-  }catch(e){
-    console.log('[LB] loadLB error:',e);
-  }
+  }catch(e){console.log('[LB] loadLB error:',e);}
 }
 
 /* showLeaderboard_dup_removed */
-function renderLB(rows,cid){const el=document.getElementById(cid);if(!el){console.log('[LB] renderLB: elemento',cid,'non trovato');return;}if(!rows||!rows.length){el.innerHTML=`<div id="lbStatus">Be the first!</div>`;return;}el.innerHTML=rows.map((r,i)=>{const isMe=r.name===playerName;const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';return `<div class="lb-row${isMe?' lb-me':''}"><span class="lb-rank${medal?' '+medal:''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span><span class="lb-name">${r.name}${isMe?' ◀':''}</span><span class="lb-score">${r.score}</span></div>`;}).join('');}
+function renderLB(rows,cid){const el=document.getElementById(cid);if(!el)return;if(!rows||!rows.length){el.innerHTML=`<div id="lbStatus">Be the first!</div>`;return;}el.innerHTML=rows.map((r,i)=>{const isMe=r.name===playerName;const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';return `<div class="lb-row${isMe?' lb-me':''}"><span class="lb-rank${medal?' '+medal:''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span><span class="lb-name">${r.name}${isMe?' ◀':''}</span><span class="lb-score">${r.score}</span></div>`;}).join('');}
 
 // ══════════════════════════════════════
 //  SHARE CARD
@@ -3917,17 +1693,17 @@ function buildShareCard(score,level,secs,isRec){
   const orb=getOrb(selectedOrbId);orb.draw(c,400,190,30);
   c.font='bold 110px Orbitron,monospace';c.fillStyle=isRec?'#ffe566':'#ffffff';if(isRec){c.shadowBlur=40;c.shadowColor='#ffe566';}c.fillText(score,400,310);c.shadowBlur=0;
   c.font='600 20px Rajdhani,sans-serif';c.fillStyle='rgba(200,220,255,.6)';c.fillText(`LEVEL ${level}   ·   ${secs}s   ·   ${playerName||'ZIVVER'}`,400,350);
-  if(isRec){c.font='bold 17px Orbitron,monospace';c.fillStyle='#ffe566';c.shadowBlur=12;c.shadowColor='#ffe566';c.fillText('★ NUOVO RECORD ★',400,385);c.shadowBlur=0;}
+  if(isRec){c.font='bold 17px Orbitron,monospace';c.fillStyle='#ffe566';c.shadowBlur=12;c.shadowColor='#ffe566';c.fillText('★ NEW BEST ★',400,385);c.shadowBlur=0;}
   c.font='500 15px Rajdhani,sans-serif';c.fillStyle='rgba(74,240,208,.5)';c.fillText('Can you beat me? #ZIVVE',400,420);
   c.strokeStyle='rgba(74,240,208,.22)';c.lineWidth=2;c.strokeRect(2,2,796,446);
   document.getElementById('sharePreviewImg').src=sc.toDataURL('image/png');
 }
 function toggleShare(){document.getElementById('shareBox').classList.toggle('show');}
-function downloadShareCard(){const a=document.createElement('a');a.download='zivve-score.png';a.href=shareCanvas.toDataURL('image/png');a.click();}
+function downloadShareCard(){const a=document.createElement('a');a.download='drift-score.png';a.href=shareCanvas.toDataURL('image/png');a.click();}
 function doNativeShare(){
   const secs=Math.floor((G.frameCount||0)/60);
   const txt=`🌌 ZIVVE — ${T('tagline')}\n\nScore: ${G.score} · Level ${G.level} · ${secs}s\nBest: ${bestScore}\n\nCan you beat me? 🔴 #ZIVVE`;
-  if(navigator.share){shareCanvas.toBlob(blob=>{const file=new File([blob],'zivve-score.png',{type:'image/png'});navigator.share({title:'ZIVVE',text:txt,files:[file]}).catch(()=>navigator.share({title:'ZIVVE',text:txt}).catch(()=>{}));});}
+  if(navigator.share){shareCanvas.toBlob(blob=>{const file=new File([blob],'drift-score.png',{type:'image/png'});navigator.share({title:'ZIVVE',text:txt,files:[file]}).catch(()=>navigator.share({title:'ZIVVE',text:txt}).catch(()=>{}));});}
   else if(navigator.clipboard){navigator.clipboard.writeText(txt);const b=document.querySelector('.share-btn:last-child');b.textContent='✅ Copied!';setTimeout(()=>b.textContent=T('shareBtn'),2000);}
 }
 
@@ -4118,7 +1894,7 @@ async function joinAsyncChallenge(){
 }
 
 function copyAsyncLink(){ if(navigator.clipboard) navigator.clipboard.writeText(CH.asyncLink||''); const b=document.querySelector('#asyncResultOverlay .share-btn'); if(b){b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy Link',2000);} }
-function shareAsyncLink(){ if(navigator.share) navigator.share({title:'ZIVVE Challenge',text:`Beat my ZIVVE score! ${CH.asyncLink}`}).catch(()=>{}); else copyAsyncLink(); }
+function shareAsyncLink(){ if(navigator.share) navigator.share({title:'DRIFT Challenge',text:`Beat my DRIFT score! ${CH.asyncLink}`}).catch(()=>{}); else copyAsyncLink(); }
 
 // ══════════════════════════════════════
 //  MODEL 2 — LIVE SYNC DUEL
@@ -4418,35 +2194,100 @@ function countdownThen(cb){
 //  PWA SETUP
 // ══════════════════════════════════════
 (function setupPWA(){
+  // ── Genera icona PNG via canvas ──
+  function makeDriftIcon(size){
+    const cv=document.createElement('canvas');cv.width=cv.height=size;
+    const ctx2=cv.getContext('2d');
+    // Background
+    ctx2.fillStyle='#03030a';ctx2.fillRect(0,0,size,size);
+    // Orbit ring
+    ctx2.strokeStyle='rgba(74,240,208,.3)';ctx2.lineWidth=size*.03;
+    ctx2.setLineDash([size*.05,size*.04]);
+    ctx2.beginPath();ctx2.arc(size/2,size/2,size*.32,0,Math.PI*2);ctx2.stroke();
+    ctx2.setLineDash([]);
+    // Center glow
+    const cg=ctx2.createRadialGradient(size/2,size/2,0,size/2,size/2,size*.2);
+    cg.addColorStop(0,'rgba(74,240,208,.8)');cg.addColorStop(1,'rgba(74,240,208,0)');
+    ctx2.fillStyle=cg;ctx2.beginPath();ctx2.arc(size/2,size/2,size*.2,0,Math.PI*2);ctx2.fill();
+    // Center dot
+    ctx2.fillStyle='rgba(232,244,255,.95)';ctx2.beginPath();ctx2.arc(size/2,size/2,size*.04,0,Math.PI*2);ctx2.fill();
+    // Player orb
+    const ox=size/2+size*.32,oy=size/2;
+    const og=ctx2.createRadialGradient(ox-size*.02,oy-size*.02,0,ox,oy,size*.1);
+    og.addColorStop(0,'#e8f4ff');og.addColorStop(1,'#4af0d0');
+    ctx2.fillStyle=og;ctx2.beginPath();ctx2.arc(ox,oy,size*.1,0,Math.PI*2);ctx2.fill();
+    return cv.toDataURL('image/png');
+  }
 
-  // Manifest e icone: file statici su /manifest.json e /icon-*.png
+  // Manifest con icone PNG reali
+  const iconSizes=[72,96,128,144,152,192,384,512];
+  const icons=iconSizes.map(s=>({src:makeDriftIcon(s),sizes:s+'x'+s,type:'image/png'}));
+  const manifest={
+    name:'ZIVVE — Orbita. Schiva. Sopravvivi.',
+    short_name:'ZIVVE',
+    description:'Il gioco mobile che non riesci a smettere. 45 sfere, sfide settimanali, badge e premi.',
+    start_url:location.href.split('?')[0],
+    display:'standalone',
+    background_color:'#03030a',
+    theme_color:'#4af0d0',
+    orientation:'portrait-primary',
+    categories:['games'],
+    icons
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  document.getElementById('pwaManifest').href=URL.createObjectURL(mBlob);
 
-
-  // ── Service Worker — file esterno /sw.js ──
+  // ── Service Worker completo con push notifications ──
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('/zivve/sw.js')
+    const swCode=`
+const CACHE='zivve-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>{
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(
+    keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+  )));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(caches.match(e.request).then(r=>{
+    if(r)return r;
+    return fetch(e.request).then(res=>{
+      if(res&&res.status===200){
+        const clone=res.clone();
+        caches.open(CACHE).then(c=>c.put(e.request,clone));
+      }
+      return res;
+    }).catch(()=>caches.match('/'));
+  }));
+});
+self.addEventListener('push',e=>{
+  const data=e.data?e.data.json():{};
+  e.waitUntil(self.registration.showNotification(data.title||'ZIVVE',{
+    body:data.body||'Nuovo record da battere!',
+    icon:data.icon||'/icon-192.png',
+    badge:'/icon-72.png',
+    tag:'drift-notif',
+    renotify:true,
+    data:{url:data.url||self.location.origin}
+  }));
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  e.waitUntil(clients.openWindow(e.notification.data.url));
+});
+    `;
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob))
       .then(reg=>{
         window._swReg=reg;
-        // Controlla aggiornamenti ogni 5 minuti
-        setInterval(()=>reg.update(),5*60*1000);
-        // Controlla subito all'apertura
-        reg.update();
-        // Quando SW aggiornato disponibile — ricarica automaticamente
-        reg.addEventListener('updatefound',()=>{
-          const newSW=reg.installing;
-          newSW.addEventListener('statechange',()=>{
-            if(newSW.state==='installed'&&navigator.serviceWorker.controller){
-              // Nuovo SW installato — ricarica silenziosamente
-              console.log('[ZIVVE] Aggiornamento disponibile — ricarico...');
-              window.location.reload();
-            }
-          });
-        });
+        // Controlla aggiornamenti ogni 30 min
+        setInterval(()=>reg.update(),30*60*1000);
       }).catch(()=>{});
-    // Ricarica quando il SW prende il controllo (primo avvio dopo update)
-    navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      window.location.reload();
-    });
   }
 
   // ── Install prompt ──
@@ -4502,7 +2343,7 @@ function showLocalNotification(title, body, delay=0){
     if(window._swReg){
       window._swReg.showNotification(title,{
         body, icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="%2303030a"/><circle cx="32" cy="32" r="10" fill="%234af0d0"/><circle cx="48" cy="32" r="6" fill="%234af0d0" opacity=".8"/></svg>',
-        tag:'zivve', renotify:true, silent:false,
+        tag:'drift', renotify:true, silent:false,
       });
     }
   }, delay);
@@ -4521,7 +2362,7 @@ function scheduleStreakNotifications(){
   const delay=tomorrow20-now;
   const msgs=[
     {t:'🔥 Streak a rischio!',b:`Hai ${streak} giorni di fila — gioca ora per non perderli!`},
-    {t:'⚡ ZIVVE ti aspetta',b:`Record attuale: ${localStorage.getItem('drift_best')||0} pt. Riesci a batterlo?`},
+    {t:'⚡ DRIFT ti aspetta',b:`Record attuale: ${localStorage.getItem('drift_best')||0} pt. Riesci a batterlo?`},
     {t:'🏆 Sfida settimanale',b:'La classifica settimanale si chiude domenica. Scala la vetta!'},
   ];
   const msg=msgs[streak%msgs.length];
@@ -4544,26 +2385,26 @@ function maybeNotifyNearRecord(score){
 //  ACHIEVEMENT SYSTEM
 // ══════════════════════════════════════
 const ACHIEVEMENTS=[
-  {id:'first_game',  icon:'🎮', name:'First Zivve',     desc:'Gioca la tua prima partita',                check:s=>s.gamesPlayed>=1,          prog:s=>[s.gamesPlayed,1]},
-  {id:'survivor_30', icon:'⏱', name:'Sopravvissuto',        desc:'Sopravvivi 30 secondi',                  check:s=>s.bestTime>=30,            prog:s=>[Math.min(s.bestTime,30),30]},
-  {id:'survivor_120',icon:'⌛', name:'Signore del Tempo',       desc:'Sopravvivi 2 minuti',                   check:s=>s.bestTime>=120,           prog:s=>[Math.min(s.bestTime,120),120]},
-  {id:'level_10',    icon:'⚡', name:'Livello 10',        desc:'Raggiungi il livello 10',                      check:s=>s.bestLevel>=10,           prog:s=>[Math.min(s.bestLevel,10),10]},
-  {id:'level_20',    icon:'🔥', name:'Livello 20',        desc:'Raggiungi il livello 20',                      check:s=>s.bestLevel>=20,           prog:s=>[Math.min(s.bestLevel,20),20]},
-  {id:'score_100',   icon:'💯', name:'Centurione',       desc:'Fai 100 punti',                    check:s=>s.bestScore>=100,          prog:s=>[Math.min(s.bestScore,100),100]},
-  {id:'score_500',   icon:'🌟', name:'Star Zivver',    desc:'Fai 500 punti',                    check:s=>s.bestScore>=500,          prog:s=>[Math.min(s.bestScore,500),500]},
-  {id:'score_1000',  icon:'👑', name:'Zivve King',      desc:'Fai 1000 punti',                   check:s=>s.bestScore>=1000,         prog:s=>[Math.min(s.bestScore,1000),1000]},
-  {id:'near_miss_5', icon:'💨', name:'Sfiorato!',      desc:'5 near miss in una partita',       check:s=>s.bestNearMiss>=5,         prog:s=>[Math.min(s.bestNearMiss,5),5]},
-  {id:'near_miss_10',icon:'😱', name:'Sull\'Orlo',  desc:'10 near miss in una partita',      check:s=>s.bestNearMiss>=10,        prog:s=>[Math.min(s.bestNearMiss,10),10]},
-  {id:'streak_3',    icon:'🔥', name:'In Fiamma',         desc:'Gioca 3 giorni di fila',                check:s=>s.streak>=3,               prog:s=>[Math.min(s.streak,3),3]},
-  {id:'streak_7',    icon:'📅', name:'Guerriero',    desc:'Gioca 7 giorni di fila',                check:s=>s.streak>=7,               prog:s=>[Math.min(s.streak,7),7]},
-  {id:'games_10',    icon:'🎯', name:'Dedicato',       desc:'Gioca 10 partite',                       check:s=>s.gamesPlayed>=10,         prog:s=>[Math.min(s.gamesPlayed,10),10]},
-  {id:'games_50',    icon:'🏃', name:'Veterano',         desc:'Gioca 50 partite',                       check:s=>s.gamesPlayed>=50,         prog:s=>[Math.min(s.gamesPlayed,50),50]},
-  {id:'challenge_win',icon:'⚔', name:'Sfidante',     desc:'Vinci una sfida',                     check:s=>s.challengeWins>=1,        prog:s=>[s.challengeWins,1]},
-  {id:'daily_10',    icon:'📆', name:'Abitudine Daily',     desc:'Completa 10 sfide daily',        check:s=>s.dailyPlayed>=10,         prog:s=>[Math.min(s.dailyPlayed,10),10]},
-  {id:'survival_10', icon:'♾', name:'Sopravvissuto Pro',        desc:'Raggiungi livello 10 in Survival',     check:s=>s.survivalBestLevel>=10,   prog:s=>[Math.min(s.survivalBestLevel,10),10]},
-  {id:'orb_buyer',   icon:'🛍', name:'Collezionista',      desc:'Possiedi 5 sfere',                          check:s=>s.orbsOwned>=5,            prog:s=>[Math.min(s.orbsOwned,5),5]},
-  {id:'all_free',    icon:'✨', name:'Spirito Libero',     desc:'Possiedi tutte le sfere gratis',                   check:s=>s.orbsOwned>=3,            prog:s=>[Math.min(s.orbsOwned,3),3]},
-  {id:'zigzag_lived',icon:'⚡', name:'Eroe Zigzag', desc:'Sopravvivi a un\'onda zigzag',              check:s=>s.zigzagSurvived>=1,       prog:s=>[s.zigzagSurvived,1]},
+  {id:'first_game',  icon:'🎮', name:'First Drift',     desc:'Play your first game',                check:s=>s.gamesPlayed>=1,          prog:s=>[s.gamesPlayed,1]},
+  {id:'survivor_30', icon:'⏱', name:'Survivor',        desc:'Survive 30 seconds',                  check:s=>s.bestTime>=30,            prog:s=>[Math.min(s.bestTime,30),30]},
+  {id:'survivor_120',icon:'⌛', name:'Time Lord',       desc:'Survive 2 minutes',                   check:s=>s.bestTime>=120,           prog:s=>[Math.min(s.bestTime,120),120]},
+  {id:'level_10',    icon:'⚡', name:'Ten Deep',        desc:'Reach level 10',                      check:s=>s.bestLevel>=10,           prog:s=>[Math.min(s.bestLevel,10),10]},
+  {id:'level_20',    icon:'🔥', name:'Level 20',        desc:'Reach level 20',                      check:s=>s.bestLevel>=20,           prog:s=>[Math.min(s.bestLevel,20),20]},
+  {id:'score_100',   icon:'💯', name:'Centurion',       desc:'Score 100 points',                    check:s=>s.bestScore>=100,          prog:s=>[Math.min(s.bestScore,100),100]},
+  {id:'score_500',   icon:'🌟', name:'Star Drifter',    desc:'Score 500 points',                    check:s=>s.bestScore>=500,          prog:s=>[Math.min(s.bestScore,500),500]},
+  {id:'score_1000',  icon:'👑', name:'Drift King',      desc:'Score 1000 points',                   check:s=>s.bestScore>=1000,         prog:s=>[Math.min(s.bestScore,1000),1000]},
+  {id:'near_miss_5', icon:'💨', name:'Close Call',      desc:'Get 5 near-misses in one game',       check:s=>s.bestNearMiss>=5,         prog:s=>[Math.min(s.bestNearMiss,5),5]},
+  {id:'near_miss_10',icon:'😱', name:'Living on Edge',  desc:'Get 10 near-misses in one game',      check:s=>s.bestNearMiss>=10,        prog:s=>[Math.min(s.bestNearMiss,10),10]},
+  {id:'streak_3',    icon:'🔥', name:'On Fire',         desc:'Play 3 days in a row',                check:s=>s.streak>=3,               prog:s=>[Math.min(s.streak,3),3]},
+  {id:'streak_7',    icon:'📅', name:'Week Warrior',    desc:'Play 7 days in a row',                check:s=>s.streak>=7,               prog:s=>[Math.min(s.streak,7),7]},
+  {id:'games_10',    icon:'🎯', name:'Dedicated',       desc:'Play 10 games',                       check:s=>s.gamesPlayed>=10,         prog:s=>[Math.min(s.gamesPlayed,10),10]},
+  {id:'games_50',    icon:'🏃', name:'Veteran',         desc:'Play 50 games',                       check:s=>s.gamesPlayed>=50,         prog:s=>[Math.min(s.gamesPlayed,50),50]},
+  {id:'challenge_win',icon:'⚔', name:'Challenger',     desc:'Win a challenge',                     check:s=>s.challengeWins>=1,        prog:s=>[s.challengeWins,1]},
+  {id:'daily_10',    icon:'📆', name:'Daily Habit',     desc:'Complete 10 daily challenges',        check:s=>s.dailyPlayed>=10,         prog:s=>[Math.min(s.dailyPlayed,10),10]},
+  {id:'survival_10', icon:'♾', name:'Survivor',        desc:'Reach level 10 in survival mode',     check:s=>s.survivalBestLevel>=10,   prog:s=>[Math.min(s.survivalBestLevel,10),10]},
+  {id:'orb_buyer',   icon:'🛍', name:'Collector',      desc:'Own 5 orbs',                          check:s=>s.orbsOwned>=5,            prog:s=>[Math.min(s.orbsOwned,5),5]},
+  {id:'all_free',    icon:'✨', name:'Free Spirit',     desc:'Own all free orbs',                   check:s=>s.orbsOwned>=3,            prog:s=>[Math.min(s.orbsOwned,3),3]},
+  {id:'zigzag_lived',icon:'⚡', name:'Zigzag Survivor', desc:'Survive a zigzag wave',              check:s=>s.zigzagSurvived>=1,       prog:s=>[s.zigzagSurvived,1]},
 ];
 
 function getStats(){
@@ -4575,16 +2416,16 @@ function saveUnlocked(u){ localStorage.setItem('drift_ach',JSON.stringify(u)); }
 
 function checkAchievements(statsOverride){
   const s=statsOverride||buildLiveStats();
-  const sbloccato=getUnlocked();
+  const unlocked=getUnlocked();
   const newUnlocks=[];
   for(const a of ACHIEVEMENTS){
-    if(!sbloccato.includes(a.id)&&a.check(s)){
-      sbloccato.push(a.id);
+    if(!unlocked.includes(a.id)&&a.check(s)){
+      unlocked.push(a.id);
       newUnlocks.push(a);
     }
   }
   if(newUnlocks.length){
-    saveUnlocked(sbloccato);
+    saveUnlocked(unlocked);
     newUnlocks.forEach((a,i)=>{
       setTimeout(()=>{
         showAchToast(a);
@@ -4621,7 +2462,6 @@ function buildLiveStats(){
 }
 
 function showAchToast(a){
-  if(G&&G.running) return; // non durante il gioco
   document.getElementById('achToastIcon').textContent=a.icon;
   const reward=BADGE_REWARDS[a.id];
   const rewardLine=reward?.msg?`<div style="font-size:9px;color:var(--accent);margin-top:3px;letter-spacing:.06em">🎁 ${reward.msg}</div>`:'';
@@ -4635,11 +2475,11 @@ function showAchToast(a){
 }
 
 function showAchievements(){
-  const sbloccato=getUnlocked();
+  const unlocked=getUnlocked();
   const s=buildLiveStats();
   const el=document.getElementById('achList');
   el.innerHTML=ACHIEVEMENTS.map(a=>{
-    const done=sbloccato.includes(a.id);
+    const done=unlocked.includes(a.id);
     const [cur,max]=a.prog(s);
     const pct=Math.min(100,Math.round(cur/max*100));
     const reward=BADGE_REWARDS[a.id];
@@ -4648,7 +2488,7 @@ function showAchievements(){
       +(reward.mult?`<div style="font-size:8px;color:var(--gold);margin-top:1px">⚡ x${reward.mult.value} score per ${reward.mult.days} giorni</div>`:'')
       +(reward.title?`<div style="font-size:8px;color:var(--gold);margin-top:1px">👑 Titolo: ${reward.title}</div>`:'')
     :'';
-    return`<div class="ach-item ${done?'sbloccato':'locked'}">
+    return`<div class="ach-item ${done?'unlocked':'locked'}">
       <span class="ach-icon">${a.icon}</span>
       <div class="ach-body">
         <div class="ach-name">${a.name}</div>
@@ -4658,9 +2498,9 @@ function showAchievements(){
     </div>`;
   }).join('');
   const legendClaimed=localStorage.getItem('drift_legend_claimed');
-  const pct2=Math.round(sbloccato.length/ACHIEVEMENTS.length*100);
+  const pct2=Math.round(unlocked.length/ACHIEVEMENTS.length*100);
   document.getElementById('achProgress').innerHTML=
-    `<span style="color:var(--accent)">${sbloccato.length}</span> / ${ACHIEVEMENTS.length} badge` +
+    `<span style="color:var(--accent)">${unlocked.length}</span> / ${ACHIEVEMENTS.length} badge` +
     (legendClaimed?'&nbsp;<span style="color:var(--gold)">🌟 LEGGENDA!</span>':
     `&nbsp;<span style="color:var(--dim);font-size:9px">(${pct2}% — completa tutti per diventare LEGGENDA)</span>`);
   hide('startOverlay');show('achOverlay');
@@ -4723,7 +2563,7 @@ function saveAccountData(data){
 function showProfile(){
   const s  = buildLiveStats();
   const acc = getAccountData();
-  const sbloccato = getUnlocked();
+  const unlocked = getUnlocked();
 
   // Popola campo nome
   const nameInp = document.getElementById('accountNameInput');
@@ -4751,7 +2591,7 @@ function showProfile(){
   updateAccountPreview();
 
   // Stats tab
-  buildProfileStats(s, sbloccato);
+  buildProfileStats(s, unlocked);
 
   // Mostra overlay
   switchProfileTab('account');
@@ -4889,7 +2729,7 @@ function updateAccountPreview(){
   const acc = getAccountData();
   const name = (document.getElementById('accountNameInput')?.value) || acc.name;
   const title = getPlayerTitle();
-  const sbloccato = getUnlocked();
+  const unlocked = getUnlocked();
 
   // Avatar anteprima
   const wrap = document.getElementById('previewAvatarWrap');
@@ -4915,7 +2755,7 @@ function updateAccountPreview(){
   // Badge (ultimi 5)
   const pb = document.getElementById('previewBadges');
   if(pb){
-    const icons = sbloccato.map(id=>{ const a=ACHIEVEMENTS.find(x=>x.id===id); return a?a.icon:''; }).filter(Boolean).slice(-5);
+    const icons = unlocked.map(id=>{ const a=ACHIEVEMENTS.find(x=>x.id===id); return a?a.icon:''; }).filter(Boolean).slice(-5);
     pb.textContent = icons.join(' ');
   }
 
@@ -4928,7 +2768,7 @@ function updateAccountPreview(){
   }
 }
 
-function buildProfileStats(s, sbloccato){
+function buildProfileStats(s, unlocked){
   // Mini stats in cima
   const topEl = document.getElementById('profileStatsTop');
   if(topEl){
@@ -4938,7 +2778,7 @@ function buildProfileStats(s, sbloccato){
       {v: s.gamesPlayed||0,   l:'Partite',    c:'accent'},
       {v: s.bestScore||0,     l:'Record',     c:'gold'},
       {v: streak,             l:'Streak🔥',   c: streak>=3?'gold':''},
-      {v: sbloccato.length,    l:'Badge',      c:'accent'},
+      {v: unlocked.length,    l:'Badge',      c:'accent'},
     ].map(({v,l,c})=>`
       <div class="account-stat-mini">
         <div class="val" style="${c?'color:var(--'+c+')':''}">${v}</div>
@@ -4967,17 +2807,17 @@ function buildProfileStats(s, sbloccato){
     {val:parseInt(localStorage.getItem('drift_daily_count')||'0'), lbl:'Daily Giocate', cls:'accent'},
     {val:parseInt(localStorage.getItem('drift_weekly_wins')||'0'), lbl:'Weekly Vinte',  cls:'gold'},
     {val:s.gamesPlayed||0,    lbl:'Partite Tot.',     cls:'accent'},
-    {val:sbloccato.length,     lbl:'Badge',            cls:'gold'},
+    {val:unlocked.length,     lbl:'Badge',            cls:'gold'},
   ].map(({val,lbl,cls})=>
     `<div class="stat-card"><div class="stat-card-val ${cls}">${val}</div><div class="stat-card-lbl">${lbl}</div></div>`
   ).join('');
 
   // Progress badge
   const legendClaimed = localStorage.getItem('drift_legend_claimed');
-  const pct = Math.round(sbloccato.length/ACHIEVEMENTS.length*100);
+  const pct = Math.round(unlocked.length/ACHIEVEMENTS.length*100);
   const achEl = document.getElementById('achProgress');
   if(achEl) achEl.innerHTML =
-    `<span style="color:var(--accent)">${sbloccato.length}</span> / ${ACHIEVEMENTS.length} badge` +
+    `<span style="color:var(--accent)">${unlocked.length}</span> / ${ACHIEVEMENTS.length} badge` +
     (legendClaimed ? '&nbsp;<span style="color:var(--gold)">🌟 LEGGENDA!</span>' :
     `&nbsp;<span style="font-size:9px">(${pct}% — completa tutti per diventare LEGGENDA)</span>`);
 }
@@ -5111,7 +2951,7 @@ function playReplayFrames(i){
   ctx2.fillText(`SCORE ${f.score}  LVL ${f.level}`,12,20);
   // REPLAY watermark
   ctx2.fillStyle='rgba(74,240,208,.3)';ctx2.font='bold 11px Orbitron,monospace';ctx2.textAlign='right';
-  ctx2.fillText('ZIVVE REPLAY',W2-12,20);
+  ctx2.fillText('DRIFT REPLAY',W2-12,20);
   // Progress bar
   const prog=i/replayBuffer.length;
   ctx2.fillStyle='rgba(255,255,255,.08)';ctx2.fillRect(0,H2-3,W2,3);
@@ -5128,15 +2968,15 @@ function stopReplay(){
 function downloadReplay(){
   // Export current frame as PNG
   document.getElementById('replayCanvas').toBlob(blob=>{
-    const a=document.createElement('a');a.download='zivve-replay.png';a.href=URL.createObjectURL(blob);a.click();
+    const a=document.createElement('a');a.download='drift-replay.png';a.href=URL.createObjectURL(blob);a.click();
   });
 }
 
 function shareReplay(){
   document.getElementById('replayCanvas').toBlob(blob=>{
-    const file=new File([blob],'zivve-replay.png',{type:'image/png'});
+    const file=new File([blob],'drift-replay.png',{type:'image/png'});
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}))
-      navigator.share({title:'ZIVVE Replay',files:[file]}).catch(()=>{});
+      navigator.share({title:'DRIFT Replay',files:[file]}).catch(()=>{});
     else downloadReplay();
   });
 }
@@ -5168,7 +3008,7 @@ async function loadLbTab(tab){
   const el=document.getElementById('lbFullRows');
   el.innerHTML='<div style="color:var(--dim);text-align:center;font-size:11px;padding:12px;letter-spacing:.15em">Loading...</div>';
   let rows=[];
-  if(tab==='world'){ rows=await lbGet(20); if(!rows||rows.length===0) rows=getMockLB(); }
+  if(tab==='world') rows=await lbGet(20);
   else if(tab==='country'){
     const all=await lbGet(100);
     const myCountry=playerCountry||localStorage.getItem('drift_country')||'';
@@ -5260,7 +3100,7 @@ function renderEventBanner(){
     if(parseInt(localStorage.getItem(key)||'0')>0)evStreak++;else break;
   }
   const streakTxt=evStreak>=2?` 🔥${evStreak}`:'';
-  if(label)label.textContent=(myScore>0?'✓ oggi':'oggi')+streakTxt;
+  if(label)label.textContent=(myScore>0?'✓ ':'')+(ev.name.length>10?ev.name.slice(0,9)+'…':ev.name)+streakTxt;
   if(btn){btn.style.borderColor=ev.color+'55';btn.style.background='rgba(0,0,0,.0)';}
 }
 
@@ -5685,8 +3525,8 @@ function applyBadgeReward(badgeId){
 
 // Premio LEGGENDA: tutti i badge completati
 function checkLegendReward(){
-  const sbloccato = getUnlocked();
-  const baseCount = sbloccato.filter(id => !id.startsWith('weekly_')).length;
+  const unlocked = getUnlocked();
+  const baseCount = unlocked.filter(id => !id.startsWith('weekly_')).length;
   if(baseCount >= LEGEND_BADGE_COUNT){
     const legendKey = 'drift_legend_claimed';
     if(localStorage.getItem(legendKey)) return;
@@ -5803,34 +3643,29 @@ function recordWeeklyScore(score){
 }
 
 async function sbWeeklyPost(name,score,week){
+  if(!USE_LB||!name) return;
   try{
-    // Cerca record esistente per questa settimana
-    const existing=await sbFetch(`weekly?name=eq.${encodeURIComponent(name)}&week=eq.${encodeURIComponent(week)}&select=id,score&limit=1`);
+    const orb=selectedOrbId||'cyan';
+    const existing=await sbFetch('weekly?name=eq.'+encodeURIComponent(name)+'&week=eq.'+encodeURIComponent(week)+'&select=id,score&limit=1');
     if(Array.isArray(existing)&&existing.length>0){
-      if(score<=existing[0].score) return; // non migliorato
-      // DELETE + INSERT
-      await sbFetch(`weekly?id=eq.${existing[0].id}`,{method:'DELETE'});
+      if(score<=existing[0].score) return;
+      await sbFetch('weekly?id=eq.'+existing[0].id,{method:'DELETE'});
     }
-    await sbFetch('weekly',{
-      method:'POST',
-      body:JSON.stringify({
-        name,score,week,
-        orb:selectedOrbId||'cyan'
-      })
-    });
-    console.log('[WEEKLY] Salvato:',name,score,week);
-  }catch(e){console.log('[WEEKLY] Errore post:',e);}
+    const ins=await sbFetch('weekly',{method:'POST',body:JSON.stringify({name,score,week,orb})});
+    console.log('[WEEKLY] Salvato:',name,score,week,ins);
+  }catch(e){console.log('[WEEKLY] sbWeeklyPost error:',e.message);}
 }
 
 // Recupera classifica settimanale (reale + bot)
 async function getWeeklyLB(wk){
   const week=wk||getWeekKey();
-  try{
-    const rows=await sbFetch(`weekly?week=eq.${encodeURIComponent(week)}&order=score.desc&limit=20&select=name,score,orb`);
-    console.log('[WEEKLY] Rows da Supabase:',rows?.length);
-    if(Array.isArray(rows)&&rows.length>0) return rows;
-  }catch(e){console.log('[WEEKLY] Errore get:',e);}
-  // Fallback localStorage
+  if(USE_LB){
+    try{
+      const rows=await sbFetch('weekly?week=eq.'+encodeURIComponent(week)+'&order=score.desc&limit=20&select=name,score,orb');
+      console.log('[WEEKLY] lbGet:',rows?.length,'records');
+      if(Array.isArray(rows)&&rows.length>0) return rows;
+    }catch(e){console.log('[WEEKLY] getWeeklyLB error:',e.message);}
+  }
   const key=getWeeklyLBKey(week);
   const real=JSON.parse(localStorage.getItem(key)||'[]');
   const seed=parseInt(week.replace(/\D/g,''));
@@ -5876,10 +3711,10 @@ const WEEKLY_PRIZES={
 async function checkWeeklyRewards(){
   const prevWk=getPrevWeekKey();
   const rewardKey='drift_wreward_'+prevWk;
-  if(localStorage.getItem(rewardKey)) return; // già consegnato
+  if(localStorage.getItem(rewardKey)) return;
 
   const lb=await getWeeklyLB(prevWk);
-  if(!Array.isArray(lb)){return;}
+  if(!Array.isArray(lb)) return;
   const myPos=lb.findIndex(e=>e.name===playerName);
   if(myPos<0) return; // non ho partecipato
 
@@ -6113,10 +3948,10 @@ applyLang();
 registerChampionOrb(); // registra sfera champion nel catalogo
 // Applica reward per badge già sbloccati (first run dopo update)
 (()=>{
-  const sbloccato=getUnlocked();
+  const unlocked=getUnlocked();
   const appliedKey='drift_badge_rewards_applied';
   if(!localStorage.getItem(appliedKey)){
-    sbloccato.forEach(id=>applyBadgeReward(id));
+    unlocked.forEach(id=>applyBadgeReward(id));
     localStorage.setItem(appliedKey,'1');
   }
 })();
@@ -6130,7 +3965,6 @@ checkWeeklyRewards();
 (()=>{
   const el=document.getElementById('profileMenuName');
   if(el&&playerName&&playerName!=='ZIVVER') el.textContent=playerName;
-  else if(el) el.textContent='';
   const t=getPlayerTitle();
   const tEl=document.getElementById('menuPlayerTitle');
   if(tEl&&t) tEl.textContent='[ '+t+' ]';
@@ -6139,33 +3973,6 @@ masterLoop(); // avvia il RAF master unico
 
 // Mostra banner premio settimanale se in attesa
 setTimeout(showWeeklyRewardBanner, 1200);
-
-// ── MIGRAZIONE DATI VECCHIO NOME ──
-// Aggiorna localStorage da DRIFT → ZIVVE automaticamente
-(()=>{
-  // Titolo
-  const raw=localStorage.getItem('drift_title');
-  if(raw){
-    try{
-      const d=JSON.parse(raw);
-      if(d.title&&d.title.includes('DRIFT')){
-        d.title=d.title.replace(/DRIFT/g,'ZIVVE');
-        localStorage.setItem('drift_title',JSON.stringify(d));
-      }
-    }catch(e){}
-  }
-  // Weekly multiplier source
-  const wm=localStorage.getItem('drift_weekly_mult');
-  if(wm){
-    try{
-      const d=JSON.parse(wm);
-      if(d.source&&d.source.includes('DRIFT')){
-        d.source=d.source.replace(/DRIFT/g,'ZIVVE');
-        localStorage.setItem('drift_weekly_mult',JSON.stringify(d));
-      }
-    }catch(e){}
-  }
-})();
 
 // ── INIT FLOW ──
 // Decide cosa mostrare al lancio
