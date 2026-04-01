@@ -333,28 +333,7 @@ window.addEventListener('orientationchange',()=>setTimeout(_setVH,200));
 _setVH();
 </script>
 
-<!-- GameDistribution SDK -->
-<script>
-  window["GD_OPTIONS"] = {
-    "gameId": "37abefe8734a4912b51b63d22dc0a4a9",
-    "onEvent": function(event) {
-      switch (event.name) {
-        case "SDK_GAME_START":
-          // Riprendi il gioco dopo l'ad
-          if(typeof resumeGame === 'function') resumeGame();
-          break;
-        case "SDK_GAME_PAUSE":
-          // Metti in pausa durante l'ad
-          if(typeof pauseGame === 'function') pauseGame();
-          break;
-        case "SDK_REWARDED_WATCH_COMPLETE":
-          // Premio per ad premiato (se implementato)
-          break;
-      }
-    }
-  };
-</script>
-<script src="https://html5.api.gamedistribution.com/main.min.js"></script>
+
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -2481,14 +2460,6 @@ function enterFullscreen(){
   window.scrollTo(0,1);
 }
 
-// ── GameDistribution SDK ──
-function gdShowAd(){
-  try{
-    if(typeof gdsdk !== 'undefined' && gdsdk.showAd){
-      gdsdk.showAd(gdsdk.AdType.Interstitial).catch(e=>{});
-    }
-  }catch(e){}
-}
 
 function startGame(seed){
   enterFullscreen();
@@ -3752,7 +3723,6 @@ function drawIdle(){
 // ══════════════════════════════════════
 async function endGame(){
   G.running=false;
-  gdShowAd(); // mostra ad interstitial al game over
   document.getElementById('c').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
   const isRec=G.score>bestScore;
