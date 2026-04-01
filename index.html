@@ -3048,7 +3048,7 @@ function update(){
       G.speed=Math.min(baseSpd*1.5,baseSpd+5);
     } else if(G.activePowerup.key==='slow'){
       G.activePowerup.savedSpeed=baseSpd;
-      // G.speed rimane rallentato tramite _sm
+      G.speed=Math.max(0.4, baseSpd*0.18); // mantieni proporzione rallentamento
     } else {
       G.speed=baseSpd;
     }
@@ -3306,7 +3306,7 @@ function applyPowerup(key, px, py){
 
   if(key==='boost'){
     G.activePowerup={key,timer:DURATION,savedSpeed:null};
-    G.speed *= 2.2; // raddoppia la velocità attuale
+    G.speed = Math.min(G.speed * 1.35, BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL + 2.5); // boost moderato
     showMsg('⚡ SPEED BOOST!','#00ffaa');
     flashScreen('rgba(0,255,170,0.18)');
     sndBoost();
@@ -3341,6 +3341,7 @@ function applyPowerup(key, px, py){
 function clearPowerup(){
   if(!G.activePowerup)return;
   const key=G.activePowerup.key;
+  console.log('[PU] clearPowerup:',key,'timer rimanente:',G.activePowerup.timer);
   if(key==='boost'){
     G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
   } else if(key==='slow'){
