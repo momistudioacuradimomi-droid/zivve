@@ -2505,10 +2505,7 @@ function triggerPerfectDodge(px,py){
   localStorage.setItem('drift_perfect_dodges',pd);
   G.rings.push({x:px,y:py,r:0,alpha:.6,color:'#4af0d0',grow:5});
   orbPowerOnPerfect();
-  // Dopo 2s, mostra invito condivisione
-  if(pd===1||pd%5===0){
-    setTimeout(()=>{if(G&&G.running)sharePerfectDodgeVideo(pd,bonus);},2200);
-  }
+  // Banner video rimosso — nessun popup durante il gioco
 }
 
 function showPerfectDodgeShare(count,bonus){
