@@ -1677,14 +1677,23 @@ async function lbPost(name,score){
 }
 async function lbGet(limit=15){
   if(!USE_LB) return getMockLB();
-  for(let _at=0;_at<2;_at++){
+  for(let _at=0;_at<3;_at++){
     try{
       const rows=await sbFetch('scores?order=score.desc&limit='+limit+'&select=name,score,orb');
       console.log('[LB] lbGet attempt',_at+1,':',rows?.length,'records');
-      if(Array.isArray(rows)&&rows.length>0) return rows;
+      if(Array.isArray(rows)&&rows.length>0){
+        // Salva cache locale
+        try{localStorage.setItem('zivve_lb_cache',JSON.stringify({ts:Date.now(),rows}));}catch(e){}
+        return rows;
+      }
     }catch(e){console.log('[LB] lbGet error:',e.message);}
-    if(_at===0) await new Promise(r=>setTimeout(r,1000));
+    if(_at<2) await new Promise(r=>setTimeout(r,1500));
   }
+  // Usa cache locale se disponibile
+  try{
+    const cached=JSON.parse(localStorage.getItem('zivve_lb_cache')||'null');
+    if(cached&&cached.rows&&Date.now()-cached.ts<3600000) return cached.rows; // cache 1h
+  }catch(e){}
   return getMockLB();
 }
 const BOT_PLAYERS=[
@@ -3041,6 +3050,7 @@ function update(){
   if(nl!==G.level){
     G.level=nl;
     const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    updateLevelUI(); // aggiorna display livello
     // Non resettare speed se slow o boost attivi
     if(!G.activePowerup){
       G.speed=baseSpd;
@@ -3072,7 +3082,7 @@ function update(){
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
     // Ai livelli alti aumenta probabilità scudo
-    const shieldChance=G.level>8?0.45:0.33;
+    const shieldChance=G.level>=5?Math.min(0.6,0.33+(G.level-5)*0.03):0.25;
     if(!hasBoost&&!hasSlow&&!hasShield){
       // Spawn uno dei tre power-up — shield meno frequente (20%)
       const r=Math.random();
@@ -4373,7 +4383,20 @@ function countdownThen(cb){
   const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
   document.getElementById('pwaManifest').href=URL.createObjectURL(mBlob);
 
-  // ── Service Worker completo con push notifications ──
+  // Ferma musica quando la pagina va in background o si chiude
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    try{stopGameMusic();stopMenuMusic();stopDriftMelody();}catch(e){}
+  }
+});
+window.addEventListener('pagehide',()=>{
+  try{stopGameMusic();stopMenuMusic();stopDriftMelody();}catch(e){}
+});
+window.addEventListener('beforeunload',()=>{
+  try{stopGameMusic();stopMenuMusic();stopDriftMelody();}catch(e){}
+});
+
+// ── Service Worker completo con push notifications ──
   if('serviceWorker' in navigator){
     const swCode=`
 const CACHE='zivve-v1';
@@ -5355,7 +5378,8 @@ function startEventGame(){
     if(m.startLevel){
       G.level=m.startLevel;G.frameCount=m.startLevel*FRAMES_PER_LEVEL;
       G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-      G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.6),12); // crescita più lenta, max 12updateLevelUI();
+      G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.6),12); // crescita più lenta, max 12
+    updateLevelUI();
     }
     if(m.speed)G.speed*=m.speed;
     if(m.nmMult)G._nmMult=m.nmMult;
