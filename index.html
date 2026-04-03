@@ -1972,7 +1972,7 @@ const flashEl=document.getElementById('flash');
 const survivalFill=document.getElementById('survivalFill');
 const enemyCountEl=document.getElementById('enemyCountVal');
 
-const FRAMES_PER_LEVEL=420,BASE_SPEED=2.4,SPEED_PER_LEVEL=0.35,BASE_ENEMIES=3,SPAWN_INTERVAL=65;
+const FRAMES_PER_LEVEL=420,BASE_SPEED=2.4,SPEED_PER_LEVEL=0.35,BASE_ENEMIES=1,SPAWN_INTERVAL=65;
 const ENEMY_TYPES=[
   {key:'normal',rMult:.065,spdMult:1.0,color0:'#ffddcc',color1:'#ff3355',color2:'#990022',haloCols:['rgba(255,34,68,.38)','rgba(255,80,30,.12)','rgba(255,0,0,0)'],haloR:5},
   {key:'fast',  rMult:.042,spdMult:1.7,color0:'#ffeecc',color1:'#ff8800',color2:'#993300',haloCols:['rgba(255,136,0,.38)','rgba(255,80,0,.12)','rgba(255,60,0,0)'],haloR:4},
@@ -2244,11 +2244,17 @@ function orbPowerOnHit(){
     return true; // nessun danno
   }
 
-  // STOIC: non puoi perdere l'ultima vita
-  if(p==='stoic'&&G.lives===1){
-    showMsg('🏴󠁧󠁢󠁥󠁮󠁧󠁿 STOIC — invulnerabile!','#cc4444');
-    G.invincible=2*60;
-    return true;
+  // STOIC: max 3 usi per partita, 3s invincibilità
+  if(p==='stoic'){
+    const d2=G.orbPowerData||{};
+    if(!d2.stoicUses) d2.stoicUses=0;
+    if(d2.stoicUses<3){
+      d2.stoicUses++;
+      G.orbPowerData=d2;
+      showMsg('🏴󠁧󠁢󠁥󠁮󠁧󠁿 STOIC! ('+d2.stoicUses+'/3)','#cc4444');
+      G.invincible=3*60;
+      return true;
+    }
   }
 
   // LOVE SHIELD: 1x assorbi colpo mortale
@@ -2391,7 +2397,7 @@ function startGame(seed){
   G={running:true,paused:false,angle:0,dir:1,speed:BASE_SPEED,
      enemies:[],particles:[],trails:[],rings:[],shockwaves:[],
      spawnTimer:0,maxEnemies:BASE_ENEMIES,frameCount:0,score:0,
-     lives:3,level:1,shaking:0,invincible:0,slowMo:0,
+     lives:3,level:1,shaking:0,invincible:180,slowMo:0,
      nearMissStreak:0,_lastNearMissFrame:0,perfectDodgeCount:0,
      survivedZigzag:false,survivedZigzagCount:0,survivalMode:false,
      _forceEnemyType:null,_noPowerup:false,_nmMult:1,_perfectMult:1,
@@ -3097,7 +3103,12 @@ function update(){
 // ══════════════════════════════════════
 function spawnEnemy(scattered){
   const type=pickEnemyType(G.level);let x,y;
-  if(scattered){const a=Math.random()*Math.PI*2,r=ORBIT_R*(.5+Math.random()*.6);x=CX+Math.cos(a)*r;y=CY+Math.sin(a)*r;}
+  if(scattered){
+    const playerAngle=G&&G.angle||0;
+    const a=playerAngle+Math.PI+(Math.random()-.5)*Math.PI;
+    const r=ORBIT_R*(1.3+Math.random()*.5);
+    x=CX+Math.cos(a)*r;y=CY+Math.sin(a)*r;
+  }
   else{const a=Math.random()*Math.PI*2,r=ORBIT_R*(1.28+Math.random()*.35);x=CX+Math.cos(a)*r;y=CY+Math.sin(a)*r;}
   const toC=Math.atan2(CY-y,CX-x),dir=toC+(Math.random()-.5)*Math.PI*1.1,spd=(.7+Math.random()*.9+(G.level-1)*.08)*type.spdMult;
   G.enemies.push({x,y,vx:Math.cos(dir)*spd,vy:Math.sin(dir)*spd,life:0,pulsePhase:Math.random()*Math.PI*2,driftX:(Math.random()-.5)*.018,driftY:(Math.random()-.5)*.018,type});
@@ -3204,7 +3215,7 @@ function applyPowerup(key, px, py){
     sndSlow();
     haptic([50,30,80]);
   } else if(key==='shield'){
-    const SHIELD_DUR=30*60; // 30 secondi
+    const SHIELD_DUR=10*60; // 30 secondi
     G.activePowerup={key,timer:SHIELD_DUR,savedSpeed:null};
     G.shieldActive=true;
     showMsg('🛡 SCUDO ATTIVO!','#44aaff');
