@@ -1657,24 +1657,38 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const USE_LB=(SUPABASE_URL.indexOf('YOUR_PROJECT')===-1);
 async function sbFetch(path,opts={}){const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}});const text=await res.text();if(!res.ok){console.log('[SB]',res.status,path,text.slice(0,100));throw new Error(res.status+':'+text);}return text?JSON.parse(text):[];}
 async function lbPost(name,score){
-  if(!USE_LB||!name) return;
-  for(let _at=0;_at<3;_at++){
-    try{
-      const orb=selectedOrbId||'cyan';
-      const existing=await sbFetch('scores?name=eq.'+encodeURIComponent(name)+'&select=id,score&limit=1');
-      if(Array.isArray(existing)&&existing.length>0){
-        if(score<=existing[0].score){console.log('[LB] score non migliorato');return;}
-        await sbFetch('scores?id=eq.'+existing[0].id,{method:'DELETE'});
+  if(!USE_LB||!name||name==='ZIVVER') return;
+  try{
+    const orb=selectedOrbId||'cyan';
+    // Cerca score esistente
+    const existing=await sbFetch('scores?name=eq.'+encodeURIComponent(name)+'&select=id,score&limit=1');
+    if(Array.isArray(existing)&&existing.length>0){
+      // Aggiorna SOLO se score migliore — usa PATCH sull'id esistente
+      if(score<=existing[0].score){
+        console.log('[LB] score non migliorato:',score,'<=',existing[0].score);
+        return;
       }
-      await sbFetch('scores',{method:'POST',body:JSON.stringify({name,score,orb})});
-      console.log('[LB] Salvato:',name,score,'(attempt',_at+1,')');
-      return;
-    }catch(e){
-      console.log('[LB] lbPost error attempt',_at+1,':',e.message);
-      if(_at<2) await new Promise(r=>setTimeout(r,1500));
+      // PATCH con l'id specifico
+      await sbFetch('scores?id=eq.'+existing[0].id,{
+        method:'PATCH',
+        headers:{'Prefer':'return=minimal'},
+        body:JSON.stringify({score,orb})
+      });
+      console.log('[LB] Aggiornato:',name,score);
+    } else {
+      // Nuovo inserimento
+      await sbFetch('scores',{
+        method:'POST',
+        headers:{'Prefer':'return=minimal'},
+        body:JSON.stringify({name,score,orb})
+      });
+      console.log('[LB] Inserito:',name,score);
     }
+  }catch(e){
+    console.log('[LB] lbPost error:',e.message);
   }
 }
+
 async function lbGet(limit=15){
   if(!USE_LB) return getMockLB();
   for(let _at=0;_at<3;_at++){
@@ -5820,7 +5834,29 @@ function recordWeeklyScore(score){
   if(USE_LB) sbWeeklyPost(playerName,score,getWeekKey());
 }
 
-async function sbWeeklyPost(name,score,week){if(!USE_LB||!name)return;try{const orb=selectedOrbId||'cyan';const existing=await sbFetch('weekly?name=eq.'+encodeURIComponent(name)+'&week=eq.'+encodeURIComponent(week)+'&select=id,score&limit=1');if(Array.isArray(existing)&&existing.length>0){if(score<=existing[0].score)return;await sbFetch('weekly?id=eq.'+existing[0].id,{method:'DELETE'});}await sbFetch('weekly',{method:'POST',body:JSON.stringify({name,score,week,orb})});console.log('[WEEKLY] Salvato:',name,score,week);}catch(e){console.log('[WEEKLY] sbWeeklyPost error:',e.message);}}
+async function sbWeeklyPost(name,score,week){
+  if(!USE_LB||!name||name==='ZIVVER') return;
+  try{
+    const orb=selectedOrbId||'cyan';
+    const existing=await sbFetch('weekly?name=eq.'+encodeURIComponent(name)+'&week=eq.'+encodeURIComponent(week)+'&select=id,score&limit=1');
+    if(Array.isArray(existing)&&existing.length>0){
+      if(score<=existing[0].score) return;
+      await sbFetch('weekly?id=eq.'+existing[0].id,{
+        method:'PATCH',
+        headers:{'Prefer':'return=minimal'},
+        body:JSON.stringify({score,orb})
+      });
+      console.log('[WEEKLY] Aggiornato:',name,score,week);
+    } else {
+      await sbFetch('weekly',{
+        method:'POST',
+        headers:{'Prefer':'return=minimal'},
+        body:JSON.stringify({name,score,week,orb})
+      });
+      console.log('[WEEKLY] Inserito:',name,score,week);
+    }
+  }catch(e){console.log('[WEEKLY] sbWeeklyPost error:',e.message);}
+}
 
 // Recupera classifica settimanale (reale + bot)
 async function getWeeklyLB(wk){
