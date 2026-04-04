@@ -1,4 +1,4 @@
-const CACHE='zivve-202604042203';
+const CACHE='zivve-202604042211';
 const ALWAYS_FRESH=['/zivve/','/zivve/index.html'];
 
 self.addEventListener('install',e=>{
@@ -26,6 +26,10 @@ self.addEventListener('activate',e=>{
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET') return;
   const url=new URL(e.request.url);
+  // Firebase e API esterne: mai cachare, sempre rete diretta
+  if(url.hostname.includes('firebase')||url.hostname.includes('firebaseio')||url.hostname.includes('googleapis')||url.hostname.includes('supabase')){
+    return; // lascia passare senza intercettare
+  }
   const isGameFile=ALWAYS_FRESH.some(f=>url.pathname===f||url.pathname.endsWith('/'));
   
   if(isGameFile){
