@@ -1644,8 +1644,8 @@ function runHeroCanvas(){
 // ══════════════════════════════════════════════════════════════
 const FIREBASE_URL='https://zivve-game-default-rtdb.europe-west1.firebasedatabase.app';
 const USE_LB=true;
-async function fbGet(path){const res=await fetch(FIREBASE_URL+path+'.json',{cache:'no-store'});if(!res.ok)throw new Error('FB GET '+res.status);return res.json();}
-async function fbSet(path,data){const res=await fetch(FIREBASE_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!res.ok)throw new Error('FB PUT '+res.status);return res.json();}
+async function fbGet(path){const res=await fetch(FIREBASE_URL+path+'.json?_='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache','Pragma':'no-cache'}});if(!res.ok)throw new Error('FB GET '+res.status);return res.json();}
+async function fbSet(path,data){const res=await fetch(FIREBASE_URL+path+'.json?_='+Date.now(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!res.ok)throw new Error('FB PUT '+res.status);return res.json();}
 // sbFetch rimossa - usa Firebase
 // ── Sincronizzazione inventario Firebase ──
 async function syncInventoryToFirebase(name){
@@ -4497,6 +4497,16 @@ function countdownThen(cb){
 window.addEventListener('pagehide',()=>{
   try{stopGameMusic();stopMenuMusic();if(audioCtx)audioCtx.suspend();}catch(e){}
 });
+
+// Forza pulizia Service Worker vecchi e cache
+if('serviceWorker' in navigator){
+  // Cancella tutte le cache esistenti
+  if(caches&&caches.keys){
+    caches.keys().then(keys=>keys.forEach(k=>{
+      if(!k.includes('zivve-2026')) caches.delete(k);
+    }));
+  }
+}
 
 if('serviceWorker' in navigator){
     const swCode=`
