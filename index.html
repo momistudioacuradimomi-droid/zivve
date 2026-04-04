@@ -2596,14 +2596,14 @@ function triggerPerfectDodge(px,py){
     G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
       life:80+Math.random()*30,color:['#ffe566','#4af0d0','#ffffff','#ff8844','#7ec8ff'][i%5],r:Math.random()*5+2});
   }
-  for(let i=0;i<4;i++)setTimeout(()=>G.rings.push({x:px,y:py,r:0,alpha:.9,
+  for(let i=0;i<2;i++)setTimeout(()=>G.rings.push({x:px,y:py,r:0,alpha:.3,
     color:['#ffe566','#4af0d0','#ffffff','#ffe566'][i],grow:14}),i*100);
   showMsg('✨ PERFECT DODGE! +'+bonus,'#ffe566');
   flashScreen('rgba(255,229,102,0.3)');
   sndPerfectDodge();haptic([10,5,10,5,30,5,60]);
   const pd=parseInt(localStorage.getItem('drift_perfect_dodges')||'0')+1;
   localStorage.setItem('drift_perfect_dodges',pd);
-  G.rings.push({x:px,y:py,r:0,alpha:.6,color:'#4af0d0',grow:5});
+  G.rings.push({x:px,y:py,r:0,alpha:.25,color:'#4af0d0',grow:5});
   orbPowerOnPerfect();
   // Dopo 2s, mostra invito condivisione
   if(pd===1||pd%5===0){
@@ -3121,20 +3121,24 @@ function update(){
   if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
 
   // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=Math.max(250,500-Math.floor((G.level||1)*15))+Math.floor(Math.random()*200);
+  if(!G.powerupTimer) G.powerupTimer=Math.max(180,420-Math.floor((G.level||1)*15))+Math.floor(Math.random()*150);
   G.powerupTimer--;
   if(G.powerupTimer<=0){
-    G.powerupTimer=Math.max(300,550-Math.floor((G.level||1)*12))+Math.floor(Math.random()*200);
+    G.powerupTimer=Math.max(200,450-Math.floor((G.level||1)*12))+Math.floor(Math.random()*150);
     const hasBoost =G.enemies.some(e=>e.type.key==='boost');
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
-    if(!hasBoost&&!hasSlow&&!hasShield){
-      // Shield dominante — boost e slow rari
+    // Shield: spawna sempre se non c'è già uno scudo
+    // Slow/Boost: solo se nessun powerup attivo
+    if(!hasShield){
       const _lv=G.level||1;
-      const _shieldProb=Math.min(0.75, 0.55+(_lv-1)*0.02); // 55% → 75%
+      const _shieldProb=Math.min(0.80, 0.60+(_lv-1)*0.02);
       const _r=Math.random();
-      const type=_r<_shieldProb?ENEMY_TYPES[7]:_r<(_shieldProb+0.15)?ENEMY_TYPES[4]:ENEMY_TYPES[5];
-      spawnPowerup(type);
+      if(_r<_shieldProb){
+        spawnPowerup(ENEMY_TYPES[7]); // shield
+      } else if(!hasBoost&&!hasSlow){
+        spawnPowerup(_r<(_shieldProb+0.12)?ENEMY_TYPES[4]:ENEMY_TYPES[5]); // boost o slow
+      }
     }
   }
   const boundary=ORBIT_R*1.72;
@@ -3416,7 +3420,7 @@ function applyPowerup(key, px, py){
     const a=Math.random()*Math.PI*2,sp=Math.random()*5+1;
     G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:50,color:col,r:Math.random()*3+1});
   }
-  for(let i=0;i<3;i++) G.rings.push({x:px,y:py,r:i*8,alpha:.7,color:col,grow:7+i*2});
+  for(let i=0;i<2;i++) G.rings.push({x:px,y:py,r:i*8,alpha:.3,color:col,grow:7+i*2});
 }
 
 function clearPowerup(){
@@ -3488,8 +3492,8 @@ function registerHit(px,py,e){
 
 function levelBump(){
   const isMajor=G.level%10===0;
-  for(let i=0;i<(isMajor?5:3);i++)setTimeout(()=>G.shockwaves.push({r:0,alpha:.6}),i*110);
-  flashScreen(isMajor?'rgba(255,100,30,0.18)':'rgba(255,229,102,0.12)');
+  for(let i=0;i<(isMajor?3:1);i++)setTimeout(()=>G.shockwaves.push({r:0,alpha:.25}),i*150);
+  flashScreen(isMajor?'rgba(255,100,30,0.08)':'rgba(255,229,102,0.05)');
   for(let i=0;i<(isMajor?50:20);i++){
     const a=Math.random()*Math.PI*2,sp=Math.random()*(isMajor?8:4)+2;
     G.particles.push({x:CX,y:CY,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:isMajor?80:45,color:isMajor?['#ff6633','#ff2244','#ffe566'][i%3]:'#ffe566',r:Math.random()*(isMajor?4:2.5)+1.5});
