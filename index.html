@@ -420,6 +420,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <div class="overlay hidden" id="startOverlay" style="display:none">
   <div class="game-title">ZIVVE</div>
   <div class="subtitle" data-i18n="tagline">Orbita. Schiva. Sopravvivi.</div>
+  <div style="font-size:10px;color:rgba(74,240,208,.6);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;text-align:center;font-family:'Orbitron',sans-serif">Momi Digital Labs</div>
+  <div style="font-size:8px;color:rgba(200,220,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;margin-bottom:6px;text-align:center">A project by Momi Studio · Step by Step</div>
   <div id="menuPlayerTitle" style="font-size:10px;color:var(--gold);letter-spacing:.15em;margin-bottom:4px;min-height:14px;text-align:center"></div>
 
   <div class="best-row" data-i18n-best></div>
@@ -2234,17 +2236,28 @@ function updateOrbPower(){
 
   // ── KING AURA: onda ogni 100 punti ──
   if(p==='king_aura'){
+    if(!d._lastKingThreshold) d._lastKingThreshold=0;
     const threshold=Math.floor(G.score/100)*100;
-    if(threshold>0&&threshold!==(d._lastKingThreshold||0)){
+    if(threshold>0&&threshold>d._lastKingThreshold){
       d._lastKingThreshold=threshold;
+      // Respingi tutti i nemici con forza
+      let pushed=0;
       G.enemies.forEach(e=>{
-        if(!e.type.isPowerup){
-          const dx=e.x-CX,dy=e.y-CY,dist=Math.sqrt(dx*dx+dy*dy);
-          const push=150/dist;e.vx+=dx/dist*push;e.vy+=dy/dist*push;
-        }
+        if(e.type.isPowerup||e._isDragon) return;
+        const dx=e.x-CX,dy=e.y-CY;
+        const dist=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+        const push=14;
+        e.vx+=(dx/dist)*push;
+        e.vy+=(dy/dist)*push;
+        pushed++;
       });
-      for(let i=0;i<3;i++) G.rings.push({x:CX,y:CY,r:i*20,alpha:.8,color:'#ffe566',grow:15});
-      flashScreen('rgba(255,200,50,.15)');
+      // Shockwave visiva
+      for(let i=0;i<4;i++) G.shockwaves.push({r:i*18,alpha:.8,grow:20});
+      for(let i=0;i<3;i++) G.rings.push({x:CX,y:CY,r:i*22,alpha:.9,color:'#ffd700',grow:18});
+      flashScreen('rgba(255,200,50,.2)');
+      showMsg('♛ ZIVVE KING! +'+threshold,'#ffd700');
+      haptic([40,15,40]);
+      console.log('[KING] Onda d\'urto! score:',G.score,'pushed:',pushed,'nemici');
     }
   }
 
@@ -3126,7 +3139,7 @@ function update(){
   }
   for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.vx*=.98;p.life--;if(p.life<=0)G.particles.splice(i,1);}
   for(let i=G.rings.length-1;i>=0;i--){const r=G.rings[i];r.r+=r.grow||6;r.alpha-=.028;if(r.alpha<=0)G.rings.splice(i,1);}
-  for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=9;s.alpha-=.022;if(s.alpha<=0)G.shockwaves.splice(i,1);}
+  for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=(s.grow||9);s.alpha-=.025;if(s.alpha<=0)G.shockwaves.splice(i,1);}
   if(G.shaking>0)G.shaking--;
   // Adaptive
   if(G.adapt){
@@ -3548,7 +3561,7 @@ function drawEnemies(){
 }
 function drawParticles(){for(const p of G.particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle=p.color;ctx.shadowBlur=6;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawRings(){for(const r of G.rings){ctx.save();ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
-function drawShockwaves(){for(const s of G.shockwaves){ctx.save();ctx.globalAlpha=s.alpha;ctx.strokeStyle=`rgba(255,229,102,${s.alpha})`;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
+function drawShockwaves(){for(const s of G.shockwaves){ctx.save();ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.shadowBlur=12;ctx.shadowColor=col;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
 
 // ══════════════════════════════════════
 //  POWERUP HUD
