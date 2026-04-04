@@ -1634,6 +1634,35 @@ const USE_LB=true;
 async function fbGet(path){const res=await fetch(FIREBASE_URL+path+'.json',{cache:'no-store'});if(!res.ok)throw new Error('FB GET '+res.status);return res.json();}
 async function fbSet(path,data){const res=await fetch(FIREBASE_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!res.ok)throw new Error('FB PUT '+res.status);return res.json();}
 // sbFetch rimossa - usa Firebase
+// ── Sincronizzazione inventario Firebase ──
+async function syncInventoryToFirebase(name){
+  if(!name||name==='ZIVVER'||!USE_LB) return;
+  try{
+    await fbSet('/inventory/'+encodeURIComponent(name),{
+      owned: ownedOrbs,
+      orb: selectedOrbId||'cyan',
+      ts: Date.now()
+    });
+    console.log('[INV] Salvato su Firebase:',ownedOrbs.length,'sfere');
+  }catch(e){console.log('[INV] sync error:',e.message);}
+}
+
+async function loadInventoryFromFirebase(name){
+  if(!name||name==='ZIVVER'||!USE_LB) return;
+  try{
+    const data=await fbGet('/inventory/'+encodeURIComponent(name));
+    if(data&&Array.isArray(data.owned)&&data.owned.length>ownedOrbs.length){
+      // Merge: prendi il superset
+      const merged=[...new Set([...ownedOrbs,...data.owned])];
+      ownedOrbs=merged;
+      localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
+      if(data.orb&&!selectedOrbId) selectedOrbId=data.orb;
+      console.log('[INV] Caricato da Firebase:',ownedOrbs.length,'sfere');
+      buildShop();
+    }
+  }catch(e){console.log('[INV] load error:',e.message);}
+}
+
 async function lbPost(name,score){if(!USE_LB||!name||name==='ZIVVER')return;try{const orb=selectedOrbId||'cyan';const ex=await fbGet('/scores/'+encodeURIComponent(name));if(ex&&ex.score>=score){console.log('[LB] score non migliorato');return;}await fbSet('/scores/'+encodeURIComponent(name),{name,score,orb,ts:Date.now()});console.log('[LB] Salvato:',name,score);}catch(e){console.log('[LB] lbPost error:',e.message);}}
 async function lbGet(limit=15){if(!USE_LB)return getMockLB();try{const data=await fbGet('/scores');if(data){const rows=Object.values(data).filter(r=>r&&r.name&&r.score).sort((a,b)=>b.score-a.score).slice(0,limit);if(rows.length>0){try{localStorage.setItem('zivve_lb_cache',JSON.stringify({ts:Date.now(),rows}));}catch(_e){}console.log('[LB] Firebase OK:',rows.length,'records');return rows;}}}catch(e){console.log('[LB] lbGet error:',e.message);try{const cached=JSON.parse(localStorage.getItem('zivve_lb_cache')||'null');if(cached&&cached.rows&&Date.now()-cached.ts<300000)return cached.rows;}catch(_e2){}}return getMockLB();}
 const BOT_PLAYERS=[
@@ -1929,6 +1958,10 @@ function toggleHaptic(){
 let playerName=localStorage.getItem('drift_name')||'';
 // Se non c'è nome, usa DRIFTER come default silenzioso
 if(!playerName){ playerName='ZIVVER'; localStorage.setItem('drift_name','ZIVVER'); }
+// Carica inventario da Firebase all'avvio
+if(playerName&&playerName!=='ZIVVER'){
+  setTimeout(()=>loadInventoryFromFirebase(playerName), 1500);
+}
 function checkName(cb){if(playerName){cb();return;}show('nameOverlay');document.getElementById('nameInput').value='';document.getElementById('nameInput').focus();window._nameCb=cb;}
 function saveName(forced){
   const raw=forced||document.getElementById('nameInput').value;
@@ -1936,6 +1969,8 @@ function saveName(forced){
   playerName=v;
   localStorage.setItem('drift_name',v);
   localStorage.setItem('drift_name_set','1');
+  // Carica inventario da Firebase al login
+  loadInventoryFromFirebase(v);
   hide('nameOverlay');
   show('startOverlay');
   // Aggiorna bottone profilo
@@ -2725,6 +2760,7 @@ function showStripeDemo(orbId, orbName, price){
       localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
       showMsg(`✅ ${orbName} sbloccata!`,'#ffe566');
       buildShop();
+      syncInventoryToFirebase(playerName);
     }
   }
 }
@@ -2755,6 +2791,7 @@ function checkPaymentReturn(orbId, orbName){
     showMsg(`🎉 ${orbName} sbloccata!`,'#ffe566');
     buildShop();
     checkAchievements();
+    syncInventoryToFirebase(playerName);
   }
 }
 
