@@ -1040,8 +1040,19 @@ const CAT_LABELS = {
 };
 
 let selectedOrbId = localStorage.getItem('drift_orb')||'cyan';
-let ownedOrbs = JSON.parse(localStorage.getItem('drift_owned')||'["cyan","blue","white"]');
-let tempSelectedOrbId = selectedOrbId;
+// Tester: tutte le sfere per i nomi nella lista
+const TESTER_NAMES=["D4NTE", "DANTE", "JO", "SAMUELE", "ALEX", "ALEXVV", "ANDREA", "MARCELLO", "GIOVANNI", "RUBEN", "HAZE", "MEHR", "ZELTAX", "GANDOLEIRO", "KYLIOS", "SORA", "LILTR3", "MOL", "URBY", "HI", "JYFT", "ADSF", "HUMANG", "MOMI"];
+const ALL_ORB_IDS=["cyan","blue","white","fluo_green","fluo_pink","fluo_yellow","fluo_orange","smile","cool","fire","alien","gold","diamond","galaxy","glitter_silver","glitter_rose","glitter_gold","glitter_cyan","glitter_purple","glitter_rainbow","flag_it","flag_us","flag_es","flag_fr","flag_de","flag_br","flag_jp","flag_cn","flag_gb","flag_ru","flag_ar","flag_in","earn_perfect","earn_veteran","earn_king","s_spring","s_summer","s_autumn","s_winter","ev_natale","ev_pasqua","ev_carnevale","ev_halloween","ev_capodanno","ev_sanvalentino","first_game","survivor_30","survivor_120","level_10","level_20","score_100","score_500","score_1000","near_miss_5","near_miss_10","streak_3","streak_7","games_10","games_50","challenge_win","daily_10","survival_10","orb_buyer","all_free","zigzag_lived","speed_demon","ghost_hunt","last_stand","edge_rider","heavy_rain","bullet_hell","perfect_run","level_rush","endurance","zigzag_master","raw_skills","triple_threat","comeback","solo_orbit","boost_rush","easter_hunt","nova","endurance","ghost_touch","prestige","legend","ghost_touch","flame","duel","legend","prestige","champion","weekly_champ","weekly_silver","weekly_bronze","weekly_top10","weekly_part"];
+let ownedOrbs=(()=>{
+  const saved=JSON.parse(localStorage.getItem('drift_owned')||'["cyan","blue","white"]');
+  const name=(localStorage.getItem('drift_name')||'').toUpperCase();
+  if(TESTER_NAMES.includes(name)){
+    const m=[...new Set([...saved,...ALL_ORB_IDS])];
+    localStorage.setItem('drift_owned',JSON.stringify(m));
+    return m;
+  }
+  return saved;
+})();let tempSelectedOrbId = selectedOrbId;
 
 function getOrb(id){ return ORB_CATALOG.find(o=>o.id===id)||ORB_CATALOG[0]; }
 function isOwned(id){
@@ -1971,6 +1982,13 @@ function saveName(forced){
   playerName=v;
   localStorage.setItem('drift_name',v);
   localStorage.setItem('drift_name_set','1');
+  // Sblocca tutte le sfere se tester
+  if(TESTER_NAMES.includes(v.toUpperCase())){
+    const merged=[...new Set([...ownedOrbs,...ALL_ORB_IDS])];
+    ownedOrbs=merged;
+    localStorage.setItem('drift_owned',JSON.stringify(merged));
+    buildShop();
+  }
   // Carica inventario da Firebase al login
   loadInventoryFromFirebase(v);
   hide('nameOverlay');
