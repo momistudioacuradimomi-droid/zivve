@@ -4510,7 +4510,7 @@ if('serviceWorker' in navigator){
 
 if('serviceWorker' in navigator){
     const swCode=`
-const CACHE='zivve-v1';
+const CACHE='zivve-v2';
 const ASSETS=['/'];
 self.addEventListener('install',e=>{
   self.skipWaiting();
@@ -4524,6 +4524,9 @@ self.addEventListener('activate',e=>{
 });
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
+  const url=new URL(e.request.url);
+  // Non cachare mai Firebase o API esterne
+  if(url.hostname.includes('firebase')||url.hostname.includes('googleapis')||url.hostname.includes('supabase'))return;
   e.respondWith(caches.match(e.request).then(r=>{
     if(r)return r;
     return fetch(e.request).then(res=>{
