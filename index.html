@@ -2022,13 +2022,14 @@ const ENEMY_TYPES=[
   {key:'shield',rMult:.060,spdMult:.8, color0:'#cceeff',color1:'#44aaff',color2:'#0044aa',haloCols:['rgba(68,170,255,.55)','rgba(0,120,255,.18)','rgba(0,60,200,0)'],haloR:5,isPowerup:true},
 ];
 function pickEnemyType(l){
-  // Event forced type
   if(G&&G._forceEnemyType){const t=ENEMY_TYPES.find(e=>e.key===G._forceEnemyType);if(t)return t;}
-  if(l<3)return ENEMY_TYPES[0];
   const r=Math.random();
-  if(l<5)return r<.75?ENEMY_TYPES[0]:ENEMY_TYPES[1];
-  if(l<8)return r<.5?ENEMY_TYPES[0]:r<.8?ENEMY_TYPES[1]:ENEMY_TYPES[2];
-  return ENEMY_TYPES[Math.floor(Math.random()*ENEMY_TYPES.length)];
+  if(l<3) return ENEMY_TYPES[0]; // solo normal
+  if(l<6) return r<.80?ENEMY_TYPES[0]:ENEMY_TYPES[2]; // normal + heavy
+  if(l<10) return r<.60?ENEMY_TYPES[0]:r<.85?ENEMY_TYPES[2]:ENEMY_TYPES[3]; // normal, heavy, ghost
+  if(l<14) return r<.45?ENEMY_TYPES[0]:r<.70?ENEMY_TYPES[2]:r<.85?ENEMY_TYPES[3]:ENEMY_TYPES[1]; // fast raro
+  // Livello 14+: tutto incluso ma fast più presente
+  return r<.30?ENEMY_TYPES[0]:r<.55?ENEMY_TYPES[2]:r<.75?ENEMY_TYPES[1]:ENEMY_TYPES[3];
 }
 
 // Tutorial
@@ -3032,17 +3033,19 @@ function update(){
   if(G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
 
   // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=500+Math.floor(Math.random()*300);
+  if(!G.powerupTimer) G.powerupTimer=Math.max(250,500-Math.floor((G.level||1)*15))+Math.floor(Math.random()*200);
   G.powerupTimer--;
   if(G.powerupTimer<=0){
-    G.powerupTimer=600+Math.floor(Math.random()*300);
+    G.powerupTimer=Math.max(300,550-Math.floor((G.level||1)*12))+Math.floor(Math.random()*200);
     const hasBoost =G.enemies.some(e=>e.type.key==='boost');
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
     if(!hasBoost&&!hasSlow&&!hasShield){
-      // Spawn uno dei tre power-up — shield meno frequente (20%)
-      const r=Math.random();
-      const type=r<0.4?ENEMY_TYPES[4]:r<0.8?ENEMY_TYPES[5]:ENEMY_TYPES[7];
+      // Shield dominante — boost e slow rari
+      const _lv=G.level||1;
+      const _shieldProb=Math.min(0.75, 0.55+(_lv-1)*0.02); // 55% → 75%
+      const _r=Math.random();
+      const type=_r<_shieldProb?ENEMY_TYPES[7]:_r<(_shieldProb+0.15)?ENEMY_TYPES[4]:ENEMY_TYPES[5];
       spawnPowerup(type);
     }
   }
@@ -3333,7 +3336,9 @@ function clearPowerup(){
   if(key==='boost'){
     G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL; // ripristina base
   } else if(key==='slow'){
-    G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL; // ripristina sempre la base
+    // Ripristina velocità base del livello corrente — mai più veloce del normale
+    G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    G.slowMo=0;
   } else if(key==='shield'){
     G.shieldActive=false;
     showMsg('🛡 SCUDO ESAURITO','#44aaff');
