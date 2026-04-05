@@ -2032,7 +2032,7 @@ const flashEl=document.getElementById('flash');
 const survivalFill=document.getElementById('survivalFill');
 const enemyCountEl=document.getElementById('enemyCountVal');
 
-const FRAMES_PER_LEVEL=480,BASE_SPEED=2.2,SPEED_PER_LEVEL=0.28,BASE_ENEMIES=1,SPAWN_INTERVAL=80;
+const FRAMES_PER_LEVEL=420,BASE_SPEED=2.4,SPEED_PER_LEVEL=0.32,BASE_ENEMIES=1,SPAWN_INTERVAL=75;
 // ENEMY_TYPES indexes: 0=normal, 1=fast, 2=heavy, 3=ghost, 4=boost, 5=slow, 6=zigzag, 7=shield, 8=boss
 const ENEMY_TYPES=[
   {key:'normal',rMult:.065,spdMult:1.0,color0:'#ffddcc',color1:'#ff3355',color2:'#990022',haloCols:['rgba(255,34,68,.38)','rgba(255,80,30,.12)','rgba(255,0,0,0)'],haloR:5},           // 0
@@ -3222,7 +3222,17 @@ function update(){
   updateBoss();  const _sm2=getScoreMultiplier()||1;
   G.score=Math.floor(G.frameCount/5*(isNaN(_sm2)?1:_sm2));
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
-  if(nl!==G.level){G.level=nl;G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.5),8);levelBump();if(nl%10===0&&!G.bossActive)setTimeout(()=>spawnBoss(),1000);}
+  if(nl!==G.level){
+    G.level=nl;
+    G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.7),10);
+    levelBump();
+    if(nl%10===0&&!G.bossActive){
+      // Prima zigzag (500ms), poi boss (5000ms — dopo che zigzag è finito)
+      setTimeout(()=>{if(G.running)spawnZigzagWave();},500);
+      setTimeout(()=>{if(G.running&&!G.bossActive)spawnBoss();},5000);
+    }
+  }
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
   survivalFill.style.background=G.lives===1?'linear-gradient(90deg,#ff2244,#ff6633)':G.lives===2?'linear-gradient(90deg,#ff8800,#ffcc00)':'linear-gradient(90deg,#4af0d0,#7ec8ff)';
   const _sm=G.slowMo>0?(G.slowMo--,.25):G._slowActive?.25:1;
@@ -3626,7 +3636,7 @@ function levelBump(){
   showMsg(isMajor?'🔥 LEVEL '+G.level+' 🔥':'LEVEL '+G.level,isMajor?'#ff8844':'#ffe566');
   levelValEl.classList.add('bump');setTimeout(()=>levelValEl.classList.remove('bump'),420);
   updateLevelUI();sndLevelUp(isMajor);haptic(isMajor?[30,15,30,15,60]:[20,10,20,10,40]);
-  if(isMajor)setTimeout(spawnZigzagWave,1200);
+  // zigzag ai livelli major gestito nel loop principale
   G.nearMissStreak=0;
 }
 
@@ -5597,7 +5607,7 @@ function startEventGame(){
     if(m.startLevel){
       G.level=m.startLevel;G.frameCount=m.startLevel*FRAMES_PER_LEVEL;
       G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-      G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.5),8);updateLevelUI();
+      G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.7),10);updateLevelUI();
     }
     if(m.speed)G.speed*=m.speed;
     if(m.nmMult)G._nmMult=m.nmMult;
