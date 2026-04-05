@@ -3714,7 +3714,7 @@ function drawPlayer(){
 function drawEnemies(){
   for(const e of G.enemies){
     const x=e.x,y=e.y,t=e.type,r=ORBIT_R*t.rMult*(1+.11*Math.sin(e.life*.17+e.pulsePhase));
-    const alpha=e.life<20?e.life/20:1,_ghostMult=(t.key==='ghost'&&getOrbPower()==='ghost_vision'?0.95:0.5),finalAlpha=t.key==='ghost'?alpha*(_ghostMult+.5*Math.sin(e.life*.08+e.pulsePhase)):alpha;
+    const alpha=e.life<20?e.life/20:1,_gv=getOrbPower()==='ghost_vision',finalAlpha=t.key==='ghost'?alpha*(_gv?0.85:(0.15+0.15*Math.sin(e.life*.08+e.pulsePhase))):alpha;
     ctx.save();ctx.globalAlpha=finalAlpha;
     const h=ctx.createRadialGradient(x,y,0,x,y,r*t.haloR);h.addColorStop(0,t.haloCols[0]);h.addColorStop(.5,t.haloCols[1]);h.addColorStop(1,t.haloCols[2]);ctx.fillStyle=h;ctx.beginPath();ctx.arc(x,y,r*t.haloR,0,Math.PI*2);ctx.fill();
     const c=ctx.createRadialGradient(x-r*.3,y-r*.35,0,x,y,r);c.addColorStop(0,t.color0);c.addColorStop(.3,t.color1);c.addColorStop(1,t.color2);ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
