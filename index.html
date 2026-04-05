@@ -459,6 +459,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <button class="menu-btn" onclick="showReplay()"><span class="micon">▶</span><span>Replay</span></button>
     <button class="menu-btn" onclick="show('langOverlay');hide('startOverlay')"><span class="micon">🌐</span><span data-i18n="language">Lingua</span></button>
     <button class="menu-btn" style="grid-column:span 2;border-color:rgba(255,229,102,.2);background:rgba(255,229,102,.04)" onclick="showReferralPanel()"><span class="micon">⚔️</span><span>Sfida un Amico</span></button>
+    <a class="menu-btn" href="https://t.me/+h1n4REci1sthOGJk" target="_blank" style="text-decoration:none;border-color:rgba(0,136,204,.4);background:rgba(0,136,204,.07)"><span class="micon">✈️</span><span>Telegram</span></a>
+    <a class="menu-btn" href="https://discord.gg/guH9fZTKp" target="_blank" style="text-decoration:none;border-color:rgba(88,101,242,.4);background:rgba(88,101,242,.07)"><span class="micon">💬</span><span>Discord</span></a>
   </div>
 </div>
 
@@ -1677,7 +1679,7 @@ async function loadInventoryFromFirebase(name){
 }
 
 async function lbPost(name,score){if(!USE_LB||!name||name==='ZIVVER')return;try{const orb=selectedOrbId||'cyan';const ex=await fbGet('/scores/'+encodeURIComponent(name));if(ex&&ex.score>=score){console.log('[LB] score non migliorato');return;}await fbSet('/scores/'+encodeURIComponent(name),{name,score,orb,ts:Date.now()});console.log('[LB] Salvato:',name,score);}catch(e){console.log('[LB] lbPost error:',e.message);}}
-async function lbGet(limit=15){if(!USE_LB)return getMockLB();try{const data=await fbGet('/scores');if(data){const rows=Object.values(data).filter(r=>r&&r.name&&r.score).sort((a,b)=>b.score-a.score).slice(0,limit);if(rows.length>0){try{localStorage.setItem('zivve_lb_cache',JSON.stringify({ts:Date.now(),rows}));}catch(_e){}console.log('[LB] Firebase OK:',rows.length,'records');return rows;}}}catch(e){console.log('[LB] lbGet error:',e.message);try{const cached=JSON.parse(localStorage.getItem('zivve_lb_cache')||'null');if(cached&&cached.rows&&Date.now()-cached.ts<300000)return cached.rows;}catch(_e2){}}return getMockLB();}
+async function lbGet(limit=15){if(!USE_LB)return getMockLB();try{const data=await fbGet('/scores');if(data){const rows=Object.values(data).filter(r=>r&&r.name&&r.score).sort((a,b)=>b.score-a.score).slice(0,limit);if(rows.length>0){console.log('[LB] Firebase OK:',rows.length,'records');return rows;}}}catch(e){console.log('[LB] lbGet error:',e.message);}return getMockLB();}
 const BOT_PLAYERS=[
   {name:'ARIA',    base:480, var:120},
   {name:'NEXO',   base:340, var:100},
@@ -2027,7 +2029,7 @@ const flashEl=document.getElementById('flash');
 const survivalFill=document.getElementById('survivalFill');
 const enemyCountEl=document.getElementById('enemyCountVal');
 
-const FRAMES_PER_LEVEL=420,BASE_SPEED=2.4,SPEED_PER_LEVEL=0.35,BASE_ENEMIES=1,SPAWN_INTERVAL=65;
+const FRAMES_PER_LEVEL=480,BASE_SPEED=2.2,SPEED_PER_LEVEL=0.28,BASE_ENEMIES=1,SPAWN_INTERVAL=80;
 const ENEMY_TYPES=[
   {key:'normal',rMult:.065,spdMult:1.0,color0:'#ffddcc',color1:'#ff3355',color2:'#990022',haloCols:['rgba(255,34,68,.38)','rgba(255,80,30,.12)','rgba(255,0,0,0)'],haloR:5},
   {key:'fast',  rMult:.042,spdMult:1.7,color0:'#ffeecc',color1:'#ff8800',color2:'#993300',haloCols:['rgba(255,136,0,.38)','rgba(255,80,0,.12)','rgba(255,60,0,0)'],haloR:4},
@@ -3128,7 +3130,7 @@ function update(){
   updateBoss();  const _sm2=getScoreMultiplier();
   G.score=Math.floor(G.frameCount/5*_sm2);
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
-  if(nl!==G.level){G.level=nl;G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;G.maxEnemies=Math.min(BASE_ENEMIES+(G.level-1),15);levelBump();if(nl%10===0&&!G.bossActive)setTimeout(()=>spawnBoss(),1000);}
+  if(nl!==G.level){G.level=nl;G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.5),8);levelBump();if(nl%10===0&&!G.bossActive)setTimeout(()=>spawnBoss(),1000);}
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
   survivalFill.style.background=G.lives===1?'linear-gradient(90deg,#ff2244,#ff6633)':G.lives===2?'linear-gradient(90deg,#ff8800,#ffcc00)':'linear-gradient(90deg,#4af0d0,#7ec8ff)';
   const _sm=G.slowMo>0?(G.slowMo--,.25):1;
@@ -3139,10 +3141,10 @@ function update(){
   if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
 
   // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=Math.max(180,420-Math.floor((G.level||1)*15))+Math.floor(Math.random()*150);
+  if(!G.powerupTimer) G.powerupTimer=Math.max(120,300-Math.floor((G.level||1)*12))+Math.floor(Math.random()*100);
   G.powerupTimer--;
   if(G.powerupTimer<=0){
-    G.powerupTimer=Math.max(200,450-Math.floor((G.level||1)*12))+Math.floor(Math.random()*150);
+    G.powerupTimer=Math.max(150,350-Math.floor((G.level||1)*10))+Math.floor(Math.random()*100);
     const hasBoost =G.enemies.some(e=>e.type.key==='boost');
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
@@ -5490,7 +5492,7 @@ function startEventGame(){
     if(m.startLevel){
       G.level=m.startLevel;G.frameCount=m.startLevel*FRAMES_PER_LEVEL;
       G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-      G.maxEnemies=Math.min(BASE_ENEMIES+(G.level-1),15);updateLevelUI();
+      G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.5),8);updateLevelUI();
     }
     if(m.speed)G.speed*=m.speed;
     if(m.nmMult)G._nmMult=m.nmMult;
