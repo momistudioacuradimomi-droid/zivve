@@ -3577,9 +3577,13 @@ function clearPowerup(){
   if(key==='boost'){
     G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL; // ripristina base
   } else if(key==='slow'){
-    // Ripristina velocità base del livello corrente — mai più veloce del normale
-    G.speed = BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    G._slowActive=false;
     G.slowMo=0;
+    // Dopo slow: piccolo boost temporaneo +20% per 3s
+    const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    G.speed=baseSpd*1.2;
+    setTimeout(()=>{if(G&&G.running&&!G._slowActive&&(!G.activePowerup||G.activePowerup.key!=='boost'))G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;},3000);
+    showMsg('💨 BACK TO SPEED!','#8833ff');
   } else if(key==='shield'){
     G.shieldActive=false;
     showMsg('🛡 SCUDO ESAURITO','#44aaff');
