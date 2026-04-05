@@ -2510,15 +2510,23 @@ function spawnBoss(){
 function updateBoss(){
   if(!G.bossActive) return;
   G.bossTimer--;
+  // Boss insegue il giocatore
+  const boss=G.enemies.find(e=>e._isBoss);
+  if(boss){
+    const px=CX+Math.cos(G.angle)*ORBIT_R;
+    const py=CY+Math.sin(G.angle)*ORBIT_R;
+    const dx=px-boss.x, dy=py-boss.y;
+    const dist=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+    const speed=0.6; // velocità inseguimento
+    boss.vx=boss.vx*0.85+(dx/dist)*speed*0.15;
+    boss.vy=boss.vy*0.85+(dy/dist)*speed*0.15;
+  }
   // Aggiorna HUD timer boss
   const secsLeft=Math.ceil(G.bossTimer/60);
   if(G.bossTimer%60===0&&secsLeft>0&&secsLeft<=10){
     showMsg('👾 '+secsLeft+'s...','#cc00cc');
   }
-  if(G.bossTimer<=0){
-    // CLEARED!
-    bossCleared();
-  }
+  if(G.bossTimer<=0) bossCleared();
 }
 
 function bossCleared(){
@@ -3193,7 +3201,7 @@ function update(){
   if(nl!==G.level){G.level=nl;G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;G.maxEnemies=Math.min(BASE_ENEMIES+Math.floor((G.level-1)*0.5),8);levelBump();if(nl%10===0&&!G.bossActive)setTimeout(()=>spawnBoss(),1000);}
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
   survivalFill.style.background=G.lives===1?'linear-gradient(90deg,#ff2244,#ff6633)':G.lives===2?'linear-gradient(90deg,#ff8800,#ffcc00)':'linear-gradient(90deg,#4af0d0,#7ec8ff)';
-  const _sm=G.slowMo>0?(G.slowMo--,.25):1;
+  const _sm=G.slowMo>0?(G.slowMo--,.25):G._slowActive?.25:1;
   G.angle+=(G.speed*G.dir*_sm)*(Math.PI/180);
   G.trails.push({x:CX+Math.cos(G.angle)*ORBIT_R,y:CY+Math.sin(G.angle)*ORBIT_R});
   if(G.trails.length>26)G.trails.shift();
@@ -3472,7 +3480,8 @@ function spawnZigzag(startSide, mainDir, index){
 function applyPowerup(key, px, py){
   const DURATION=(getOrbPower()==='rainbow_power'?2:1)*60*60;
   // Rimuovi eventuale powerup precedente
-  if(G.activePowerup) clearPowerup();
+  // Se prendo shield, non rimuovere slow/boost attivo
+  if(G.activePowerup&&key!=='shield') clearPowerup();
 
   if(key==='boost'){
     const boostSpd=Math.min(BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL+3, (BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL)*1.4);
@@ -3484,9 +3493,10 @@ function applyPowerup(key, px, py){
     haptic([15,10,15,10,30]);
   } else if(key==='slow'){
     const _siesta=getOrbPower()==='siesta'?3:1;
-    const slowDur=15000*_siesta; // 15 secondi reali
-    G.activePowerup={key,timer:DURATION,endTime:Date.now()+slowDur,savedSpeed:BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL};
-    G.speed=Math.max(0.3, (BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL)*0.25);
+    const slowDur=15000*_siesta;
+    G.activePowerup={key,timer:DURATION,endTime:Date.now()+slowDur,savedSpeed:null};
+    // Non toccare G.speed — usa il flag _slowActive nel loop
+    G._slowActive=true;
     showMsg('🔮 ULTRA SLOW!','#8833ff');
     flashScreen('rgba(136,51,255,0.18)');
     sndSlow();
