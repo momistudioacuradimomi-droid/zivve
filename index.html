@@ -2631,6 +2631,8 @@ function startGame(seed){
      shieldActive:false,
      adapt:{framesSinceTap:0,nearMissAccum:0,wasClose:false}};
   for(let i=0;i<BASE_ENEMIES;i++)spawnEnemy(true);
+  // Spawn scudo immediato all'avvio
+  setTimeout(()=>{if(G&&G.running)spawnPowerup(ENEMY_TYPES[7]);},2000);
   applyOrbPower(); // attiva potere sfera
   updateLivesUI();updateLevelUI();
   try{getAudio();stopMenuMusic();stopDriftMelody();startGameMusic();}catch(e){}
@@ -3200,10 +3202,10 @@ function update(){
   if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
 
   // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=Math.max(90,240-Math.floor((G.level||1)*10))+Math.floor(Math.random()*80);
+  if(!G.powerupTimer) G.powerupTimer=60+Math.floor(Math.random()*60); // 1-2 secondi al primo spawn
   G.powerupTimer--;
   if(G.powerupTimer<=0){
-    G.powerupTimer=Math.max(100,280-Math.floor((G.level||1)*8))+Math.floor(Math.random()*80);
+    G.powerupTimer=Math.max(60,180-Math.floor((G.level||1)*5))+Math.floor(Math.random()*60); // 1-3s
     const hasBoost =G.enemies.some(e=>e.type.key==='boost');
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
@@ -3389,7 +3391,8 @@ function spawnPowerup(type){
   G.enemies.push({x,y,vx:Math.cos(dir)*spd,vy:Math.sin(dir)*spd,life:0,
     pulsePhase:Math.random()*Math.PI*2,
     driftX:(Math.random()-.5)*.012,driftY:(Math.random()-.5)*.012,
-    type,totalLife:720});
+    // Shield dura 30s, altri 12s
+    type,totalLife:type.key==='shield'?1800:720});
 }
 
 // ══════════════════════════════════════
@@ -3533,7 +3536,8 @@ function registerHit(px,py,e){
     sndShieldHit();haptic([10,5,10]);
     return; // nessun danno
   }
-  G.lives--;G.shaking=24;G.invincible=48;updateLivesUI();
+  G.lives--;G.shaking=24;G.invincible=180;updateLivesUI();
+  setTimeout(()=>{if(G&&G.running&&!G.enemies.some(e=>e.type.key==='shield'))spawnPowerup(ENEMY_TYPES[7]);},1500);
   for(let i=0;i<32;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*5+1.5;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:55+Math.random()*20,color:i<16?'#ff2244':'#ff6633',r:Math.random()*4+1.5});}
   for(let i=0;i<12;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*3+.5;G.particles.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:35,color:'#ff8866',r:Math.random()*3+1});}
   G.rings.push({x:px,y:py,r:0,alpha:.85,color:'#ff2244',grow:10});
