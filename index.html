@@ -3229,8 +3229,18 @@ function update(){
     levelBump();
     if(nl%10===0&&!G.bossActive){
       // Prima zigzag (500ms), poi boss (5000ms — dopo che zigzag è finito)
-      setTimeout(()=>{if(G.running)spawnZigzagWave();},500);
-      setTimeout(()=>{if(G.running&&!G.bossActive)spawnBoss();},5000);
+      setTimeout(()=>{
+        if(G&&G.running&&!G.bossActive){
+          spawnZigzagWave();
+          console.log('[LV10] ZAP spawned at level',G.level);
+        }
+      },800);
+      setTimeout(()=>{
+        if(G&&G.running&&!G.bossActive){
+          spawnBoss();
+          console.log('[LV10] BOSS spawned');
+        }
+      },6000);
     }
   }
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
@@ -3453,7 +3463,8 @@ function spawnPowerup(type){
 //  ZIGZAG WAVE SPAWNER
 // ══════════════════════════════════════
 function spawnZigzagWave(){
-  if(!G.running) return;
+  if(!G||!G.running) return;
+  console.log('[ZAP] spawnZigzagWave level=',G.level);
   // Spawn 3 sfere zigzag in sequenza con breve delay
   const variants=[
     {startSide:'left',  dir:'down'},
@@ -3477,7 +3488,7 @@ function spawnZigzagWave(){
 function spawnZigzag(startSide, mainDir, index){
   const type=ENEMY_TYPES[6]; // zigzag type
   const zigAmp = ORBIT_R * (.55 + Math.random()*.3);  // ampiezza zig
-  const speed  = 2.8 + (G.level-10)*.15 + Math.random()*.5; // velocità trasversale
+  const speed  = 2.8 + Math.max(0,(G.level-10))*.15 + Math.random()*.5; // velocità trasversale
   const zigFreq= .045 + Math.random()*.02;  // frequenza oscillazione
 
   let x,y,vx,vy;
