@@ -1001,12 +1001,12 @@ const ORB_CATALOG = [
   {id:'glitter_rainbow',cat:'glitter',name:'Rainbow',price:'€2.49', draw:(c,x,y,r)=>drawOrbGlitterRainbow(c,x,y,r), power:'rainbow_power', powerDesc:'Power-up durano il doppio + punteggio +30%'},
   // NATIONS
   {id:'flag_it', cat:'nations',name:'Italy',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#009246','#ffffff','#ce2b37']), power:'ferrari_speed', powerDesc:'Velocità base +15% — vai più forte di chiunque'},
-  {id:'flag_us', cat:'nations',name:'USA',           price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagUSA(c,x,y,r), power:'freedom', powerDesc:'Punteggio non cala se perdi una vita'},
+  {id:'flag_us', cat:'nations',name:'USA',           price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagUSA(c,x,y,r), power:'freedom', powerDesc:'+15% punteggio per ogni vita persa — più rischi, più guadagni'},
   {id:'flag_es', cat:'nations',name:'Spain',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#c60b1e','#ffc400','#c60b1e']), power:'siesta', powerDesc:'Lo slow-mo dura 3 volte più a lungo'},
   {id:'flag_fr', cat:'nations',name:'France',        price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#002395','#ffffff','#ed2939']), power:'elegance', powerDesc:'Zona near miss più ampia del 15%'},
   {id:'flag_de', cat:'nations',name:'Germany',       price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#000000','#dd0000','#ffce00']), power:'precision', powerDesc:'Hitbox ridotta del 20% — più difficile essere colpiti'},
   {id:'flag_br', cat:'nations',name:'Brazil',        price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagBrazil(c,x,y,r), power:'carnival_rush', powerDesc:'Ogni 10 nemici schivati: +200 punti esplosivi'},
-  {id:'flag_jp', cat:'nations',name:'Japan',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagJapan(c,x,y,r), power:'samurai', powerDesc:'Inversione di direzione istantanea — zero ritardo'},
+  {id:'flag_jp', cat:'nations',name:'Japan',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagJapan(c,x,y,r), power:'samurai', powerDesc:'Ogni inversione attiva 0.5s di slow-mo — più tocchi, più controllo hai'},
   {id:'flag_cn', cat:'nations',name:'China',         price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagChina(c,x,y,r), power:'dragon', powerDesc:'Dopo 30s: compare un drago bonus. Schivalo per +500 pt'},
   {id:'flag_gb', cat:'nations',name:'UK',            price:'€1.49', draw:(c,x,y,r)=>drawOrbFlagUK(c,x,y,r), power:'stoic', powerDesc:'50% di probabilità di assorbire ogni colpo — max 2 volte a partita'},
   {id:'flag_ru', cat:'nations',name:'Russia',        price:'€1.49', draw:(c,x,y,r)=>drawOrbFlag(c,x,y,r,['#ffffff','#0039a6','#d52b1e']), power:'iron_will', powerDesc:'Con 1 vita rimasta: velocità nemici -25%'},
@@ -1026,7 +1026,7 @@ const ORB_CATALOG = [
 
   // ── FESTIVITÀ (disponibili solo nella finestra dell'evento) ──
   {id:'ev_natale',     cat:'festivity',name:'🎄 Christmas',  price:'€2.49', eventId:'christmas', draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'christmas'), power:'christmas_star', powerDesc:'Stella cadente ogni 20s: schivala per +300 pt oppure toccala per +1 vita'},
-  {id:'ev_pasqua',     cat:'festivity',name:'🐣 Easter',     price:'€2.49', eventId:'easter',    draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'easter'), power:'easter_egg', powerDesc:"1 nemico su 5 nasconde un uovo — schivarlo dà +1 vita"},
+  {id:'ev_pasqua',     cat:'festivity',name:'🐣 Easter',     price:'€2.49', eventId:'easter',    draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'easter'), power:'easter_egg', powerDesc:'1 nemico su 5 è un uovo dorato — schivalo da vicino per +1 vita (max 5)'},
   {id:'ev_carnevale',  cat:'festivity',name:'🎭 Carnival',   price:'€2.49', eventId:'carnival',  draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'carnival'), power:'masquerade', powerDesc:"Ogni 15s cambi costume: i nemici ti ignorano per 3s"},
   {id:'ev_halloween',  cat:'festivity',name:'🎃 Halloween',  price:'€2.49', eventId:'halloween', draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'halloween'), power:'ghost_mode', powerDesc:'Con 1 vita rimasta: diventi un fantasma per 10s — attraversi i nemici'},
   {id:'ev_capodanno',  cat:'festivity',name:'🎆 New Year',   price:'€2.49', eventId:'newyear',   draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'newyear'), power:'countdown_bonus', powerDesc:'Ogni minuto di gioco: bonus = secondi*10 punti'},
@@ -2287,6 +2287,19 @@ function updateOrbPower(){
     }
   }
 
+  // ── POWERUP MAGNET: i powerup si avvicinano fisicamente ──
+  if(p==='powerup_magnet'){
+    const px2=CX+Math.cos(G.angle)*ORBIT_R,py2=CY+Math.sin(G.angle)*ORBIT_R;
+    G.enemies.forEach(e=>{
+      if(!e.type.isPowerup||e._isDragon||e._isEgg||e._isXmasStar) return;
+      const dx=px2-e.x,dy=py2-e.y,dist=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+      if(dist<ORBIT_R*2){
+        e.vx+=dx/dist*0.15;
+        e.vy+=dy/dist*0.15;
+      }
+    });
+  }
+
   // ── GHOST VISION: nemici ghost completamente visibili ──
   // (gestito in drawEnemies tramite getOrbPower check)
 
@@ -2458,6 +2471,7 @@ function getScoreMultiplier(){
   if(p==='rainbow_power') mult*=1.3;
   if(p==='heatwave'&&d._hwActive) mult*=1.4;
   if(p==='karma') mult*=d.karmaMultiplier||1;
+  if(p==='freedom') mult*=1+Math.max(0,(3-G.lives)*0.15); // +15% per vita persa
   if(p==='tango'){
     // tangoCount incrementato in reverseDir, non qui
     if((d.tangoCount||0)%2===0&&d.tangoCount>0) mult*=2;
@@ -2646,6 +2660,7 @@ function reverseDir(){
   if((G.frameCount-lastNM)<=4&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
   G.dir*=-1;if(G.adapt)G.adapt.framesSinceTap=0;
   if(G.orbPower==='tango'&&G.orbPowerData) G.orbPowerData.tangoCount=(G.orbPowerData.tangoCount||0)+1;
+  if(G.orbPower==='samurai') G.slowMo=Math.min((G.slowMo||0)+30,120); // +0.5s slow-mo per inversione
   G.rings.push({x:px,y:py,r:0,alpha:.7,color:'#4af0d0',grow:6});
   for(let i=0;i<7;i++){const a=Math.random()*Math.PI*2;G.particles.push({x:px,y:py,vx:Math.cos(a)*2.5,vy:Math.sin(a)*2.5,life:22,color:'#4af0d0',r:Math.random()*2+.8});}
   sndTap();haptic(15);
@@ -3185,24 +3200,20 @@ function update(){
   if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G.spawnTimer=0;spawnEnemy(false);}
 
   // Power-up spawn: ogni 600-900 frame (10-15s), max 1 attivo per tipo
-  if(!G.powerupTimer) G.powerupTimer=Math.max(120,300-Math.floor((G.level||1)*12))+Math.floor(Math.random()*100);
+  if(!G.powerupTimer) G.powerupTimer=Math.max(90,240-Math.floor((G.level||1)*10))+Math.floor(Math.random()*80);
   G.powerupTimer--;
   if(G.powerupTimer<=0){
-    G.powerupTimer=Math.max(150,350-Math.floor((G.level||1)*10))+Math.floor(Math.random()*100);
+    G.powerupTimer=Math.max(100,280-Math.floor((G.level||1)*8))+Math.floor(Math.random()*80);
     const hasBoost =G.enemies.some(e=>e.type.key==='boost');
     const hasSlow  =G.enemies.some(e=>e.type.key==='slow');
     const hasShield=G.enemies.some(e=>e.type.key==='shield');
-    // Shield: spawna sempre se non c'è già uno scudo
-    // Slow/Boost: solo se nessun powerup attivo
+    // Shield: sempre priorità massima
     if(!hasShield){
-      const _lv=G.level||1;
-      const _shieldProb=Math.min(0.80, 0.60+(_lv-1)*0.02);
+      spawnPowerup(ENEMY_TYPES[7]); // spawn SEMPRE uno scudo se non c'è
+    } else if(!hasBoost&&!hasSlow){
+      // Solo se non c'è già uno slow/boost spawna gli altri
       const _r=Math.random();
-      if(_r<_shieldProb){
-        spawnPowerup(ENEMY_TYPES[7]); // shield
-      } else if(!hasBoost&&!hasSlow){
-        spawnPowerup(_r<(_shieldProb+0.12)?ENEMY_TYPES[4]:ENEMY_TYPES[5]); // boost o slow
-      }
+      spawnPowerup(_r<0.4?ENEMY_TYPES[4]:ENEMY_TYPES[5]);
     }
   }
   const boundary=ORBIT_R*1.72;
@@ -3263,7 +3274,7 @@ function update(){
           continue;
         }
         // Power-up collection
-        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.2:1)*(getOrbPower()==='harvest'?1.6:1);
+        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.8:1)*(getOrbPower()==='harvest'?1.6:1);
         if(Math.hypot(px-e.x,py-e.y)<_collectR){
           G.enemies.splice(i,1);
           applyPowerup(e.type.key,px,py);
@@ -3341,8 +3352,8 @@ function update(){
 //  SPAWN
 // ══════════════════════════════════════
 function spawnEnemy(scattered){
-  // Easter mode: 20% dei nemici sono uova bonus
-  if(G._easterMode&&Math.random()<0.2){
+  // Easter mode (evento) o easter_egg orb: 20% nemici sono uova
+  if((G._easterMode||getOrbPower()==='easter_egg')&&Math.random()<0.2){
     const eggType={key:'egg',rMult:.08,spdMult:.6,
       color0:'#fffce0',color1:'#ffee44',color2:'#ffaa00',
       haloCols:['rgba(255,220,0,.5)','rgba(255,180,0,.2)','rgba(0,0,0,0)'],
