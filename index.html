@@ -1316,7 +1316,11 @@ function buildShop(){
         const subtext=isTester()?'':!owned?(orb.cat==='earned'?earnLabel:festBadge==='locked_time'?getEventWindowLabel(orb.eventId):orb.price===0?'':price):'';
         const _pBonus=typeof getParagonPowerBonus==='function'?getParagonPowerBonus():1;
         const _pBonusPct=Math.round((_pBonus-1)*100);
-        const _pBonusTag=_pBonusPct>0?`<div style="font-size:7px;color:#ffd700;letter-spacing:.06em;margin-top:2px;text-align:center">✦ PARAGON +${_pBonusPct}% potere</div>`:'';
+        const _pbp=typeof getParagonBonusPower==='function'?getParagonBonusPower():null;
+        const _pBonusTag=_pBonusPct>0
+          ? `<div style="font-size:7px;color:#ffd700;letter-spacing:.06em;margin-top:2px;text-align:center">✦ PARAGON +${_pBonusPct}% potere</div>`
+            +(_pbp?`<div style="font-size:7px;color:#ffdd88;letter-spacing:.04em;margin-top:1px;text-align:center;line-height:1.4;padding:0 2px">⚡² ${_pbp.desc}</div>`:'')
+          : '';
         const powerBadge=orb.power&&orb.power!=='none'
           ? `<div style="font-size:11px;color:#4af0d0;letter-spacing:.02em;line-height:1.4;margin-top:3px;text-align:center;padding:2px 4px">⚡ ${orb.powerDesc}</div>${_pBonusTag}`
           : (orb.cat==='free'?'<div style="font-size:7px;color:rgba(200,220,255,.25);margin-top:2px;text-align:center">nessun potere</div>':'');
@@ -1334,10 +1338,12 @@ function buildShop(){
     if(selPowerEl){
       const _pBns=typeof getParagonPowerBonus==='function'?getParagonPowerBonus():1;
       const _pBnsPct=Math.round((_pBns-1)*100);
-      const _pBnsTag=_pBnsPct>0?' ✦ +'+_pBnsPct+'% (Paragon)':'';
-      selPowerEl.textContent=selOrb&&selOrb.power&&selOrb.power!=='none'
-        ?'⚡ '+selOrb.powerDesc+_pBnsTag:'Nessun potere speciale';
-      selPowerEl.style.color=selOrb&&selOrb.power&&selOrb.power!=='none'?'#4af0d0':'rgba(200,220,255,.3)';
+      const _pbp2=typeof getParagonBonusPower==='function'?getParagonBonusPower():null;
+      const hasPow=selOrb&&selOrb.power&&selOrb.power!=='none';
+      let _txt=hasPow?'⚡ '+selOrb.powerDesc:'Nessun potere speciale';
+      if(_pBnsPct>0) _txt+=' ✦ +'+_pBnsPct+'% (Paragon)';
+      selPowerEl.innerHTML=_txt+(_pbp2&&hasPow?'<br><span style="color:#ffdd88;font-size:11px">⚡² '+_pbp2.desc+'</span>':'');
+      selPowerEl.style.color=hasPow?'#4af0d0':'rgba(200,220,255,.3)';
     }
   }
   // Render orb previews — usa img da dataURL per garantire 44x44 fissi
@@ -2504,6 +2510,126 @@ function applyOrbPower(){
     dodgesCount:0,
   };
   if(p==='glitter_purple'||p==='invincible_start') G.orbShieldFrames=8*60;
+
+  // ── PARAGON: applica secondo potere casuale se P≥1 ──
+  applyParagonBonusPower();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SISTEMA SECONDO POTERE PARAGON
+// ══════════════════════════════════════════════════════════════
+const PARAGON_BONUS_POWERS = [
+  { id:'pb_shield_pulse',  desc:'Ogni 45s: scudo automatico gratuito',
+    apply: ()=>{ G.orbPowerData._pbShieldTimer=0; },
+    update: ()=>{
+      G.orbPowerData._pbShieldTimer=(G.orbPowerData._pbShieldTimer||0)+1;
+      if(G.orbPowerData._pbShieldTimer>=45*60&&!G.shieldActive){
+        G.orbPowerData._pbShieldTimer=0;
+        const px2=CX+Math.cos(G.angle)*ORBIT_R, py2=CY+Math.sin(G.angle)*ORBIT_R;
+        applyPowerup('shield',px2,py2);
+        showMsg('✦ PARAGON — Scudo attivato!','#ffd700');
+      }
+    }
+  },
+  { id:'pb_score_chain',   desc:'Near miss consecutivi: bonus +50pt a cascata',
+    apply: ()=>{ G.orbPowerData._pbChain=0; },
+    update: ()=>{
+      // gestito in onNearMiss via G.orbPowerData._pbChain
+    }
+  },
+  { id:'pb_slow_field',    desc:'I nemici rallentano del 10% ogni 30s (max 40%)',
+    apply: ()=>{ G.orbPowerData._pbSlowStacks=0; G.orbPowerData._pbSlowTimer=0; },
+    update: ()=>{
+      G.orbPowerData._pbSlowTimer=(G.orbPowerData._pbSlowTimer||0)+1;
+      if(G.orbPowerData._pbSlowTimer>=30*60){
+        G.orbPowerData._pbSlowTimer=0;
+        const stacks=Math.min(4, (G.orbPowerData._pbSlowStacks||0)+1);
+        G.orbPowerData._pbSlowStacks=stacks;
+        const factor=1-(stacks*0.1);
+        G.enemies.forEach(e=>{ if(!e.type.isPowerup){ e.vx*=factor; e.vy*=factor; }});
+        showMsg('✦ PARAGON — Nemici -'+(stacks*10)+'% velocità!','#ffd700');
+      }
+    }
+  },
+  { id:'pb_xp_surge',      desc:'+30% XP a fine partita',
+    apply: ()=>{},
+    update: ()=>{} // applicato in endGame via getParagonXPMult
+  },
+  { id:'pb_life_steal',    desc:'Ogni 200pt: recuperi 1 vita (max 5)',
+    apply: ()=>{ G.orbPowerData._pbLifeThreshold=200; },
+    update: ()=>{
+      if(G.score>0&&G.score>=(G.orbPowerData._pbLifeThreshold||200)&&G.lives<5){
+        G.orbPowerData._pbLifeThreshold=(G.orbPowerData._pbLifeThreshold||200)+200;
+        G.lives++; updateLivesUI();
+        showMsg('✦ PARAGON — +1 vita!','#ffd700');
+        flashScreen('rgba(255,215,0,.18)');
+      }
+    }
+  },
+  { id:'pb_shockwave',     desc:'Ogni 100pt: mini-shockwave che respinge i nemici',
+    apply: ()=>{ G.orbPowerData._pbShockThreshold=100; },
+    update: ()=>{
+      if(G.score>0&&G.score>=(G.orbPowerData._pbShockThreshold||100)){
+        G.orbPowerData._pbShockThreshold=(G.orbPowerData._pbShockThreshold||100)+100;
+        G.enemies.forEach(e=>{ if(!e.type.isPowerup){ const dx=e.x-CX,dy=e.y-CY,d=Math.max(Math.sqrt(dx*dx+dy*dy),1); e.vx+=(dx/d)*6; e.vy+=(dy/d)*6; }});
+        G.shockwaves.push({r:0,alpha:.5,grow:22,color:'#ffd700'});
+      }
+    }
+  },
+  { id:'pb_ghost_dodge',   desc:'1x per partita: attraversi un nemico senza danno',
+    apply: ()=>{ G.orbPowerData._pbGhostReady=true; },
+    update: ()=>{} // gestito in registerHit
+  },
+  { id:'pb_score_burst',   desc:'Ogni minuto sopravvissuto: +150pt istantanei',
+    apply: ()=>{ G.orbPowerData._pbBurstTimer=0; },
+    update: ()=>{
+      G.orbPowerData._pbBurstTimer=(G.orbPowerData._pbBurstTimer||0)+1;
+      if(G.orbPowerData._pbBurstTimer>=60*60){
+        G.orbPowerData._pbBurstTimer=0;
+        G.score+=150; G.scoreBonus=(G.scoreBonus||0)+150;
+        showMsg('✦ PARAGON — +150pt!','#ffd700');
+        flashScreen('rgba(255,215,0,.15)');
+      }
+    }
+  },
+  { id:'pb_magnet_plus',   desc:'I power-up si attraggono da distanza doppia',
+    apply: ()=>{ G.orbPowerData._pbMagnet=true; },
+    update: ()=>{} // gestito in update() loop tramite _pbMagnet
+  },
+  { id:'pb_invert_shield', desc:'Quando perdi l\'ultima vita: 3s di invincibilità bonus',
+    apply: ()=>{ G.orbPowerData._pbInvertUsed=false; },
+    update: ()=>{} // gestito in registerHit
+  },
+];
+
+// Assegna secondo potere deterministico (stabile per giocatore+paragonLv)
+function getParagonBonusPower(){
+  const acc=getAccountLevel();
+  if(!acc.paragon||acc.paragon<1) return null;
+  // Hash deterministico: nome + paragon level → indice stabile
+  const seed=(playerName||'').split('').reduce((s,c)=>s+c.charCodeAt(0),0)+acc.paragon*7;
+  return PARAGON_BONUS_POWERS[seed % PARAGON_BONUS_POWERS.length];
+}
+
+function applyParagonBonusPower(){
+  const bp=getParagonBonusPower();
+  if(!bp||!G.orbPowerData) return;
+  G.orbPowerData._paragonBonusId=bp.id;
+  try{ bp.apply(); }catch(e){}
+}
+
+function updateParagonBonusPower(){
+  if(!G||!G.running||!G.orbPowerData) return;
+  const bpId=G.orbPowerData._paragonBonusId;
+  if(!bpId) return;
+  const bp=PARAGON_BONUS_POWERS.find(b=>b.id===bpId);
+  if(bp) try{ bp.update(); }catch(e){}
+}
+
+// XP multiplier da paragon bonus pb_xp_surge
+function getParagonBonusXPMult(){
+  if(!G||!G.orbPowerData) return 1;
+  return G.orbPowerData._paragonBonusId==='pb_xp_surge'?1.3:1;
 }
 
 function updateOrbPower(){
@@ -2512,6 +2638,7 @@ function updateOrbPower(){
   const d=G.orbPowerData;
   const px=CX+Math.cos(G.angle)*ORBIT_R;
   const py=CY+Math.sin(G.angle)*ORBIT_R;
+  updateParagonBonusPower();
 
   // ── Invulnerabilità iniziale ──
   if(G.orbShieldFrames>0){
@@ -3902,7 +4029,8 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
           continue;
         }
         // Power-up collection
-        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.8:1)*(getOrbPower()==='harvest'?1.6:1);
+        const _pbMagnetBonus=(G.orbPowerData&&G.orbPowerData._pbMagnet)?2:1;
+        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.8:1)*(getOrbPower()==='harvest'?1.6:1)*_pbMagnetBonus;
         if(Math.hypot(px-e.x,py-e.y)<_collectR){
           G.enemies.splice(i,1);
           applyPowerup(e.type.key,px,py);
@@ -3957,6 +4085,13 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
         G._lastNearMissFrame=G.frameCount;
         orbPowerOnNearMiss();
         onFirstNearMiss();
+        // ── PARAGON pb_score_chain: bonus +50pt a cascata sui near miss ──
+        if(G.orbPowerData&&G.orbPowerData._paragonBonusId==='pb_score_chain'){
+          G.orbPowerData._pbChain=(G.orbPowerData._pbChain||0)+1;
+          const _pbBonus=G.orbPowerData._pbChain*50;
+          G.scoreBonus=(G.scoreBonus||0)+_pbBonus;
+          if(G.orbPowerData._pbChain>=2) showMsg('✦ PARAGON CHAIN x'+G.orbPowerData._pbChain+'! +'+_pbBonus,'#ffd700');
+        }
         const sa=Math.atan2(py2-e.y,px2-e.x);
         for(let k=0;k<6;k++){const a2=sa+(.5-Math.random())*1.2;G.particles.push({x:px2,y:py2,vx:Math.cos(a2)*3,vy:Math.sin(a2)*3,life:18,color:'#ffee44',r:1.5});}
         if(G.nearMissStreak>=3){showMsg('🔥 NEAR MISS x'+G.nearMissStreak,'#ffee44');if(G.nearMissStreak%3===0)G.scoreBonus=(G.scoreBonus||0)+G.nearMissStreak*2;}
@@ -4166,6 +4301,16 @@ function clearPowerup(){
 function registerHit(px,py,e){
   // Potere orb: verifica se il colpo viene assorbito
   if(orbPowerOnHit()) return;
+
+  // ── PARAGON: pb_ghost_dodge — attraversa una volta senza danno ──
+  if(G.orbPowerData&&G.orbPowerData._pbGhostReady){
+    G.orbPowerData._pbGhostReady=false;
+    showMsg('✦ PARAGON — Colpo evitato!','#ffd700');
+    flashScreen('rgba(255,215,0,.25)');
+    G.rings.push({x:px,y:py,r:0,alpha:1,color:'#ffd700',grow:14});
+    return;
+  }
+
   // Scudo attivo: nessun danno, rimbalzo visivo
   if(G.shieldActive){
     flashScreen('rgba(68,170,255,0.35)');
@@ -4203,6 +4348,16 @@ function registerHit(px,py,e){
   if(G.lives<=1)sndLastLife();else sndHit();
   haptic([40,20,60]);
   if(G.lives<=0){
+    // ── PARAGON: pb_invert_shield — 3s invincibilità bonus prima della morte ──
+    if(G.orbPowerData&&!G.orbPowerData._pbInvertUsed){
+      G.orbPowerData._pbInvertUsed=true;
+      G.lives=1; updateLivesUI();
+      G.invincible=3*60;
+      showMsg('✦ PARAGON — Invincibilità di emergenza!','#ffd700');
+      flashScreen('rgba(255,215,0,.35)');
+      for(let _i=0;_i<3;_i++) G.shockwaves.push({r:_i*20,alpha:.7,grow:20,color:'#ffd700'});
+      return;
+    }
     G.running=false;
     G.deathX=px;G.deathY=py;G.deathZoom=1;G.deathFrame=0;
     for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*10+2;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:100+Math.random()*40,color:['#ffe566','#ff2244','#4af0d0','#ff6633','#ffffff'][i%5],r:Math.random()*6+2});}
@@ -5912,7 +6067,7 @@ async function endGame(){
   consumeBounceBack();
   // Aggiungi XP
   const _bbMult=hasBounceBack()?2:1;
-  const _xpGained=Math.floor(calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult);
+  const _xpGained=Math.floor(calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult());
   const _newXP=addXP(_xpGained);
   syncAccountToFirebase();
   const secs=Math.floor(G.frameCount/60);
