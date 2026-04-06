@@ -1314,8 +1314,11 @@ function buildShop(){
         else if(orb.price===0){ badge='<span class="orb-badge free">'+T('free')+'</span>'; cardClass=''; }
         else { badge='<span class="orb-badge premium">'+(orb.cat==='festivity'?'🎉':T('premium'))+'</span>'; cardClass=' locked'; }
         const subtext=isTester()?'':!owned?(orb.cat==='earned'?earnLabel:festBadge==='locked_time'?getEventWindowLabel(orb.eventId):orb.price===0?'':price):'';
+        const _pBonus=typeof getParagonPowerBonus==='function'?getParagonPowerBonus():1;
+        const _pBonusPct=Math.round((_pBonus-1)*100);
+        const _pBonusTag=_pBonusPct>0?`<div style="font-size:7px;color:#ffd700;letter-spacing:.06em;margin-top:2px;text-align:center">✦ PARAGON +${_pBonusPct}% potere</div>`:'';
         const powerBadge=orb.power&&orb.power!=='none'
-          ? `<div style="font-size:11px;color:#4af0d0;letter-spacing:.02em;line-height:1.4;margin-top:3px;text-align:center;padding:2px 4px">⚡ ${orb.powerDesc}</div>`
+          ? `<div style="font-size:11px;color:#4af0d0;letter-spacing:.02em;line-height:1.4;margin-top:3px;text-align:center;padding:2px 4px">⚡ ${orb.powerDesc}</div>${_pBonusTag}`
           : (orb.cat==='free'?'<div style="font-size:7px;color:rgba(200,220,255,.25);margin-top:2px;text-align:center">nessun potere</div>':'');
         const catCls=orb.cat?(' cat-'+orb.cat):'';
         return `<div class="orb-card${cardClass}${catCls}" ${cardClickable?`onclick="selectOrb('${orb.id}')"`:''}  style="${cardClickable?'':'cursor:default;'}">` + badge + `<div class="orb-preview" id="orbprev_${orb.id}"></div><div class="orb-name">${orb.name}</div><div class="orb-price" style="font-size:8px;color:${orb.cat==='earned'?'var(--gold)':'var(--dim)'}">${subtext}</div>` + progressHTML + powerBadge + `</div>`;
@@ -1329,8 +1332,11 @@ function buildShop(){
     const selOrb=getOrb(tempSelectedOrbId);
     selNameEl.textContent=selOrb?selOrb.name:'—';
     if(selPowerEl){
+      const _pBns=typeof getParagonPowerBonus==='function'?getParagonPowerBonus():1;
+      const _pBnsPct=Math.round((_pBns-1)*100);
+      const _pBnsTag=_pBnsPct>0?' ✦ +'+_pBnsPct+'% (Paragon)':'';
       selPowerEl.textContent=selOrb&&selOrb.power&&selOrb.power!=='none'
-        ?'⚡ '+selOrb.powerDesc:'Nessun potere speciale';
+        ?'⚡ '+selOrb.powerDesc+_pBnsTag:'Nessun potere speciale';
       selPowerEl.style.color=selOrb&&selOrb.power&&selOrb.power!=='none'?'#4af0d0':'rgba(200,220,255,.3)';
     }
   }
