@@ -6074,7 +6074,28 @@ async function showTourneyScreen(){
     btnClose.onclick=()=>div.remove();
     btnRow.appendChild(btnClose);
 
+    // Tasto Annulla Torneo — visibile solo se sei nell'elenco
+    const btnCancel=document.createElement('button');
+    btnCancel.textContent='🗑 ANNULLA TORNEO';
+    btnCancel.style.cssText='background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.3);color:#ff4488;padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px;width:100%;max-width:320px;margin-top:4px';
+    btnCancel.onclick=async()=>{
+      if(!confirm('Sei sicuro di voler annullare il torneo?')) return;
+      try{
+        // Rimuove dalla Firebase se sei l'host; altrimenti rimuove solo te dai membri
+        const tData=await fbGet('/tourneys/'+code);
+        if(tData&&tData.host===playerName){
+          await fbSet('/tourneys/'+code+'/status','cancelled');
+        } else {
+          await fbSet('/tourneys/'+code+'/members/'+encodeURIComponent(playerName), null);
+        }
+      }catch(e){}
+      localStorage.removeItem('zivve_tourney_code');
+      localStorage.removeItem('zivve_tourney_week');
+      div.remove();
+      showMsg('Torneo annullato','#ff4488');
+    };
     div.appendChild(btnRow);
+    div.appendChild(btnCancel);
     document.body.appendChild(div);
 
     // Ora carica la classifica in background — non sovrascrive mai il div
