@@ -1158,7 +1158,8 @@ function testerUnlockAll(){
   localStorage.setItem('zivve_bp_'+getBPMonth(),'1');
   // Starter Pack attivo
       // XP: LV.100 + P10 (P1+...+P10 = 55 * 5000 = 275000)
-      if(getAccountXP()<500000) setAccountXP(500000);
+      // XP esatta: LV.100 (4.940.106) + P10 (275.000) = 5.215.106
+      if(getAccountXP()<5215106) setAccountXP(5215106);
   // Tutti i temi campo sbloccati
   BG_THEMES.forEach(t=>localStorage.setItem('zivve_bg_unlocked_'+t.id,'1'));
   // Ghost vision permanente
