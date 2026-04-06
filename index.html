@@ -4770,13 +4770,7 @@ function calcXPForGame(score,level,time,nearMisses,perfectDodges){
   return Math.max(10,xp);
 }
 
-function showAccountLevelUp(lv){
-  const d=document.createElement('div');
-  d.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;background:rgba(3,3,10,.97);border:2px solid '+lv.color+';border-radius:12px;padding:28px 40px;text-align:center;font-family:Orbitron,sans-serif;box-shadow:0 0 40px '+lv.color+'88';
-  d.innerHTML='<div style="font-size:11px;letter-spacing:.3em;color:'+lv.color+';margin-bottom:8px">LEVEL UP!</div><div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:4px">LV.'+lv.lv+'</div><div style="font-size:18px;color:'+lv.color+';font-weight:700;letter-spacing:.1em">'+lv.name.toUpperCase()+'</div>';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),3500);
-}
+
 
 async function syncAccountToFirebase(){
   if(!playerName||playerName==='ZIVVER') return;
