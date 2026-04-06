@@ -21,6 +21,22 @@
 if(!localStorage.getItem('drift_lang')){
   localStorage.setItem('drift_lang','it');
 }
+
+function shareChallengeLink(){
+  var score=typeof bestScore!=='undefined'?bestScore:0;
+  var name=typeof playerName!=='undefined'?playerName:'ZIVVER';
+  var url=window.location.origin+window.location.pathname;
+  var text='⚔️ '+name+' ti sfida su ZIVVE! Batti '+score+' pt → '+url;
+  if(navigator.share){
+    navigator.share({title:'ZIVVE',text:text,url:url}).catch(function(){});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){
+      if(typeof showMsg==='function') showMsg('🔗 Copiato!','#ff88ff');
+    });
+  } else { prompt('Link sfida:',text); }
+}
+
+
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
