@@ -6644,7 +6644,13 @@ self.addEventListener('notificationclick',e=>{
   let deferredPrompt=null;
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();deferredPrompt=e;
-    setTimeout(showInstallBanner,3000);
+    // Mostra banner solo dopo intro + menu visibile (15s)
+    setTimeout(()=>{
+      if(document.getElementById('startOverlay')&&
+         document.getElementById('startOverlay').style.display!=='none'){
+        showInstallBanner();
+      }
+    },15000);
   });
   window._installApp=()=>{
     if(deferredPrompt){
