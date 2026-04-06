@@ -5654,59 +5654,77 @@ async function showKingSayScreen(code){
       .sort((a,b)=>b.score-a.score)
       .filter(m=>m.name!==playerName);
     const usedPenalties=t.usedPenalties||{};
+    const isHost=t.host===playerName;
 
     const div=document.createElement('div');
     div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:300;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:20px;gap:10px;font-family:Orbitron,sans-serif';
 
-    let html='<div style="font-size:10px;letter-spacing:.4em;color:#ffd700;margin-bottom:4px">👑 THE KING SAY</div>';
-    html+='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:8px;text-align:center">Penalizza o premia — 1 volta per torneo</div>';
-    html+='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:10px">Scegli chi penalizzare:</div>';
+    // Header
+    const hdr=document.createElement('div');
+    hdr.style.cssText='text-align:center;width:100%';
+    hdr.innerHTML=
+      '<div style="font-size:10px;letter-spacing:.4em;color:#ffd700;margin-bottom:4px">👑 THE KING SAY</div>'+
+      '<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:8px">Penalizza o premia — 1 volta per torneo</div>'+
+      '<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:6px;text-align:left">Scegli chi penalizzare:</div>';
+    div.appendChild(hdr);
 
+    // Lista membri da penalizzare
+    const penList=document.createElement('div');
+    penList.style.cssText='width:100%;max-width:340px;display:flex;flex-direction:column;gap:8px';
     members.forEach(function(m){
       const alreadyPenalized=usedPenalties[m.name];
-      const borderCol=alreadyPenalized?'rgba(255,34,68,.3)':'rgba(255,215,0,.2)';
-      const opac=alreadyPenalized?'.4':'1';
-      const cursor=alreadyPenalized?'default':'pointer';
-            const onclick=alreadyPenalized?'':'selectKingTarget('+JSON.stringify(m.name)+','+JSON.stringify(code)+')';
-      const penNote=alreadyPenalized?'<div style="font-size:9px;color:#ff4488;margin-top:4px">⚠️ Già penalizzato</div>':'';
-      html+='<div style="background:rgba(255,255,255,.04);border:1px solid '+borderCol+';border-radius:8px;padding:12px 16px;width:100%;max-width:320px;cursor:'+cursor+';opacity:'+opac+'" onclick="'+onclick+'">'+
+      const card=document.createElement('div');
+      card.style.cssText='background:rgba(255,255,255,.04);border:1px solid '+(alreadyPenalized?'rgba(255,34,68,.3)':'rgba(255,215,0,.2)')+';border-radius:8px;padding:12px 16px;cursor:'+(alreadyPenalized?'default':'pointer')+';opacity:'+(alreadyPenalized?'.4':'1');
+      card.innerHTML=
         '<div style="display:flex;justify-content:space-between;align-items:center">'+
         '<span style="color:#fff;font-size:12px;font-weight:700">'+m.name+'</span>'+
         '<span style="color:#4af0d0;font-size:11px">'+m.score+' pt</span></div>'+
-        penNote+'</div>';
+        (alreadyPenalized?'<div style="font-size:9px;color:#ff4488;margin-top:4px">⚠️ Già penalizzato</div>':'');
+      if(!alreadyPenalized) card.onclick=()=>{ div.remove(); selectKingTarget(m.name, code); };
+      penList.appendChild(card);
     });
+    div.appendChild(penList);
 
-    // Stessi membri per i premi
-    html+='<div id="ksRewMembers">';
+    // Sezione premi
+    const rewHdr=document.createElement('div');
+    rewHdr.innerHTML='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-top:8px;margin-bottom:6px">Oppure premia:</div>';
+    div.appendChild(rewHdr);
+
+    const rewList=document.createElement('div');
+    rewList.style.cssText='width:100%;max-width:340px;display:flex;flex-direction:column;gap:8px';
     members.forEach(function(m){
       const alreadyRewarded=(t.usedRewards||{})[m.name];
-      const borderCol2=alreadyRewarded?'rgba(74,240,208,.2)':'rgba(74,240,208,.3)';
-      const opac2=alreadyRewarded?'.4':'1';
-      const onclick2=alreadyRewarded?'':'selectKingRewardTarget('+JSON.stringify(m.name)+','+JSON.stringify(code)+')';
-      const rewNote=alreadyRewarded?'<div style="font-size:9px;color:#4af0d0;margin-top:4px">✅ Già premiato</div>':'';
-      html+='<div style="background:rgba(74,240,208,.04);border:1px solid '+borderCol2+';border-radius:8px;padding:12px 16px;width:100%;max-width:320px;cursor:'+(alreadyRewarded?'default':'pointer')+';opacity:'+opac2+'" onclick="'+onclick2+'">'+
+      const card=document.createElement('div');
+      card.style.cssText='background:rgba(74,240,208,.04);border:1px solid '+(alreadyRewarded?'rgba(74,240,208,.2)':'rgba(74,240,208,.3)')+';border-radius:8px;padding:12px 16px;cursor:'+(alreadyRewarded?'default':'pointer')+';opacity:'+(alreadyRewarded?'.4':'1');
+      card.innerHTML=
         '<div style="display:flex;justify-content:space-between;align-items:center">'+
         '<span style="color:#fff;font-size:12px;font-weight:700">'+m.name+'</span>'+
         '<span style="color:#4af0d0;font-size:11px">'+m.score+' pt</span></div>'+
-        rewNote+'</div>';
+        (alreadyRewarded?'<div style="font-size:9px;color:#4af0d0;margin-top:4px">✅ Già premiato</div>':'');
+      if(!alreadyRewarded) card.onclick=()=>{ div.remove(); selectKingRewardTarget(m.name, code); };
+      rewList.appendChild(card);
     });
-    html+='</div>';
+    div.appendChild(rewList);
 
-    div.innerHTML=html;
+    // Pulsanti — START (solo host) + ANNULLA
+    const btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:340px;margin-top:14px';
 
-    // Sposta i div nei tab corretti
-    const penTab=div.querySelector('#ksTabPen');
-    const rewTab=div.querySelector('#ksTabRew');
-    const penMembers=div.querySelectorAll('[id^="kstarget_"]');
-    const rewMembers=div.querySelector('#ksRewMembers');
-    if(penTab&&rewTab&&rewMembers){
-      rewTab.appendChild(rewMembers);
+    if(isHost){
+      const btnStart=document.createElement('button');
+      btnStart.textContent='▶ START TORNEO';
+      btnStart.style.cssText='background:linear-gradient(135deg,#4af0d0,#0088cc);color:#000;border:none;border-radius:6px;padding:12px 24px;font-weight:900;font-size:12px;cursor:pointer;font-family:Orbitron,sans-serif;letter-spacing:.05em';
+      btnStart.onclick=()=>{ div.remove(); hostStartTourney(); };
+      btnRow.appendChild(btnStart);
     }
-    const closeBtn=document.createElement('button');
-    closeBtn.textContent='← ANNULLA';
-    closeBtn.style.cssText='background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px;margin-top:8px';
-    closeBtn.onclick=()=>div.remove();
-    div.appendChild(closeBtn);
+
+    const btnClose=document.createElement('button');
+    btnClose.textContent='← ANNULLA';
+    btnClose.style.cssText='background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:12px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px';
+    btnClose.onclick=()=>div.remove();
+    btnRow.appendChild(btnClose);
+
+    div.appendChild(btnRow);
     document.body.appendChild(div);
   }catch(e){showMsg('Errore: '+e.message,'#ff4488');}
 }
