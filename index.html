@@ -558,7 +558,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
     <!-- Torneo tra amici -->
     <button class="menu-btn" style="grid-column:span 2;border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.06)" onclick="showTourneyScreen()">
-      <span class="micon">🏆</span><span>Torneo Amici</span>
+      <span class="micon">🏆</span><span>The King Say</span>
     </button>
 
     <!-- Sfida un amico -->
@@ -839,7 +839,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <span class="ch-mode-icon">📨</span>
       <div class="ch-mode-body">
         <div class="ch-mode-name">ASYNC CHALLENGE</div>
-        <div class="ch-mode-desc">Play your best, generate a link. Friends play the same session and try to beat your score. Up to 50 challengers.</div>
+        <div class="ch-mode-desc">Gioca al massimo, genera un link. Gli amici giocano la stessa sessione e cercano di battere il tuo punteggio. Fino a 50 sfidanti.</div>
         <span class="ch-mode-badge async">▶ Your pace</span>
       </div>
     </div>
@@ -847,7 +847,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <span class="ch-mode-icon">⚡</span>
       <div class="ch-mode-body">
         <div class="ch-mode-name">LIVE DUEL</div>
-        <div class="ch-mode-desc">Real-time 1v1 to 8 players. Everyone plays simultaneously. Live scoreboard. First to die loses.</div>
+        <div class="ch-mode-desc">Sfida in tempo reale da 1v1 fino a 8 giocatori. Tutti giocano simultaneamente. Classifica live. Chi muore per primo perde.</div>
         <span class="ch-mode-badge sync">▶ Real-time</span>
       </div>
     </div>
@@ -855,7 +855,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <span class="ch-mode-icon">🏆</span>
       <div class="ch-mode-body">
         <div class="ch-mode-name">TOURNAMENT</div>
-        <div class="ch-mode-desc">Bracket elimination. 4–16 players. Rounds advance automatically. Champion wins exclusive badge.</div>
+        <div class="ch-mode-desc">Eliminazione a bracket. Da 4 a 16 giocatori. I turni avanzano automaticamente. Il campione vince un badge esclusivo.</div>
         <span class="ch-mode-badge tourney">▶ Bracket</span>
       </div>
     </div>
@@ -944,10 +944,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <!-- TOURNAMENT -->
 <div class="overlay hidden" id="tourneyOverlay" style="display:none">
   <div class="ch-title" style="background:linear-gradient(135deg,var(--gold),#ff8855);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏆 TOURNAMENT</div>
-  <div class="ch-subtitle">Bracket elimination</div>
+  <div class="ch-subtitle">Eliminazione a bracket</div>
   <div id="tourneyLobbyContent">
     <div style="font-size:11px;color:var(--dim);text-align:center;max-width:270px;line-height:1.5;margin-bottom:18px">
-      Create a bracket (4–16 players) or join one. Rounds advance automatically. Champion earns the 👑 badge.
+      Crea un bracket (4–16 giocatori) o unisciti a uno. I turni avanzano automaticamente. Il campione guadagna il badge 👑.
     </div>
     <div style="font-size:10px;color:var(--dim);letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px;text-align:center">Players per bracket</div>
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px" id="tourneySize">
@@ -1130,7 +1130,7 @@ const ORB_CATALOG = [
   // ── GUADAGNATE — si sbloccano automaticamente con gli obiettivi ──
   {id:'earn_perfect', cat:'earned', name:'✨ Perfetta',   price:0, earnedBy:'drift_perfect_dodges', earnThreshold:1,   draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#ffffff','#ccddff','#4488ff'), power:'perfect_chain', powerDesc:"Perfect Dodge a catena: x2, x3, x4... moltiplicatore"},
   {id:'earn_veteran', cat:'earned', name:'⭐ Veterana',   price:0, earnedBy:'drift_streak',         earnThreshold:7,   draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#aaddff','#2266aa','#001144'), power:'veteran_start', powerDesc:'Inizi al livello 3 con +200 punti di vantaggio'},
-  {id:'earn_king',    cat:'earned', name:'♛ Drift King', price:0, earnedBy:'drift_best',            earnThreshold:500, draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#fff8cc','#ffd700','#884400'), power:'king_aura', powerDesc:"Ogni 100 pt: onda d'urto che respinge tutti i nemici"},
+  {id:'earn_king',    cat:'earned', name:'♛ Zivve King', price:0, earnedBy:'drift_best',            earnThreshold:500, draw:(c,x,y,r)=>drawOrbSolid(c,x,y,r,'#fff8cc','#ffd700','#884400'), power:'king_aura', powerDesc:"Ogni 100 pt: onda d'urto che respinge tutti i nemici"},
 
   // ── STAGIONI (disponibili tutto l'anno, tema stagionale) ──
   {id:'s_spring', cat:'seasonal',name:'🌸 Spring',  price:'€1.49', season:'spring',  draw:(c,x,y,r)=>drawOrbSeason(c,x,y,r,'spring'), power:'bloom', powerDesc:'Ogni 30s di gioco: guarisci 1 vita (max 3)'},
@@ -1304,7 +1304,7 @@ function buildShop(){
         else if(owned){ badge='<span class="orb-badge owned">'+T('owned')+'</span>'; cardClass=''; }
         else if(orb.cat==='earned'){
           const cond={'earn_perfect':'1 Perfect Dodge','earn_veteran':'Streak 7gg','earn_king':'Record 500pt',
-                      'nova':'Badge First Drift','endurance':'Badge 50 partite','ghost_touch':'Badge 10 near miss',
+                      'nova':'Badge First Zivve','endurance':'Badge 50 partite','ghost_touch':'Badge 10 near miss',
                       'flame':'Badge Streak 3gg','prestige':'Badge Record 500','legend':'Badge Record 1000','duel':'Badge Challenge'};
           const condTxt=cond[orb.id]||'Guadagna';
           badge='<span class="orb-badge" style="background:rgba(255,200,50,.15);color:var(--gold);font-size:6px;white-space:nowrap">🏆 '+condTxt+'</span>';
@@ -6776,14 +6776,14 @@ function maybeNotifyNearRecord(score){
 //  ACHIEVEMENT SYSTEM
 // ══════════════════════════════════════
 const ACHIEVEMENTS=[
-  {id:'first_game',  icon:'🎮', name:'First Drift',     desc:'Play your first game',                check:s=>s.gamesPlayed>=1,          prog:s=>[s.gamesPlayed,1]},
+  {id:'first_game',  icon:'🎮', name:'First Zivve',     desc:'Play your first game',                check:s=>s.gamesPlayed>=1,          prog:s=>[s.gamesPlayed,1]},
   {id:'survivor_30', icon:'⏱', name:'Survivor',        desc:'Survive 30 seconds',                  check:s=>s.bestTime>=30,            prog:s=>[Math.min(s.bestTime,30),30]},
   {id:'survivor_120',icon:'⌛', name:'Time Lord',       desc:'Survive 2 minutes',                   check:s=>s.bestTime>=120,           prog:s=>[Math.min(s.bestTime,120),120]},
   {id:'level_10',    icon:'⚡', name:'Ten Deep',        desc:'Reach level 10',                      check:s=>s.bestLevel>=10,           prog:s=>[Math.min(s.bestLevel,10),10]},
   {id:'level_20',    icon:'🔥', name:'Level 20',        desc:'Reach level 20',                      check:s=>s.bestLevel>=20,           prog:s=>[Math.min(s.bestLevel,20),20]},
   {id:'score_100',   icon:'💯', name:'Centurion',       desc:'Score 100 points',                    check:s=>s.bestScore>=100,          prog:s=>[Math.min(s.bestScore,100),100]},
-  {id:'score_500',   icon:'🌟', name:'Star Drifter',    desc:'Score 500 points',                    check:s=>s.bestScore>=500,          prog:s=>[Math.min(s.bestScore,500),500]},
-  {id:'score_1000',  icon:'👑', name:'Drift King',      desc:'Score 1000 points',                   check:s=>s.bestScore>=1000,         prog:s=>[Math.min(s.bestScore,1000),1000]},
+  {id:'score_500',   icon:'🌟', name:'Star Zivver',    desc:'Score 500 points',                    check:s=>s.bestScore>=500,          prog:s=>[Math.min(s.bestScore,500),500]},
+  {id:'score_1000',  icon:'👑', name:'Zivve King',      desc:'Score 1000 points',                   check:s=>s.bestScore>=1000,         prog:s=>[Math.min(s.bestScore,1000),1000]},
   {id:'near_miss_5', icon:'💨', name:'Close Call',      desc:'Get 5 near-misses in one game',       check:s=>s.bestNearMiss>=5,         prog:s=>[Math.min(s.bestNearMiss,5),5]},
   {id:'near_miss_10',icon:'😱', name:'Living on Edge',  desc:'Get 10 near-misses in one game',      check:s=>s.bestNearMiss>=10,        prog:s=>[Math.min(s.bestNearMiss,10),10]},
   {id:'streak_3',    icon:'🔥', name:'On Fire',         desc:'Play 3 days in a row',                check:s=>s.streak>=3,               prog:s=>[Math.min(s.streak,3),3]},
