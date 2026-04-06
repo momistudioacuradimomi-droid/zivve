@@ -4258,8 +4258,8 @@ function applyPowerup(key, px, py){
     haptic([15,10,15,10,30]);
   } else if(key==='slow'){
     const _siesta=getOrbPower()==='siesta'?3:1;
-    const slowDur=10000*_siesta; // 10 secondi
-    G.activePowerup={key,timer:DURATION,endTime:Date.now()+slowDur,savedSpeed:null};
+    const slowDur=Math.min(5000, 5000*_siesta); // max 5 secondi
+    G.activePowerup={key,timer:5*60,endTime:Date.now()+slowDur,savedSpeed:null};
     // Non toccare G.speed — usa il flag _slowActive nel loop
     G._slowActive=true;
     showMsg('🔮 ULTRA SLOW!','#8833ff');
@@ -5259,8 +5259,11 @@ function runIntro(){
   _introPlayed=true;
   // Particelle intro
   const ic=document.getElementById('introCanvas');
-  if(!ic) return;
-  ic.width=window.innerWidth;ic.height=window.innerHeight;
+  if(!ic){hideIntro();return;}
+  // Se il canvas non ha ancora dimensioni (DOM non pronto), riprova al prossimo frame
+  const _w=window.innerWidth||screen.width||375;
+  const _h=window.innerHeight||screen.height||667;
+  ic.width=_w;ic.height=_h;
   const ix=ic.getContext('2d');
   const stars=Array.from({length:80},()=>({
     x:Math.random()*ic.width,y:Math.random()*ic.height,
@@ -5827,7 +5830,7 @@ function applyRewardInGame(rewId){
       showMsg('❤️ +1 VITA DAL RE!','#ff4488'); break;
     case 'slow_gift':
       G._slowActive=true;
-      G.activePowerup={key:'slow',timer:10*60,endTime:Date.now()+10000,savedSpeed:null};
+      G.activePowerup={key:'slow',timer:5*60,endTime:Date.now()+5000,savedSpeed:null};
       showMsg('⏱️ SLOW DAL RE!','#8833ff'); break;
     case 'score_gift':
       G.scoreBonus=(G.scoreBonus||0)+200;
@@ -5973,98 +5976,137 @@ async function showTourneyScreen(){
   const week=localStorage.getItem('zivve_tourney_week');
   const isActive=code&&week===getTourneyWeekKey();
 
+  // Crea e appende SUBITO il div — non aspettare Firebase
   const div=document.createElement('div');
+  div.id='tourneyScreenDiv';
   div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:200;display:flex;flex-direction:column;align-items:center;padding:24px;gap:10px;font-family:Orbitron,sans-serif;overflow-y:auto';
 
-  let html='<div style="font-size:11px;letter-spacing:.3em;color:#ffd700;margin-bottom:4px">🏆 TORNEO TRA AMICI</div>';
+  // Header sempre visibile
+  const header=document.createElement('div');
+  header.innerHTML='<div style="font-size:11px;letter-spacing:.3em;color:#ffd700;margin-bottom:4px">🏆 THE KING SAY</div>';
+  div.appendChild(header);
 
   if(isActive){
-    html+='<div style="font-size:13px;color:#4af0d0;font-weight:700;margin-bottom:4px">Codice: <span style="color:#ffd700;letter-spacing:.2em">'+code+'</span></div>';
-    html+='<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:12px">Invia questo codice ai tuoi amici</div>';
+    // Codice visibile immediatamente
+    const codeEl=document.createElement('div');
+    codeEl.innerHTML=
+      '<div style="font-size:13px;color:#4af0d0;font-weight:700;margin-bottom:4px">Codice: <span style="color:#ffd700;letter-spacing:.2em;font-size:18px">'+code+'</span></div>'+
+      '<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:12px">Invia questo codice ai tuoi amici</div>';
+    div.appendChild(codeEl);
 
-    // Carica classifica torneo
+    // Placeholder classifica — viene popolata dopo
+    const lbEl=document.createElement('div');
+    lbEl.id='_tourneyLbSlot';
+    lbEl.style.cssText='width:100%;max-width:320px;min-height:60px;display:flex;align-items:center;justify-content:center';
+    lbEl.innerHTML='<div style="color:rgba(200,220,255,.3);font-size:10px">Caricamento classifica…</div>';
+    div.appendChild(lbEl);
+
+    // Bottoni azioni
+    const btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:320px;margin-top:8px';
+
+    const btnRefresh=document.createElement('button');
+    btnRefresh.textContent='🔄 AGGIORNA';
+    btnRefresh.style.cssText='background:rgba(74,240,208,.1);border:1px solid rgba(74,240,208,.3);color:#4af0d0;padding:12px 20px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer';
+    btnRefresh.onclick=()=>{div.remove();showTourneyScreen();};
+    btnRow.appendChild(btnRefresh);
+
+    const btnShare=document.createElement('button');
+    btnShare.textContent='📤 CONDIVIDI';
+    btnShare.style.cssText='background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:12px 20px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer';
+    btnShare.onclick=()=>{
+      const text='🏆 Unisciti al mio torneo ZIVVE! Codice: '+code+' — '+window.location.href;
+      if(navigator.share) navigator.share({title:'ZIVVE Torneo',text,url:window.location.href});
+      else navigator.clipboard.writeText(text).then(()=>showMsg('📋 Copiato!','#ffd700'));
+    };
+    btnRow.appendChild(btnShare);
+
+    const btnClose=document.createElement('button');
+    btnClose.textContent='← CHIUDI';
+    btnClose.style.cssText='background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px';
+    btnClose.onclick=()=>div.remove();
+    btnRow.appendChild(btnClose);
+
+    div.appendChild(btnRow);
+    document.body.appendChild(div);
+
+    // Ora carica la classifica in background — non sovrascrive mai il div
     try{
       const t=await fbGet('/tourneys/'+code);
-      if(t&&t.members){
-        const rows=Object.values(t.members).sort((a,b)=>b.score-a.score);
-        html+='<div style="width:100%;max-width:320px;background:rgba(255,255,255,.03);border:1px solid rgba(74,240,208,.15);border-radius:8px;padding:12px;margin-bottom:8px">';
-        html+='<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:8px;letter-spacing:.15em">CLASSIFICA SETTIMANALE</div>';
-        rows.forEach(function(r,i){
+      if(!t||!div.isConnected) return; // div rimosso nel frattempo
+      let lbHtml='';
+      if(t.members){
+        const rows=Object.values(t.members).filter(r=>r&&r.name).sort((a,b)=>b.score-a.score);
+        lbHtml='<div style="width:100%;max-width:320px;background:rgba(255,255,255,.03);border:1px solid rgba(74,240,208,.15);border-radius:8px;padding:12px">';
+        lbHtml+='<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:8px;letter-spacing:.15em">CLASSIFICA</div>';
+        rows.forEach((r,i)=>{
           const isKing=i===0,isMe=r.name===playerName;
-          const rankIcon=isKing?'👑':(i+1)+'.';
-          const nameCol=isMe?'#4af0d0':'#fff';
-          const nameW=isMe?'700':'400';
-          const scoreCol=isKing?'#ffd700':'rgba(200,220,255,.7)';
-          html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'+
-            '<span style="font-size:14px">'+rankIcon+'</span>'+
-            '<span style="flex:1;color:'+nameCol+';font-size:11px;font-weight:'+nameW+'">'+r.name+(isMe?' ◀':'')+'</span>'+
-            '<span style="color:'+scoreCol+';font-size:11px">'+r.score+' pt</span></div>';
+          lbHtml+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'+
+            '<span style="font-size:14px">'+(isKing?'👑':(i+1)+'.')+'</span>'+
+            '<span style="flex:1;color:'+(isMe?'#4af0d0':'#fff')+';font-size:11px;font-weight:'+(isMe?'700':'400')+'">'+r.name+(isMe?' ◀':'')+'</span>'+
+            '<span style="color:'+(isKing?'#ffd700':'rgba(200,220,255,.7)')+';font-size:11px">'+r.score+' pt</span></div>';
         });
-        html+='</div>';
+        lbHtml+='</div>';
 
         // Bottone King Say se sei il leader
         if(rows[0]&&rows[0].name===playerName&&rows.length>1){
-          html+='<div style="width:100%;max-width:320px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:8px">';
-          html+='<div style="font-size:10px;color:#ffd700;margin-bottom:4px">👑 SEI IL RE DI QUESTA SETTIMANA</div>';
-          html+='<div style="font-size:9px;color:rgba(200,220,255,.5);margin-bottom:8px">Puoi penalizzare un giocatore del torneo</div>';
-          const _ksCode=code;const _ksBtnEl=document.createElement('button');_ksBtnEl.textContent='👑 THE KING SAY';_ksBtnEl.style.cssText='background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:6px;padding:10px 20px;font-weight:900;font-size:11px;cursor:pointer;font-family:Orbitron,sans-serif';_ksBtnEl.onclick=function(){this.closest('div').parentElement.remove();activateKingSay(_ksCode);};html+='<div id="_ksBtnSlot"></div>';
-          html+='</div>';
+          const ksDiv=document.createElement('div');
+          ksDiv.style.cssText='width:100%;max-width:320px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:12px;text-align:center;margin-top:8px';
+          ksDiv.innerHTML='<div style="font-size:10px;color:#ffd700;margin-bottom:4px">👑 SEI IL RE</div>'+
+            '<div style="font-size:9px;color:rgba(200,220,255,.5);margin-bottom:8px">Puoi penalizzare un giocatore</div>';
+          const ksBtn=document.createElement('button');
+          ksBtn.textContent='👑 THE KING SAY';
+          ksBtn.style.cssText='background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:6px;padding:10px 20px;font-weight:900;font-size:11px;cursor:pointer;font-family:Orbitron,sans-serif';
+          ksBtn.onclick=()=>{div.remove();activateKingSay(code);};
+          ksDiv.appendChild(ksBtn);
+          if(div.isConnected) div.insertBefore(ksDiv, btnRow);
         }
+      } else {
+        lbHtml='<div style="color:rgba(200,220,255,.4);font-size:10px;text-align:center">Nessun giocatore ancora</div>';
       }
+      const slot=document.getElementById('_tourneyLbSlot');
+      if(slot&&div.isConnected) slot.innerHTML=lbHtml;
     }catch(e){}
+
   } else {
-    html+='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:16px;text-align:center">Crea un torneo o unisciti con un codice</div>';
-  }
+    // Nessun torneo attivo
+    const noTourney=document.createElement('div');
+    noTourney.innerHTML='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:16px;text-align:center">Crea un torneo o unisciti con un codice</div>';
+    div.appendChild(noTourney);
 
-  div.innerHTML=html;
-  const _ks=div.querySelector('#_ksBtnSlot');if(_ks&&typeof _ksBtnEl!=='undefined')_ks.replaceWith(_ksBtnEl);
+    const btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:320px';
 
-  // Bottoni azioni
-  const btnRow=document.createElement('div');
-  btnRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:320px';
-
-  if(!isActive){
     const btnCreate=document.createElement('button');
     btnCreate.textContent='➕ CREA TORNEO';
     btnCreate.style.cssText='background:linear-gradient(135deg,#4af0d0,#0088cc);color:#000;border:none;border-radius:6px;padding:12px 20px;font-weight:900;font-size:11px;cursor:pointer;font-family:Orbitron,sans-serif';
     btnCreate.onclick=async()=>{
+      btnCreate.disabled=true; btnCreate.textContent='Creazione…';
       const newCode=await createTourney();
       div.remove();
-      showMsg('✅ Torneo creato! Codice: '+newCode,'#4af0d0');
-      setTimeout(showTourneyScreen,500);
+      if(newCode) showMsg('✅ Torneo creato! Codice: '+newCode,'#4af0d0');
+      setTimeout(showTourneyScreen,400);
     };
     btnRow.appendChild(btnCreate);
-  }
 
-  const btnJoin=document.createElement('button');
-  btnJoin.textContent=isActive?'🔄 AGGIORNA':'🔗 UNISCITI';
-  btnJoin.style.cssText='background:rgba(74,240,208,.1);border:1px solid rgba(74,240,208,.3);color:#4af0d0;padding:12px 20px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer';
-  btnJoin.onclick=isActive?()=>{div.remove();setTimeout(showTourneyScreen,100);}:()=>{
-    const inputCode=prompt('Inserisci il codice torneo:');
-    if(inputCode) joinTourney(inputCode).then(ok=>{if(ok){div.remove();setTimeout(showTourneyScreen,500);}});
-  };
-  btnRow.appendChild(btnJoin);
-
-  if(isActive){
-    const btnShare2=document.createElement('button');
-    btnShare2.textContent='📤 CONDIVIDI CODICE';
-    btnShare2.style.cssText='background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:12px 20px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer';
-    btnShare2.onclick=()=>{
-      const text='🏆 Unisciti al mio torneo ZIVVE! Codice: '+code+' — '+window.location.href;
-      navigator.share?navigator.share({title:'ZIVVE Torneo',text,url:window.location.href}):
-        navigator.clipboard.writeText(text).then(()=>showMsg('📋 Copiato!','#ffd700'));
+    const btnJoin=document.createElement('button');
+    btnJoin.textContent='🔗 UNISCITI';
+    btnJoin.style.cssText='background:rgba(74,240,208,.1);border:1px solid rgba(74,240,208,.3);color:#4af0d0;padding:12px 20px;border-radius:6px;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer';
+    btnJoin.onclick=()=>{
+      const inputCode=prompt('Inserisci il codice torneo:');
+      if(inputCode) joinTourney(inputCode).then(ok=>{if(ok){div.remove();setTimeout(showTourneyScreen,500);}});
     };
-    btnRow.appendChild(btnShare2);
+    btnRow.appendChild(btnJoin);
+
+    const btnClose=document.createElement('button');
+    btnClose.textContent='← CHIUDI';
+    btnClose.style.cssText='background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px';
+    btnClose.onclick=()=>div.remove();
+    btnRow.appendChild(btnClose);
+
+    div.appendChild(btnRow);
+    document.body.appendChild(div);
   }
-
-  const closeBtn2=document.createElement('button');
-  closeBtn2.textContent='← CHIUDI';
-  closeBtn2.style.cssText='background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px';
-  closeBtn2.onclick=()=>div.remove();
-  btnRow.appendChild(closeBtn2);
-
-  div.appendChild(btnRow);
-  document.body.appendChild(div);
 }
 
 async function endGame(){
@@ -6587,36 +6629,11 @@ function setTourneySize(n){
   ['ts4','ts8','ts16'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.borderWidth=id==='ts'+n?'2px':'1px'; });
 }
 
-async function createTourney(){
-  tourneyData.code=genCode(); tourneyData.isHost=true; tourneyData.seed=genSeed(); tourneyData.round=0;
-  const players=[{name:playerName,score:0,orb:selectedOrbId,status:'waiting'}];
-  tourneyData.bracket=buildBracket(players,tourneyData.size);
-  saveTourneyLocal(); document.getElementById('tourneyCodeDisplay').textContent=tourneyData.code;
-  renderBracket(); hide('tourneyOverlay'); show('tourneyRoomOverlay');
-  document.getElementById('tourneyStartBtn').style.display='block';
-  startTourneyPoll();
-}
-
-async function joinTourney(){
-  const code=document.getElementById('tourneyJoinCode').value.trim().toUpperCase();
-  if(!code){ alert('Enter tourney code'); return; }
-  tourneyData.code=code; tourneyData.isHost=false;
-  let d=JSON.parse(localStorage.getItem('drift_tourney_'+code)||'null');
-  if(!d){ alert('Tournament not found'); return; }
-  tourneyData={...tourneyData,...d};
-  // Add self to players
-  if(!d.players.find(p=>p.name===playerName)){
-    d.players.push({name:playerName,score:0,orb:selectedOrbId,status:'waiting'});
-    d.bracket=buildBracket(d.players,d.size);
-    saveTourneyLocal(d);
-  }
-  document.getElementById('tourneyCodeDisplay').textContent=code;
-  renderBracket(); hide('tourneyOverlay'); show('tourneyRoomOverlay');
-  startTourneyPoll();
-}
+// ── createTourney (Firebase) ──
+// Nota: la definizione canonica è a riga ~5587 e usa Firebase.
+// Questa versione bracket si aggancia a quella infrastruttura.
 
 function buildBracket(players,size){
-  // Pad to size with BYE slots
   const slots=[...players];
   while(slots.length<size) slots.push({name:'BYE',score:0,status:'bye'});
   const rounds=[];
@@ -6625,48 +6642,84 @@ function buildBracket(players,size){
     const matches=[];
     for(let i=0;i<current.length;i+=2) matches.push({p1:current[i],p2:current[i+1]||{name:'BYE',score:0},winner:null});
     rounds.push(matches);
-    current=matches.map(m=>m.winner||m.p1); // placeholder
+    current=matches.map(m=>m.winner||m.p1);
   }
   return rounds;
 }
 
-function saveTourneyLocal(data){
-  const d=data||{code:tourneyData.code,size:tourneyData.size,seed:tourneyData.seed,round:tourneyData.round,bracket:tourneyData.bracket,players:tourneyData.bracket[0]?.flatMap(m=>[m.p1,m.p2])||[{name:playerName}]};
-  localStorage.setItem('drift_tourney_'+d.code,JSON.stringify(d));
-}
-
 function renderBracket(){
   const el=document.getElementById('bracketDisplay');
-  if(!tourneyData.bracket||!tourneyData.bracket.length){el.innerHTML='<div style="color:var(--dim);text-align:center;font-size:11px">No bracket yet</div>';return;}
+  if(!el) return;
+  if(!tourneyData.bracket||!tourneyData.bracket.length){
+    el.innerHTML='<div style="color:var(--dim);text-align:center;font-size:11px">Nessun bracket</div>';return;
+  }
   el.innerHTML=tourneyData.bracket.map((round,ri)=>`
     <div class="bracket-round">
-      <div class="bracket-round-title">${ri===tourneyData.bracket.length-1?'FINAL':ri===tourneyData.bracket.length-2?'SEMI-FINAL':'Round '+(ri+1)}</div>
+      <div class="bracket-round-title">${ri===tourneyData.bracket.length-1?'FINALE':ri===tourneyData.bracket.length-2?'SEMI-FINALE':'Round '+(ri+1)}</div>
       ${round.map(m=>`<div class="bracket-match">
-        <span class="bracket-player${m.p1.name===playerName?' me':''}${m.winner?.name===m.p1.name?' winner':''}">${m.p1.name}</span>
+        <span class="bracket-player${m.p1.name===playerName?' me':''}${m.winner&&m.winner.name===m.p1.name?' winner':''}">${m.p1.name}</span>
         <span class="bracket-vs">VS</span>
-        <span class="bracket-player${m.p2.name===playerName?' me':''}${m.winner?.name===m.p2.name?' winner':''}">${m.p2.name}</span>
-        ${m.winner?`<span class="bracket-score">→${m.winner.name.slice(0,6)}</span>`:''}
+        <span class="bracket-player${m.p2.name===playerName?' me':''}${m.winner&&m.winner.name===m.p2.name?' winner':''}">${m.p2.name}</span>
+        ${m.winner?'<span class="bracket-score">→'+m.winner.name.slice(0,6)+'</span>':''}
       </div>`).join('')}
     </div>`).join('');
 }
 
+// Poll Firebase ogni 2s — aggiorna bracket e rileva avvio round
 function startTourneyPoll(){
   clearInterval(tourneyPoll);
-  tourneyPoll=setInterval(()=>{
-    const d=JSON.parse(localStorage.getItem('drift_tourney_'+(tourneyData.code||''))||'null');
-    if(d){ tourneyData={...tourneyData,...d}; renderBracket();
-      const totalPlayers=d.bracket[0]?.flatMap(m=>[m.p1,m.p2]).filter(p=>p.name!=='BYE').length||0;
-      document.getElementById('tourneyStatus').textContent=`${totalPlayers} players · Round ${d.round+1}`;
-      if(d.status==='playing_round_'+d.round){ clearInterval(tourneyPoll); hide('tourneyRoomOverlay'); startTourneyRound(); }
-    }
+  tourneyPoll=setInterval(async()=>{
+    if(!tourneyData.code) return;
+    try{
+      const d=await fbGet('/tourneys/'+tourneyData.code);
+      if(!d) return;
+      // Aggiorna bracket locale da Firebase
+      if(d.bracket) tourneyData.bracket=d.bracket;
+      if(d.round!==undefined) tourneyData.round=d.round;
+      if(d.seed) tourneyData.seed=d.seed;
+      renderBracket();
+      // Aggiorna counter giocatori
+      const members=d.members?Object.values(d.members).filter(m=>m.name!=='BYE'):[];
+      const statusEl=document.getElementById('tourneyStatus');
+      if(statusEl) statusEl.textContent=members.length+' giocatori · Round '+(tourneyData.round+1);
+      // Rilevamento avvio round
+      if(d.status==='playing_round_'+tourneyData.round){
+        clearInterval(tourneyPoll);
+        hide('tourneyRoomOverlay');
+        startTourneyRound();
+      }
+      // Rilevamento fine torneo
+      if(d.status==='done'){
+        clearInterval(tourneyPoll);
+        const statusEl2=document.getElementById('tourneyStatus');
+        if(statusEl2) statusEl2.textContent=d.champion===playerName?'🏆 SEI IL CAMPIONE!':'🏆 Campione: '+(d.champion||'—');
+        const startBtn=document.getElementById('tourneyStartBtn');
+        if(startBtn) startBtn.style.display='none';
+      }
+    }catch(e){}
   },2000);
 }
 
 async function hostStartTourney(){
-  const d=JSON.parse(localStorage.getItem('drift_tourney_'+tourneyData.code)||'{}');
-  d.status='playing_round_0'; d.round=0; d.seed=tourneyData.seed;
-  localStorage.setItem('drift_tourney_'+tourneyData.code,JSON.stringify(d));
-  clearInterval(tourneyPoll); hide('tourneyRoomOverlay'); startTourneyRound();
+  if(!tourneyData.code||!tourneyData.isHost) return;
+  try{
+    // Sincronizza i membri attuali da Firebase nel bracket
+    const d=await fbGet('/tourneys/'+tourneyData.code);
+    if(!d){showMsg('Torneo non trovato','#ff4488');return;}
+    const members=d.members?Object.values(d.members).filter(m=>m&&m.name&&m.name!=='BYE'):[];
+    if(members.length<2){showMsg('Servono almeno 2 giocatori!','#ff4488');return;}
+    tourneyData.seed=genSeed();
+    tourneyData.round=0;
+    tourneyData.bracket=buildBracket(members, Math.max(members.length, tourneyData.size||4));
+    // Salva bracket + stato su Firebase
+    await fbSet('/tourneys/'+tourneyData.code+'/bracket', tourneyData.bracket);
+    await fbSet('/tourneys/'+tourneyData.code+'/seed', tourneyData.seed);
+    await fbSet('/tourneys/'+tourneyData.code+'/round', 0);
+    await fbSet('/tourneys/'+tourneyData.code+'/status', 'playing_round_0');
+  }catch(e){showMsg('Errore avvio: '+e.message,'#ff4488');return;}
+  clearInterval(tourneyPoll);
+  hide('tourneyRoomOverlay');
+  startTourneyRound();
 }
 
 function startTourneyRound(){
@@ -6675,44 +6728,68 @@ function startTourneyRound(){
 }
 
 async function afterTourneyRound(score){
-  // Update my score in bracket
-  const d=JSON.parse(localStorage.getItem('drift_tourney_'+tourneyData.code)||'{}');
-  if(d.bracket&&d.bracket[d.round]){
-    d.bracket[d.round].forEach(m=>{
-      if(m.p1.name===playerName) m.p1.score=score;
-      if(m.p2.name===playerName) m.p2.score=score;
-    });
-    // Resolve winners for this round
-    d.bracket[d.round].forEach(m=>{ if(!m.winner) m.winner=m.p1.score>=m.p2.score?m.p1:m.p2; });
-    // Build next round if host
-    if(tourneyData.isHost&&d.round+1<d.bracket.length){
-      const winners=d.bracket[d.round].map(m=>m.winner);
-      d.bracket[d.round+1]=[];
-      for(let i=0;i<winners.length;i+=2) d.bracket[d.round+1].push({p1:winners[i],p2:winners[i+1]||{name:'BYE',score:0},winner:null});
-      d.round++;
-      d.seed=genSeed();
-    } else if(d.round===d.bracket.length-1){
-      d.status='done';
+  if(!tourneyData.code) return;
+  try{
+    // Salva il mio score su Firebase
+    await fbSet('/tourneys/'+tourneyData.code+'/members/'+encodeURIComponent(playerName)+'/score', score);
+    const d=await fbGet('/tourneys/'+tourneyData.code);
+    if(!d||!d.bracket) return;
+    const bracket=d.bracket;
+    const round=d.round||0;
+    // Aggiorna score nel bracket del round corrente
+    if(bracket[round]){
+      bracket[round].forEach(m=>{
+        if(m.p1&&m.p1.name===playerName) m.p1.score=score;
+        if(m.p2&&m.p2.name===playerName) m.p2.score=score;
+      });
     }
-    localStorage.setItem('drift_tourney_'+d.code,JSON.stringify(d));
-    tourneyData={...tourneyData,...d};
-  }
-  renderBracket(); show('tourneyRoomOverlay');
-  const finalMatch=d.bracket[d.bracket.length-1]?.[0];
-  if(d.status==='done'&&finalMatch?.winner){
-    document.getElementById('tourneyStatus').textContent=finalMatch.winner.name===playerName?'🏆 YOU ARE CHAMPION!':'🏆 Champion: '+finalMatch.winner.name;
-    document.getElementById('tourneyStartBtn').style.display='none';
-  } else if(tourneyData.isHost){
-    document.getElementById('tourneyStartBtn').textContent='▶ NEXT ROUND';
-    document.getElementById('tourneyStartBtn').style.display='block';
-    document.getElementById('tourneyStartBtn').onclick=()=>{
-      const d2=JSON.parse(localStorage.getItem('drift_tourney_'+tourneyData.code)||'{}');
-      d2.status='playing_round_'+d2.round;
-      localStorage.setItem('drift_tourney_'+d2.code,JSON.stringify(d2));
-      clearInterval(tourneyPoll); hide('tourneyRoomOverlay'); startTourneyRound();
-    };
+    // Solo l'host risolve i vincitori e avanza il round
+    if(tourneyData.isHost){
+      // Aspetta 5s per raccogliere tutti i risultati prima di risolvere
+      await new Promise(r=>setTimeout(r,5000));
+      // Rilegge i dati aggiornati
+      const d2=await fbGet('/tourneys/'+tourneyData.code);
+      const br=d2.bracket||bracket;
+      if(br[round]){
+        br[round].forEach(m=>{if(!m.winner) m.winner=m.p1.score>=m.p2.score?m.p1:m.p2;});
+      }
+      const nextRound=round+1;
+      let newStatus;
+      if(nextRound<br.length){
+        // Costruisci round successivo
+        const winners=br[round].map(m=>m.winner).filter(w=>w&&w.name!=='BYE');
+        br[nextRound]=[];
+        for(let i=0;i<winners.length;i+=2)
+          br[nextRound].push({p1:winners[i],p2:winners[i+1]||{name:'BYE',score:0},winner:null});
+        newStatus='playing_round_'+nextRound;
+        const newSeed=genSeed();
+        await fbSet('/tourneys/'+tourneyData.code+'/seed', newSeed);
+        await fbSet('/tourneys/'+tourneyData.code+'/round', nextRound);
+        tourneyData.seed=newSeed;
+        tourneyData.round=nextRound;
+      } else {
+        // Torneo finito
+        const champion=br[round]?.[0]?.winner?.name||playerName;
+        newStatus='done';
+        await fbSet('/tourneys/'+tourneyData.code+'/champion', champion);
+      }
+      await fbSet('/tourneys/'+tourneyData.code+'/bracket', br);
+      await fbSet('/tourneys/'+tourneyData.code+'/status', newStatus);
+      tourneyData.bracket=br;
+    }
+  }catch(e){showMsg('Errore round: '+e.message,'#ff4488');}
+  renderBracket();
+  show('tourneyRoomOverlay');
+  if(tourneyData.isHost){
+    const startBtn=document.getElementById('tourneyStartBtn');
+    if(startBtn){
+      startBtn.textContent='▶ ROUND SUCCESSIVO';
+      startBtn.style.display='block';
+      startBtn.onclick=hostStartTourney;
+    }
   } else {
-    document.getElementById('tourneyStatus').textContent='Waiting for next round…';
+    const statusEl=document.getElementById('tourneyStatus');
+    if(statusEl) statusEl.textContent='In attesa del round successivo…';
     startTourneyPoll();
   }
 }
@@ -8823,8 +8900,10 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
   if(!_seen || _isTst){
     // Mostra intro — poi menu principale
+    _introPlayed=false; // reset per garantire che parta sempre
     show('introOverlay');
-    runIntro();
+    // Attendi un frame per assicurare che il canvas sia nel DOM e visibile
+    requestAnimationFrame(()=>requestAnimationFrame(()=>runIntro()));
   } else {
     // Direttamente al menu
     show('startOverlay');
