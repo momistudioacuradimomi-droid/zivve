@@ -5361,11 +5361,11 @@ const FRAG_KEY = 'zivve_fragments';
 const UPGRADES_KEY = 'zivve_upgrades';
 
 const PERMANENT_UPGRADES = [
-  { id:'hitbox_down', name:'Hitbox -5%',      desc:'Sei leggermente più difficile da colpire', maxLv:4, cost:[30,60,100,150], effect: lv => ({ hitboxMult: 1 - lv*0.05 }) },
-  { id:'nm_zone',     name:'Near Miss +10%',  desc:'Zona near miss più ampia',                 maxLv:3, cost:[40,80,130],     effect: lv => ({ nmZone: 1 + lv*0.10 }) },
-  { id:'xp_gain',     name:'+5% XP',          desc:'Guadagni più XP per partita',              maxLv:5, cost:[20,40,70,110,160], effect: lv => ({ xpMult: 1 + lv*0.05 }) },
-  { id:'start_score', name:'+25 Score Bonus', desc:'Inizi ogni partita con un vantaggio',      maxLv:4, cost:[25,50,90,140], effect: lv => ({ startBonus: lv*25 }) },
-  { id:'life_regen',  name:'Regen vita',      desc:'Ogni 120s recuperi 1 vita (max 4)',        maxLv:1, cost:[200],          effect: lv => ({ lifeRegen: lv===1 }) },
+  { id:'hitbox_down', name:'Hitbox -5%',      desc:'Sei leggermente più difficile da colpire', maxLv:4, cost:[150,300,500,800],    effect: lv => ({ hitboxMult: 1 - lv*0.05 }) },
+  { id:'nm_zone',     name:'Near Miss +10%',  desc:'Zona near miss più ampia',                 maxLv:3, cost:[200,450,800],         effect: lv => ({ nmZone: 1 + lv*0.10 }) },
+  { id:'xp_gain',     name:'+5% XP',          desc:'Guadagni più XP per partita',              maxLv:5, cost:[100,220,400,650,1000], effect: lv => ({ xpMult: 1 + lv*0.05 }) },
+  { id:'start_score', name:'+25 Score Bonus', desc:'Inizi ogni partita con un vantaggio',      maxLv:4, cost:[120,280,500,850],     effect: lv => ({ startBonus: lv*25 }) },
+  { id:'life_regen',  name:'Regen vita',      desc:'Ogni 120s recuperi 1 vita (max 4)',        maxLv:1, cost:[1200],                effect: lv => ({ lifeRegen: lv===1 }) },
 ];
 
 function getFragments(){ return parseInt(localStorage.getItem(FRAG_KEY)||'0'); }
@@ -5392,8 +5392,8 @@ function getActiveUpgradeEffect(effectKey){
 }
 
 function calcFragmentsForGame(score, level, secs){
-  // 1 frammento ogni 50pt + 1 ogni 30s + 1 per livello raggiunto
-  return Math.floor(score/50) + Math.floor(secs/30) + Math.floor(level/3);
+  // 1 frammento ogni 200pt + 1 ogni 90s + 1 ogni 8 livelli (max ~15 per partita normale)
+  return Math.floor(score/200) + Math.floor(secs/90) + Math.floor(level/8);
 }
 
 function showUpgradeScreen(){
