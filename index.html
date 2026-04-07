@@ -121,6 +121,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 @keyframes recPop{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
 .rec-badge{font-size:9px;letter-spacing:.22em;color:var(--gold);border:1px solid var(--gold);padding:2px 10px;margin-top:4px;display:inline-block;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);animation:badgeGlow 1s ease-in-out infinite}
 @keyframes badgeGlow{0%,100%{box-shadow:0 0 5px rgba(255,229,102,.3)}50%{box-shadow:0 0 14px rgba(255,229,102,.7)}}
+@keyframes comboPop{0%{transform:translate(-50%,-50%) scale(1.4);opacity:0}50%{opacity:1}100%{transform:translate(-50%,-50%) scale(1)}}
 /* Leaderboard */
 #lbWrap{width:100%;max-width:280px;margin-top:10px}
 .lb-title{font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:7px;text-align:center}
@@ -370,6 +371,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- UI in-game -->
 <div id="ui">
+  <div id="comboHUD" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;text-align:center;z-index:12;opacity:0;transition:opacity .3s"></div>
   <div id="levelWrap"><div id="levelLbl" data-i18n="level">Level</div><div id="levelVal">1</div></div>
   <div id="scoreWrap"><div id="scoreLbl" data-i18n="score">Score</div><div id="scoreVal">0</div></div>
   <div id="livesWrap"><div id="livesLbl" data-i18n="lives">Lives</div><div id="livesIcons"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div></div>
@@ -483,6 +485,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
   <!-- 5. GIOCA -->
   <button class="btn-play" onclick="startGame()" data-i18n="play">▶ PLAY</button>
+  <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(74,240,208,.4);color:#4af0d0;font-size:12px" onclick="startRaceModeGame()">🏁 MODALITÀ CORSA</button>
 
   <!-- 6. INIZIA LA SERIE (Last Zivver Standing) -->
   <!-- Hidden event elements per compatibilità -->
@@ -3198,6 +3201,9 @@ function startGame(seed){
   G.enemies=G.enemies.filter(e=>!e.type||!e.type.isPowerup);
   setTimeout(()=>{if(G&&G.running)spawnPowerup(ENEMY_TYPES[7]);},3000);
   applyOrbPower(); // attiva potere sfera
+  pickRunObjective();
+  if(!_raceMode){ _raceWave=0; _raceChoiceActive=false; }
+  if(_raceMode) _showRaceWaveHUD();
   updateLivesUI();updateLevelUI();
   try{getAudio();stopMenuMusic();stopDriftMelody();stopZivveMenuTheme();startGameMusic();startZivveOST();}catch(e){}
   // Avvia registrazione video
@@ -3324,6 +3330,14 @@ function shareChallengeLink(){
   } else {
     navigator.clipboard?navigator.clipboard.writeText(text).then(()=>showMsg('🔗 Link copiato!','#ff88ff')):prompt('Link sfida:',text);
   }
+}
+
+function startRaceModeGame(){
+  _raceMode=true;
+  _raceWave=0;
+  _raceChoiceActive=false;
+  startGame();
+  showMsg('🏁 MODALITÀ CORSA — Scegli un bonus ogni 30s!','#4af0d0');
 }
 
 function showStart(){updateXPBar();try{getKingRivalryText();}catch(e){}
@@ -3874,6 +3888,277 @@ function setShadow(ctx2, blur, color){
   if(color) ctx2.shadowColor=color;
 }
 
+// ══════════════════════════════════════════════════════════════
+//  COMBO HUD
+// ══════════════════════════════════════════════════════════════
+const _comboHUD = document.getElementById('comboHUD');
+let _comboHideTimer = null;
+
+function updateComboHUD(){
+  if(!_comboHUD) return;
+  const nm = G.nearMissStreak||0;
+  const pd = G.perfectDodgeCount||0;
+  const total = nm + pd;
+  if(total < 2){ _comboHUD.style.opacity='0'; return; }
+
+  const mult = G._perfectMult||1;
+  const color = pd>=6?'#ffd700':pd>=3?'#ff8800':nm>=5?'#ff4488':'#4af0d0';
+  const label = pd>=3?`⚡ PERFECT x${pd}`:`🔥 COMBO x${nm}`;
+  const multLabel = mult>1?`<div style="font-size:11px;letter-spacing:.1em;color:${color};margin-top:2px">× ${mult} MOLTIPLICATORE</div>`:'';
+
+  _comboHUD.innerHTML = `
+    <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:${color};
+      text-shadow:0 0 20px ${color};letter-spacing:.1em;animation:comboPop .2s ease">${label}</div>
+    ${multLabel}`;
+  _comboHUD.style.opacity='1';
+  clearTimeout(_comboHideTimer);
+  _comboHideTimer = setTimeout(()=>{ if(_comboHUD) _comboHUD.style.opacity='0'; }, 1800);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  OBIETTIVI DI PARTITA
+// ══════════════════════════════════════════════════════════════
+const RUN_OBJECTIVES = [
+  { id:'nm3',    label:'3 Near Miss di fila',   check: g=>g.nearMissStreak>=3,           xpBonus:80,  multBonus:.15 },
+  { id:'sur60',  label:'Sopravvivi 60s',         check: g=>Math.floor(g.frameCount/60)>=60, xpBonus:100, multBonus:.2  },
+  { id:'noshield',label:'60s senza scudo',       check: g=>!g.shieldActive&&Math.floor(g.frameCount/60)>=60, xpBonus:120, multBonus:.25 },
+  { id:'pd5',    label:'5 Perfect Dodge',        check: g=>g.perfectDodgeCount>=5,        xpBonus:150, multBonus:.3  },
+  { id:'lv10',   label:'Raggiungi livello 10',   check: g=>g.level>=10,                   xpBonus:80,  multBonus:.15 },
+  { id:'lives3', label:'Finisci con 3 vite',     check: g=>g.lives>=3,                    xpBonus:120, multBonus:.2  },
+  { id:'nm10',   label:'10 Near Miss totali',    check: g=>(g._totalNearMiss||0)>=10,     xpBonus:100, multBonus:.2  },
+  { id:'sur120', label:'Sopravvivi 2 minuti',    check: g=>Math.floor(g.frameCount/60)>=120, xpBonus:200, multBonus:.4 },
+];
+
+let _runObjective = null;
+let _objectiveDone = false;
+
+function pickRunObjective(){
+  const pool = RUN_OBJECTIVES;
+  _runObjective = pool[Math.floor(Math.random()*pool.length)];
+  _objectiveDone = false;
+  _renderObjectiveHUD();
+}
+
+function _renderObjectiveHUD(){
+  let el = document.getElementById('_objHUD');
+  if(!el){
+    el = document.createElement('div');
+    el.id = '_objHUD';
+    el.style.cssText = 'position:absolute;bottom:110px;left:50%;transform:translateX(-50%);pointer-events:none;text-align:center;font-family:Orbitron,sans-serif;z-index:12;transition:opacity .4s';
+    document.getElementById('ui').appendChild(el);
+  }
+  if(!_runObjective){ el.style.opacity='0'; return; }
+  const done = _objectiveDone;
+  el.style.opacity = done ? '0' : '1';
+  el.innerHTML = `<div style="font-size:9px;letter-spacing:.15em;color:rgba(200,220,255,.5);margin-bottom:2px">OBIETTIVO</div>
+    <div style="font-size:11px;color:${done?'#4af0d0':'#ffe566'};letter-spacing:.06em">${_runObjective.label}</div>
+    ${done?'<div style="font-size:9px;color:#4af0d0">✓ COMPLETATO</div>':''}`;
+}
+
+function checkRunObjective(){
+  if(!_runObjective||_objectiveDone||!G||!G.running) return;
+  G._totalNearMiss = (G._totalNearMiss||0); // accumulato in update
+  if(_runObjective.check(G)){
+    _objectiveDone = true;
+    G._objMultBonus = _runObjective.multBonus||0;
+    showMsg('🎯 OBIETTIVO COMPLETATO! +'+Math.round(_runObjective.multBonus*100)+'% XP','#ffe566');
+    flashScreen('rgba(255,229,102,.2)');
+    _renderObjectiveHUD();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NUOVI NEMICI: CACCIATORE, PULSANTE, MAGNETICO
+// ══════════════════════════════════════════════════════════════
+// Aggiunti a ENEMY_TYPES dinamicamente
+ENEMY_TYPES.push(
+  // 9 — Cacciatore: segue attivamente la sfera del giocatore
+  {key:'hunter', rMult:.055, spdMult:.9,
+   color0:'#ffccff',color1:'#ff44cc',color2:'#880044',
+   haloCols:['rgba(255,68,200,.5)','rgba(200,0,150,.15)','rgba(0,0,0,0)'],
+   haloR:5, isHunter:true},
+  // 10 — Pulsante: si ferma e scatta ogni 2 secondi
+  {key:'pulsar', rMult:.068, spdMult:.0,
+   color0:'#ccffff',color1:'#00ddff',color2:'#0044aa',
+   haloCols:['rgba(0,220,255,.6)','rgba(0,160,220,.2)','rgba(0,0,0,0)'],
+   haloR:6.5, isPulsar:true},
+  // 11 — Magnetico: attira la sfera se troppo vicino
+  {key:'magnet', rMult:.075, spdMult:.5,
+   color0:'#ffeedd',color1:'#ff6600',color2:'#993300',
+   haloCols:['rgba(255,100,0,.55)','rgba(220,60,0,.2)','rgba(0,0,0,0)'],
+   haloR:7, isMagnet:true}
+);
+
+// Aggiorna pickEnemyType per includere i nuovi dal livello 18+
+const _origPickEnemy = pickEnemyType;
+function pickEnemyType(l){
+  if(G&&G._forceEnemyType){const t=ENEMY_TYPES.find(e=>e.key===G._forceEnemyType);if(t)return t;}
+  if(l>=25){
+    const r=Math.random();
+    if(r<.12) return ENEMY_TYPES[9];  // hunter
+    if(r<.20) return ENEMY_TYPES[10]; // pulsar
+    if(r<.26) return ENEMY_TYPES[11]; // magnet
+  } else if(l>=18){
+    const r=Math.random();
+    if(r<.08) return ENEMY_TYPES[9];
+    if(r<.14) return ENEMY_TYPES[10];
+  }
+  // fallback alla logica originale
+  const r=Math.random();
+  if(l<3)  return ENEMY_TYPES[0];
+  if(l<6)  return r<.80?ENEMY_TYPES[0]:ENEMY_TYPES[2];
+  if(l<10) return r<.60?ENEMY_TYPES[0]:r<.85?ENEMY_TYPES[2]:ENEMY_TYPES[3];
+  if(l<14) return r<.45?ENEMY_TYPES[0]:r<.68?ENEMY_TYPES[2]:r<.85?ENEMY_TYPES[3]:ENEMY_TYPES[1];
+  return r<.30?ENEMY_TYPES[0]:r<.52?ENEMY_TYPES[2]:r<.72?ENEMY_TYPES[1]:ENEMY_TYPES[3];
+}
+
+// Comportamento speciale nemici — chiamato nel loop update
+function updateSpecialEnemies(){
+  if(!G||!G.running) return;
+  const px=CX+Math.cos(G.angle)*ORBIT_R;
+  const py=CY+Math.sin(G.angle)*ORBIT_R;
+
+  G.enemies.forEach(e=>{
+    if(e.type.isPowerup||e._isBoss) return;
+
+    // CACCIATORE — si dirige attivamente verso la sfera
+    if(e.type.isHunter){
+      const dx=px-e.x, dy=py-e.y;
+      const d=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+      const spd=1.2+(G.level-1)*.06;
+      e.vx+=(dx/d)*0.08; e.vy+=(dy/d)*0.08;
+      const cur=Math.hypot(e.vx,e.vy);
+      if(cur>spd){e.vx=(e.vx/cur)*spd;e.vy=(e.vy/cur)*spd;}
+    }
+
+    // PULSANTE — si ferma ogni 2s poi scatta
+    if(e.type.isPulsar){
+      e._pulsarTimer=(e._pulsarTimer||0)+1;
+      const cycle=120; // 2s a 60fps
+      const phase=e._pulsarTimer%cycle;
+      if(phase<80){
+        // carica — rimane fermo e pulsa
+        e.vx*=0.85; e.vy*=0.85;
+        e._charging=true;
+      } else if(phase===80){
+        // scatto verso il giocatore
+        const dx=px-e.x, dy=py-e.y;
+        const d=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+        const burstSpd=4.5+(G.level*.08);
+        e.vx=(dx/d)*burstSpd; e.vy=(dy/d)*burstSpd;
+        e._charging=false;
+        G.rings.push({x:e.x,y:e.y,r:0,alpha:.6,color:'#00ddff',grow:10});
+      }
+    }
+
+    // MAGNETICO — attira la sfera se entro 80px
+    if(e.type.isMagnet){
+      const dx=e.x-px, dy=e.y-py;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<85&&d>0){
+        const pull=0.04*(1-d/85);
+        G.angle+=(Math.atan2(e.y-CY,e.x-CX)-G.angle)*pull*0.15;
+        // Indicatore visivo del campo magnetico
+        e._magnetActive=true;
+      } else { e._magnetActive=false; }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  MODALITÀ CORSA (ROGUELITE)
+// ══════════════════════════════════════════════════════════════
+let _raceMode = false;
+let _raceWave = 0;
+let _racePowerups = [];
+let _raceChoiceActive = false;
+
+const RACE_POWERUPS = [
+  { id:'r_life',     icon:'❤️',  name:'+1 Vita',          apply:()=>{ G.lives=Math.min(G.lives+1,6); updateLivesUI(); } },
+  { id:'r_shield',   icon:'🛡',  name:'Scudo Immediato',  apply:()=>{ const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R; applyPowerup('shield',px,py); } },
+  { id:'r_slow',     icon:'🔮',  name:'Ultra Slow',       apply:()=>{ const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R; applyPowerup('slow',px,py); } },
+  { id:'r_clear',    icon:'💥',  name:'Pulisci Campo',    apply:()=>{ G.enemies=G.enemies.filter(e=>e.type.isPowerup); flashScreen('rgba(255,229,102,.4)'); showMsg('💥 CAMPO PULITO!','#ffe566'); } },
+  { id:'r_mult',     icon:'⚡',  name:'+20% Punteggio',   apply:()=>{ G._raceMult=(G._raceMult||1)+0.2; showMsg('⚡ +20% Punteggio!','#ffe566'); } },
+  { id:'r_speed',    icon:'🐌',  name:'Nemici -20% vel',  apply:()=>{ G.enemies.forEach(e=>{if(!e.type.isPowerup){e.vx*=.8;e.vy*=.8;}}); showMsg('🐌 Nemici rallentati!','#4af0d0'); } },
+  { id:'r_lives2',   icon:'💖',  name:'+2 Vite',          apply:()=>{ G.lives=Math.min(G.lives+2,6); updateLivesUI(); } },
+  { id:'r_xp',       icon:'✨',  name:'+100 XP Bonus',    apply:()=>{ addXP(100); showMsg('✨ +100 XP!','#4af0d0'); } },
+];
+
+function startRaceMode(){
+  _raceMode=true; _raceWave=0; _racePowerups=[]; _raceChoiceActive=false;
+  G._raceMult=1;
+  // Mostra indicatore onda
+  _showRaceWaveHUD();
+}
+
+function _showRaceWaveHUD(){
+  let el=document.getElementById('_raceHUD');
+  if(!el){ el=document.createElement('div'); el.id='_raceHUD';
+    el.style.cssText='position:absolute;top:110px;right:14px;font-family:Orbitron,sans-serif;font-size:10px;color:rgba(200,220,255,.6);text-align:right;pointer-events:none;z-index:12';
+    document.getElementById('ui').appendChild(el); }
+  el.innerHTML=_raceMode?`<div style="color:#4af0d0;font-weight:700">🏁 CORSA</div><div>Ondata ${_raceWave+1}</div>`:'';
+}
+
+function checkRaceWave(){
+  if(!_raceMode||_raceChoiceActive||!G||!G.running) return;
+  // Ogni 30 secondi — nuova scelta
+  const waveSecs=30;
+  const elapsed=Math.floor(G.frameCount/60);
+  const expectedWave=Math.floor(elapsed/waveSecs);
+  if(expectedWave>_raceWave){
+    _raceWave=expectedWave;
+    _showRaceWaveHUD();
+    setTimeout(()=>showRaceChoice(), 500);
+  }
+}
+
+function showRaceChoice(){
+  if(!G||!G.running||_raceChoiceActive) return;
+  _raceChoiceActive=true;
+  G.paused=true; // Pausa durante la scelta
+
+  // Pesca 3 opzioni casuali senza ripetizioni
+  const shuffled=[..._RACE_POOL()].sort(()=>Math.random()-.5).slice(0,3);
+
+  const overlay=document.createElement('div');
+  overlay.id='_raceChoiceOverlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.92);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Orbitron,sans-serif;padding:24px';
+  overlay.innerHTML=`
+    <div style="font-size:11px;letter-spacing:.4em;color:#4af0d0;margin-bottom:4px">🏁 ONDATA ${_raceWave} SUPERATA</div>
+    <div style="font-size:13px;color:rgba(200,220,255,.7);margin-bottom:8px">Scegli un potenziamento:</div>`;
+
+  shuffled.forEach(p=>{
+    const btn=document.createElement('div');
+    btn.style.cssText='background:rgba(255,255,255,.05);border:1px solid rgba(74,240,208,.3);border-radius:10px;padding:16px 24px;cursor:pointer;text-align:center;width:100%;max-width:280px;transition:background .2s';
+    btn.innerHTML=`<div style="font-size:28px;margin-bottom:6px">${p.icon}</div>
+      <div style="font-size:13px;color:#fff;font-weight:700;letter-spacing:.06em">${p.name}</div>`;
+    btn.onmouseenter=()=>btn.style.background='rgba(74,240,208,.1)';
+    btn.onmouseleave=()=>btn.style.background='rgba(255,255,255,.05)';
+    btn.onclick=()=>{
+      try{ p.apply(); }catch(e){}
+      overlay.remove();
+      G.paused=false;
+      _raceChoiceActive=false;
+    };
+    overlay.appendChild(btn);
+  });
+
+  document.body.appendChild(overlay);
+}
+
+function _RACE_POOL(){
+  // Pool dinamico basato sullo stato del gioco
+  const pool=[...RACE_POWERUPS];
+  if(G&&G.lives>=5) pool.splice(pool.findIndex(p=>p.id==='r_life'),1);
+  return pool;
+}
+
+// Applica moltiplicatore corsa al punteggio
+function getRaceMultiplier(){
+  if(!_raceMode) return 1;
+  return G&&G._raceMult?G._raceMult:1;
+}
+
 // ══════════════════════════════════════
 //  LOOP
 // ══════════════════════════════════════
@@ -3892,7 +4177,13 @@ function update(){
   if(!G||!G.running)return;
   G.frameCount++;
   updateOrbPower();
-  updateBoss();  const _sm2=(getScoreMultiplier()||1);
+  updateSpecialEnemies();
+  checkRunObjective();
+  checkRaceWave();
+  updateComboHUD();
+  // Accumula near miss totali per obiettivo
+  G._totalNearMiss = G._totalNearMiss||0;
+  updateBoss();  const _sm2=(getScoreMultiplier()||1)*getRaceMultiplier();
   G.score=Math.floor(G.frameCount/5*(isNaN(_sm2)?1:_sm2))+(G.scoreBonus||0);
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
   if(nl!==G.level){
@@ -4095,6 +4386,7 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
       if(d>hitR2&&d<hitR2*3.0&&!e._nm){
         e._nm=true;
         G.nearMissStreak=(G.nearMissStreak||0)+1;
+        G._totalNearMiss=(G._totalNearMiss||0)+1;
         G._lastNearMissFrame=G.frameCount;
         orbPowerOnNearMiss();
         onFirstNearMiss();
@@ -4625,6 +4917,37 @@ function drawEnemies(){
       ctx.globalAlpha=finalAlpha*blink*.8;
       ctx.strokeStyle='#ffdd44';ctx.lineWidth=1.5;
       ctx.beginPath();ctx.arc(x,y,r*1.2,0,Math.PI*2);ctx.stroke();
+    }
+
+    // PULSAR: anello di carica lampeggiante
+    if(t.isPulsar&&e._charging){
+      const chargeRatio=((e._pulsarTimer||0)%120)/80;
+      ctx.globalAlpha=finalAlpha*chargeRatio*.8;
+      ctx.strokeStyle='#00ddff'; ctx.lineWidth=2;
+      ctx.shadowBlur=10; ctx.shadowColor='#00ddff';
+      ctx.beginPath(); ctx.arc(x,y,r*2.2,0,Math.PI*2*chargeRatio); ctx.stroke();
+      ctx.shadowBlur=0;
+    }
+
+    // MAGNETICO: anello di campo se attivo
+    if(t.isMagnet&&e._magnetActive){
+      ctx.globalAlpha=finalAlpha*.25;
+      ctx.strokeStyle='#ff6600'; ctx.lineWidth=1.5;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.arc(x,y,85,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // CACCIATORE: freccia direzionale verso il giocatore
+    if(t.isHunter){
+      const px2=CX+Math.cos(G.angle)*ORBIT_R;
+      const py2=CY+Math.sin(G.angle)*ORBIT_R;
+      const ang=Math.atan2(py2-y,px2-x);
+      ctx.globalAlpha=finalAlpha*.5;
+      ctx.fillStyle='#ff44cc';
+      ctx.translate(x,y); ctx.rotate(ang);
+      ctx.beginPath(); ctx.moveTo(r*1.8,0); ctx.lineTo(r*1.2,-r*.5); ctx.lineTo(r*1.2,r*.5); ctx.closePath(); ctx.fill();
+      ctx.rotate(-ang); ctx.translate(-x,-y);
     }
 
     ctx.restore();
@@ -6180,6 +6503,10 @@ async function showTourneyScreen(){
 async function endGame(){
   G.running=false;
   window._inGame=false;
+  // Reset nuovi sistemi
+  _raceMode=false; _raceChoiceActive=false;
+  document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());
+  if(_comboHUD) _comboHUD.style.opacity='0';
   setTimeout(()=>{if(window._pendingAch&&window._pendingAch.length){const b=window._pendingAch.splice(0);b.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));}},500);
   document.getElementById('c').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
@@ -6190,7 +6517,9 @@ async function endGame(){
   consumeBounceBack();
   // Aggiungi XP
   const _bbMult=hasBounceBack()?2:1;
-  const _xpGained=Math.floor(calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult());
+  const _objXPBonus = _objectiveDone&&_runObjective?_runObjective.xpBonus:0;
+  const _objMult = _objectiveDone&&G._objMultBonus?(1+G._objMultBonus):1;
+  const _xpGained=Math.floor((calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult()*_objMult)+_objXPBonus);
   const _newXP=addXP(_xpGained);
   syncAccountToFirebase();
   const secs=Math.floor(G.frameCount/60);
