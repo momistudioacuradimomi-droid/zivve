@@ -486,6 +486,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <!-- 5. GIOCA -->
   <button class="btn-play" onclick="startGame()" data-i18n="play">▶ PLAY</button>
   <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(74,240,208,.4);color:#4af0d0;font-size:12px" onclick="startRaceModeGame()">🏁 MODALITÀ CORSA</button>
+  <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(255,215,0,.4);color:#ffd700;font-size:12px" onclick="showUpgradeScreen()">⚗ UPGRADE <span id="fragsMenuCount"></span></button>
 
   <!-- 6. INIZIA LA SERIE (Last Zivver Standing) -->
   <!-- Hidden event elements per compatibilità -->
@@ -3204,6 +3205,15 @@ function startGame(seed){
   pickRunObjective();
   if(!_raceMode){ _raceWave=0; _raceChoiceActive=false; }
   if(_raceMode) _showRaceWaveHUD();
+  ghostStartRecording();
+  _vortexActive=false; _vortexTimer=0;
+  _weatherTimer=0; _nextWeatherIn=45*60; _currentWeather=null;
+  _allySphereShown=false;
+  // Spawn alleata dopo 30s
+  setTimeout(()=>{ if(G&&G.running) spawnAlly(); }, 30000);
+  // Applica upgrade start_bonus
+  const _startBonusLv=getUpgradeLevel('start_score');
+  if(_startBonusLv>0) G.scoreBonus=(G.scoreBonus||0)+_startBonusLv*25;
   updateLivesUI();updateLevelUI();
   try{getAudio();stopMenuMusic();stopDriftMelody();stopZivveMenuTheme();startGameMusic();startZivveOST();}catch(e){}
   // Avvia registrazione video
@@ -3341,6 +3351,9 @@ function startRaceModeGame(){
 }
 
 function showStart(){updateXPBar();try{getKingRivalryText();}catch(e){}
+  // Aggiorna counter frammenti
+  const _fc=document.getElementById('fragsMenuCount');
+  if(_fc){ const f=getFragments(); _fc.textContent=f>0?'💎'+f:''; }
   hideAll();
   show('startOverlay');
   // Ferma registrazione PRIMA di nascondere il canvas
@@ -4181,6 +4194,11 @@ function update(){
   checkRunObjective();
   checkRaceWave();
   updateComboHUD();
+  updateAlly();
+  weatherTick();
+  updateVortex();
+  upgradeLifeRegenTick();
+  ghostTick();
   // Accumula near miss totali per obiettivo
   G._totalNearMiss = G._totalNearMiss||0;
   updateBoss();  const _sm2=(getScoreMultiplier()||1)*getRaceMultiplier();
@@ -4205,19 +4223,14 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
       setTimeout(()=>showMsg('🔓 MODALITÀ INVERSA SBLOCCATA!','#ff8844'),1500);
     }
     if(nl%10===0&&!G.bossActive){
-      // Prima zigzag (500ms), poi boss (5000ms — dopo che zigzag è finito)
-      setTimeout(()=>{
-        if(G&&G.running&&!G.bossActive){
-          spawnZigzagWave();
-          console.log('[LV10] ZAP spawned at level',G.level);
-        }
-      },800);
-      setTimeout(()=>{
-        if(G&&G.running&&!G.bossActive){
-          spawnBoss();
-          console.log('[LV10] BOSS spawned');
-        }
-      },6000);
+      // Alterna: vortice ai multipli di 10 dispari (10,30,50...), boss ai pari (20,40,60...)
+      const isVortex = (nl/10)%2===1;
+      if(isVortex){
+        setTimeout(()=>{ if(G&&G.running) startVortex(); }, 800);
+      } else {
+        setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnZigzagWave(); } },800);
+        setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnBoss(); } },6000);
+      }
     }
   }
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
@@ -4305,7 +4318,7 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
   }
   if(G.invincible>0)G.invincible--;
   else{
-    const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13;
+    const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13*getHitboxMult();
     for(let i=G.enemies.length-1;i>=0;i--){
       const e=G.enemies[i];
       if(e.type.isPowerup){
@@ -4382,8 +4395,8 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
     for(const e of G.enemies){
       const d=Math.hypot(px2-e.x,py2-e.y);
       if(d<ORBIT_R*(getOrbPower()==='elegance'?0.27:0.22))nearCount++;
-      const hitR2=ORBIT_R*.13*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1);
-      if(d>hitR2&&d<hitR2*3.0&&!e._nm){
+      const hitR2=ORBIT_R*.13*getHitboxMult()*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1);
+      if(d>hitR2&&d<hitR2*3.0*getNMZoneMult()&&!e._nm){
         e._nm=true;
         G.nearMissStreak=(G.nearMissStreak||0)+1;
         G._totalNearMiss=(G._totalNearMiss||0)+1;
@@ -4728,7 +4741,7 @@ function draw(){
   if(!G||!G.running)return;
   ctx.clearRect(0,0,W,H);
   if(G.shaking>0){const i=G.shaking*.4;ctx.save();ctx.translate((Math.random()-.5)*i,(Math.random()-.5)*i);}
-  drawBg();drawShockwaves();drawRings();drawTrail();drawEnemies();drawAlly();drawPlayer();drawParticles();drawCenter();drawPowerupHUD();drawOrbPowerHUD();drawBossHUD();
+  drawBg();drawVortex();drawShockwaves();drawRings();drawTrail();drawEnemies();drawAlly();drawGhost();drawPlayer();drawParticles();drawCenter();drawWeatherFog();drawPowerupHUD();drawOrbPowerHUD();drawBossHUD();
   if(G.shaking>0)ctx.restore();
 }
 let _stars=null;
@@ -5103,6 +5116,441 @@ function drawIdle(){
 //  END GAME
 // ══════════════════════════════════════
 
+
+// ══════════════════════════════════════════════════════════════
+//  1. FANTASMA DEL RECORD PERSONALE
+// ══════════════════════════════════════════════════════════════
+const GHOST_RECORD_KEY = 'zivve_ghost_replay';
+const GHOST_SAMPLE_RATE = 6; // ogni 6 frame = 10 campioni/sec
+let _ghostRecording = [];
+let _ghostPlayback = [];
+let _ghostAngle = null;
+let _ghostBeaten = false;
+
+function ghostStartRecording(){
+  _ghostRecording = [];
+  _ghostBeaten = false;
+  // Carica replay migliore
+  try{
+    const saved = localStorage.getItem(GHOST_RECORD_KEY);
+    _ghostPlayback = saved ? JSON.parse(saved) : [];
+  }catch(e){ _ghostPlayback = []; }
+}
+
+function ghostTick(){
+  if(!G||!G.running) return;
+  // Registra posizione angolare ogni N frame
+  if(G.frameCount % GHOST_SAMPLE_RATE === 0){
+    _ghostRecording.push(G.angle);
+  }
+  // Leggi posizione fantasma per questo frame
+  const sampleIdx = Math.floor(G.frameCount / GHOST_SAMPLE_RATE);
+  if(_ghostPlayback.length > sampleIdx){
+    _ghostAngle = _ghostPlayback[sampleIdx];
+  } else {
+    _ghostAngle = null;
+  }
+  // Controlla se abbiamo superato il record
+  if(!_ghostBeaten && _ghostPlayback.length > 0 && sampleIdx >= _ghostPlayback.length){
+    _ghostBeaten = true;
+    showMsg('👻 HAI SUPERATO IL TUO RECORD!','#4af0d0');
+    flashScreen('rgba(74,240,208,.2)');
+  }
+}
+
+function ghostSaveIfRecord(){
+  if(_ghostRecording.length > 0 && G.score >= bestScore){
+    try{ localStorage.setItem(GHOST_RECORD_KEY, JSON.stringify(_ghostRecording)); }catch(e){}
+  }
+}
+
+function drawGhost(){
+  if(_ghostAngle === null || !G || !G.running) return;
+  const gx = CX + Math.cos(_ghostAngle) * ORBIT_R;
+  const gy = CY + Math.sin(_ghostAngle) * ORBIT_R;
+  const r = ORBIT_R * .072;
+  const col = _ghostBeaten ? '#ffd700' : '#4af0d0';
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  const gg = ctx.createRadialGradient(gx,gy,0,gx,gy,r*2.5);
+  gg.addColorStop(0, col+'88'); gg.addColorStop(1, col+'00');
+  ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(gx,gy,r*2.5,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.arc(gx,gy,r,0,Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  2. SISTEMA METEO / CONDIZIONI AMBIENTALI
+// ══════════════════════════════════════════════════════════════
+const WEATHER_CONDITIONS = [
+  {
+    id:'fog', name:'🌫 Nebbia', color:'rgba(180,200,220,.06)',
+    desc:'Visibilità ridotta',
+    onStart(){ G._weatherFog = true; showMsg('🌫 NEBBIA — visibilità ridotta!','#aabbcc'); },
+    onEnd(){ G._weatherFog = false; },
+    tick(){}
+  },
+  {
+    id:'storm', name:'⚡ Tempesta', color:'rgba(100,80,255,.06)',
+    desc:'Nemici a onde',
+    onStart(){ G._weatherStorm = true; showMsg('⚡ TEMPESTA — nemici a onde!','#8844ff'); },
+    onEnd(){ G._weatherStorm = false; },
+    tick(){
+      if(!G._weatherStorm) return;
+      const wave = Math.sin(G.frameCount * 0.04) * 0.6;
+      G.enemies.forEach(e=>{
+        if(!e.type.isPowerup && !e._isBoss){
+          e.vx += Math.cos(G.frameCount*0.03) * 0.04;
+          e.vy += wave * 0.03;
+        }
+      });
+    }
+  },
+  {
+    id:'gravity', name:'🌀 Gravità Invertita', color:'rgba(255,100,50,.05)',
+    desc:'Sfera più lenta, nemici più veloci',
+    onStart(){
+      G._weatherGravity = true;
+      G.speed *= 0.7;
+      G.enemies.forEach(e=>{ if(!e.type.isPowerup) { e.vx*=1.3; e.vy*=1.3; } });
+      showMsg('🌀 GRAVITÀ INVERTITA!','#ff6633');
+    },
+    onEnd(){
+      G._weatherGravity = false;
+      G.speed = BASE_SPEED + (G.level-1) * SPEED_PER_LEVEL;
+    },
+    tick(){}
+  },
+  {
+    id:'magfield', name:'🧲 Campo Magnetico', color:'rgba(255,215,0,.04)',
+    desc:'Il centro attrae/respinge',
+    onStart(){ G._weatherMagField = (Math.random()<0.5)?'attract':'repel'; showMsg('🧲 CAMPO MAGNETICO — '+(G._weatherMagField==='attract'?'attrazione':'repulsione')+'!','#ffd700'); },
+    onEnd(){ G._weatherMagField = null; },
+    tick(){
+      if(!G._weatherMagField) return;
+      const sign = G._weatherMagField==='attract' ? 1 : -1;
+      const force = 0.015 * sign;
+      // Devia leggermente l'angolo verso/dal centro
+      const diff = (Math.atan2(CY - (CY + Math.sin(G.angle)*ORBIT_R), CX - (CX + Math.cos(G.angle)*ORBIT_R)));
+      G.angle += force * 0.1;
+    }
+  }
+];
+
+let _currentWeather = null;
+let _weatherTimer = 0;
+let _nextWeatherIn = 45 * 60; // prima condizione dopo 45s
+
+function weatherTick(){
+  if(!G||!G.running||G.level<5) return;
+  _weatherTimer++;
+  // Esegui tick condizione attiva
+  if(_currentWeather){
+    _currentWeather.tick();
+    if(_weatherTimer >= _nextWeatherIn){
+      // Fine condizione
+      _currentWeather.onEnd();
+      _currentWeather = null;
+      _weatherTimer = 0;
+      _nextWeatherIn = (35 + Math.random()*20) * 60; // prossima tra 35-55s
+      _clearWeatherOverlay();
+    }
+  } else if(_weatherTimer >= _nextWeatherIn){
+    // Inizia nuova condizione
+    const pool = WEATHER_CONDITIONS;
+    _currentWeather = pool[Math.floor(Math.random()*pool.length)];
+    _weatherTimer = 0;
+    _nextWeatherIn = 20 * 60; // dura 20s
+    _currentWeather.onStart();
+    _showWeatherOverlay(_currentWeather);
+  }
+}
+
+function _showWeatherOverlay(w){
+  _clearWeatherOverlay();
+  const el = document.createElement('div');
+  el.id = '_weatherOverlay';
+  el.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:8;transition:opacity 1s;background:'+w.color;
+  document.getElementById('ui').appendChild(el);
+}
+function _clearWeatherOverlay(){
+  const el = document.getElementById('_weatherOverlay');
+  if(el){ el.style.opacity='0'; setTimeout(()=>el.remove(), 1000); }
+}
+function drawWeatherFog(){
+  if(!G||!G._weatherFog) return;
+  const pulse = 0.55 + 0.1*Math.sin(G.frameCount*0.02);
+  ctx.save();
+  ctx.globalAlpha = pulse;
+  const fog = ctx.createRadialGradient(CX,CY,ORBIT_R*0.4,CX,CY,Math.max(W,H)*0.8);
+  fog.addColorStop(0,'rgba(180,200,220,0)');
+  fog.addColorStop(1,'rgba(180,200,220,0.55)');
+  ctx.fillStyle = fog; ctx.fillRect(0,0,W,H);
+  ctx.restore();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  3. SFERA ALLEATA POTENZIATA (sostituisce maybeSpawnAlly)
+// ══════════════════════════════════════════════════════════════
+function spawnAlly(){
+  if(G._ally&&G._ally.active) return;
+  G._ally = {
+    active: true,
+    angle: G.angle + Math.PI, // parte dalla parte opposta
+    hp: 3, // assorbe 3 colpi
+    life: 0,
+    _killCount: 0
+  };
+  showMsg('✨ SFERA ALLEATA APPARSA — ti protegge!','#4af0d0');
+  flashScreen('rgba(74,240,208,.15)');
+}
+
+function updateAlly(){
+  if(!G||!G.running||!G._ally||!G._ally.active) return;
+  G._ally.life++;
+  // Orbita nella direzione opposta al giocatore
+  G._ally.angle -= (G.speed * G.dir * (Math.PI/180)) * 1.05;
+  const ax = CX + Math.cos(G._ally.angle) * ORBIT_R;
+  const ay = CY + Math.sin(G._ally.angle) * ORBIT_R;
+  const allyR = ORBIT_R * 0.065;
+
+  // Controlla collisioni con nemici — li elimina
+  for(let i = G.enemies.length-1; i>=0; i--){
+    const e = G.enemies[i];
+    if(e.type.isPowerup || e._isBoss) continue;
+    const dx = ax - e.x, dy = ay - e.y;
+    if(Math.hypot(dx,dy) < allyR + ORBIT_R*e.type.rMult*1.2){
+      // Elimina il nemico
+      G.enemies.splice(i,1);
+      G._ally._killCount++;
+      G.scoreBonus = (G.scoreBonus||0) + 15;
+      for(let k=0;k<10;k++){
+        const a=Math.random()*Math.PI*2, sp=Math.random()*4+1;
+        G.particles.push({x:ax,y:ay,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:30,color:'#4af0d0',r:Math.random()*2+1});
+      }
+      G._ally.hp--;
+      if(G._ally.hp <= 0){
+        G._ally.active = false;
+        G.lives = Math.max(0, G.lives-1);
+        updateLivesUI();
+        showMsg('💔 SFERA ALLEATA DISTRUTTA — -1 vita!','#ff4488');
+        flashScreen('rgba(255,68,68,.3)');
+        // Riappare dopo 30s se sei ancora in vita
+        setTimeout(()=>{ if(G&&G.running&&G.lives>0) spawnAlly(); }, 30000);
+        return;
+      }
+      showMsg('🛡 ALLEATA COLPITA! HP: '+G._ally.hp,'#4af0d0');
+    }
+  }
+  // Durata massima 90s poi si ritira
+  if(G._ally.life >= 90*60){
+    G._ally.active = false;
+    showMsg('✨ L\'alleata ti ha lasciato...','#4af0d0');
+    setTimeout(()=>{ if(G&&G.running) spawnAlly(); }, 45000);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  4. META-PROGRESSIONE: FRAMMENTI + UPGRADE PERMANENTI
+// ══════════════════════════════════════════════════════════════
+const FRAG_KEY = 'zivve_fragments';
+const UPGRADES_KEY = 'zivve_upgrades';
+
+const PERMANENT_UPGRADES = [
+  { id:'hitbox_down', name:'Hitbox -5%',      desc:'Sei leggermente più difficile da colpire', maxLv:4, cost:[30,60,100,150], effect: lv => ({ hitboxMult: 1 - lv*0.05 }) },
+  { id:'nm_zone',     name:'Near Miss +10%',  desc:'Zona near miss più ampia',                 maxLv:3, cost:[40,80,130],     effect: lv => ({ nmZone: 1 + lv*0.10 }) },
+  { id:'xp_gain',     name:'+5% XP',          desc:'Guadagni più XP per partita',              maxLv:5, cost:[20,40,70,110,160], effect: lv => ({ xpMult: 1 + lv*0.05 }) },
+  { id:'start_score', name:'+25 Score Bonus', desc:'Inizi ogni partita con un vantaggio',      maxLv:4, cost:[25,50,90,140], effect: lv => ({ startBonus: lv*25 }) },
+  { id:'life_regen',  name:'Regen vita',      desc:'Ogni 120s recuperi 1 vita (max 4)',        maxLv:1, cost:[200],          effect: lv => ({ lifeRegen: lv===1 }) },
+];
+
+function getFragments(){ return parseInt(localStorage.getItem(FRAG_KEY)||'0'); }
+function addFragments(n){ localStorage.setItem(FRAG_KEY, getFragments()+n); }
+function getUpgradeLevels(){
+  try{ return JSON.parse(localStorage.getItem(UPGRADES_KEY)||'{}'); }catch(e){ return {}; }
+}
+function getUpgradeLevel(id){ return getUpgradeLevels()[id]||0; }
+function setUpgradeLevel(id, lv){
+  const d = getUpgradeLevels(); d[id]=lv;
+  localStorage.setItem(UPGRADES_KEY, JSON.stringify(d));
+}
+
+function getActiveUpgradeEffect(effectKey){
+  let total = 0;
+  PERMANENT_UPGRADES.forEach(u=>{
+    const lv = getUpgradeLevel(u.id);
+    if(lv>0){
+      const eff = u.effect(lv);
+      if(eff[effectKey] !== undefined) total += eff[effectKey];
+    }
+  });
+  return total || null;
+}
+
+function calcFragmentsForGame(score, level, secs){
+  // 1 frammento ogni 50pt + 1 ogni 30s + 1 per livello raggiunto
+  return Math.floor(score/50) + Math.floor(secs/30) + Math.floor(level/3);
+}
+
+function showUpgradeScreen(){
+  const frags = getFragments();
+  const div = document.createElement('div');
+  div.id = '_upgradeScreen';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:250;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:20px;gap:10px;font-family:Orbitron,sans-serif';
+
+  let html = '<div style="font-size:11px;letter-spacing:.4em;color:#4af0d0;margin-bottom:4px">⚗ UPGRADE PERMANENTI</div>';
+  html += '<div style="font-size:12px;color:#ffd700;margin-bottom:12px">💎 '+frags+' Frammenti disponibili</div>';
+
+  div.innerHTML = html;
+
+  PERMANENT_UPGRADES.forEach(u=>{
+    const lv = getUpgradeLevel(u.id);
+    const maxed = lv >= u.maxLv;
+    const cost = !maxed ? u.cost[lv] : 0;
+    const canAfford = frags >= cost;
+
+    const card = document.createElement('div');
+    card.style.cssText = 'width:100%;max-width:320px;background:rgba(255,255,255,.04);border:1px solid rgba('+(maxed?'255,215,0':'74,240,208')+',.2);border-radius:8px;padding:12px 14px';
+    card.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+      '<span style="color:#fff;font-size:12px;font-weight:700">'+u.name+'</span>'+
+      '<span style="color:#ffd700;font-size:10px">'+lv+'/'+u.maxLv+'</span></div>'+
+      '<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:8px">'+u.desc+'</div>'+
+      // Barra livello
+      '<div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-bottom:8px">'+
+      '<div style="height:100%;width:'+(lv/u.maxLv*100)+'%;background:#4af0d0;border-radius:2px"></div></div>';
+
+    if(!maxed){
+      const btn = document.createElement('button');
+      btn.textContent = canAfford ? '💎 '+cost+' — ACQUISTA' : '💎 '+cost+' — non abbastanza';
+      btn.style.cssText = 'width:100%;padding:8px;border:none;border-radius:5px;font-family:Orbitron,sans-serif;font-size:10px;cursor:'+(canAfford?'pointer':'default')+';background:'+(canAfford?'rgba(74,240,208,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#4af0d0':'rgba(200,220,255,.3)');
+      if(canAfford){
+        btn.onclick=()=>{
+          addFragments(-cost);
+          setUpgradeLevel(u.id, lv+1);
+          div.remove();
+          showUpgradeScreen();
+          showMsg('⚗ '+u.name+' LV.'+(lv+1)+'!','#4af0d0');
+        };
+      }
+      card.appendChild(btn);
+    } else {
+      const maxEl = document.createElement('div');
+      maxEl.style.cssText = 'text-align:center;color:#ffd700;font-size:10px;letter-spacing:.1em';
+      maxEl.textContent = '✦ MASSIMO';
+      card.appendChild(maxEl);
+    }
+    div.appendChild(card);
+  });
+
+  const btnClose = document.createElement('button');
+  btnClose.textContent = '← CHIUDI';
+  btnClose.style.cssText = 'background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px;margin-top:8px';
+  btnClose.onclick = ()=>div.remove();
+  div.appendChild(btnClose);
+  document.body.appendChild(div);
+}
+
+// Applica upgrade hitbox
+function getHitboxMult(){
+  const u = getUpgradeLevel('hitbox_down');
+  return u>0 ? (1-u*0.05) : 1;
+}
+// Applica upgrade nm_zone
+function getNMZoneMult(){
+  const u = getUpgradeLevel('nm_zone');
+  return u>0 ? (1+u*0.10) : 1;
+}
+// Applica upgrade xp
+function getUpgradeXPMult(){
+  const u = getUpgradeLevel('xp_gain');
+  return u>0 ? (1+u*0.05) : 1;
+}
+
+// Life regen upgrade — tick ogni secondo
+function upgradeLifeRegenTick(){
+  if(!G||!G.running) return;
+  if(getUpgradeLevel('life_regen')>0 && G.frameCount % (120*60) === 0 && G.lives<4){
+    G.lives++; updateLivesUI();
+    showMsg('💚 RIGENERAZIONE — +1 vita!','#44ff88');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  5. EVENTO VORTICE (ogni 10 livelli al posto del boss)
+// ══════════════════════════════════════════════════════════════
+let _vortexActive = false;
+let _vortexTimer = 0;
+const VORTEX_DURATION = 15 * 60; // 15 secondi
+
+function startVortex(){
+  if(_vortexActive) return;
+  _vortexActive = true;
+  _vortexTimer = 0;
+  G._vortexPull = Math.random()<0.5 ? 'in' : 'out';
+  showMsg('🌀 VORTICE '+(G._vortexPull==='in'?'RISUCCHIO':'ESPLOSIONE')+'!','#cc44ff');
+  flashScreen('rgba(150,50,255,.3)');
+  for(let i=0;i<4;i++) G.shockwaves.push({r:i*30,alpha:.6,grow:22,color:'#cc44ff'});
+}
+
+function updateVortex(){
+  if(!G||!G.running||!_vortexActive) return;
+  _vortexTimer++;
+  const pull = G._vortexPull==='in' ? 1 : -1;
+  const strength = 0.025 * (1 - _vortexTimer/VORTEX_DURATION);
+
+  // Attira/respinge nemici verso/dal centro
+  G.enemies.forEach(e=>{
+    if(e.type.isPowerup||e._isBoss) return;
+    const dx = CX-e.x, dy = CY-e.y;
+    const d = Math.max(Math.hypot(dx,dy),1);
+    e.vx += (dx/d)*strength*pull;
+    e.vy += (dy/d)*strength*pull;
+  });
+
+  // Devia anche il giocatore leggermente
+  const angToCenter = Math.atan2(CY-(CY+Math.sin(G.angle)*ORBIT_R), CX-(CX+Math.cos(G.angle)*ORBIT_R));
+  G.angle += 0.008 * pull * Math.sin(G.frameCount*0.1);
+
+  if(_vortexTimer >= VORTEX_DURATION){
+    _vortexActive = false;
+    G._vortexPull = null;
+    showMsg('🌀 Vortice esaurito','#cc44ff');
+  }
+}
+
+function drawVortex(){
+  if(!_vortexActive) return;
+  const progress = _vortexTimer / VORTEX_DURATION;
+  const alpha = (1-progress) * 0.3;
+  const rings = 5;
+  ctx.save();
+  for(let i=0;i<rings;i++){
+    const r = ORBIT_R * (0.3 + i*0.2) * (1 + 0.1*Math.sin(G.frameCount*0.08+i));
+    ctx.globalAlpha = alpha * (1-i/rings);
+    ctx.strokeStyle = G._vortexPull==='in'?'#cc44ff':'#ff8844';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(CX,CY,r,0,Math.PI*2); ctx.stroke();
+  }
+  // Spirale centrale
+  ctx.globalAlpha = alpha*0.6;
+  ctx.strokeStyle = G._vortexPull==='in'?'#cc44ff':'#ff8844';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const rot = G.frameCount*0.05*(G._vortexPull==='in'?1:-1);
+  for(let a=0;a<Math.PI*6;a+=0.15){
+    const rr = (a/(Math.PI*6))*ORBIT_R*1.2;
+    const px2 = CX+Math.cos(a+rot)*rr;
+    const py2 = CY+Math.sin(a+rot)*rr;
+    a===0?ctx.moveTo(px2,py2):ctx.lineTo(px2,py2);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
 
 // ══════════════════════════════════════════════════════════════
 //  SISTEMA XP — 70 livelli + Paragon infinito
@@ -6505,8 +6953,13 @@ async function endGame(){
   window._inGame=false;
   // Reset nuovi sistemi
   _raceMode=false; _raceChoiceActive=false;
-  document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());
+  document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD,#_weatherOverlay').forEach(el=>el.remove());
   if(_comboHUD) _comboHUD.style.opacity='0';
+  // Frammenti guadagnati
+  const _fragsEarned = calcFragmentsForGame(G.score, G.level, Math.floor(G.frameCount/60));
+  if(_fragsEarned>0){ addFragments(_fragsEarned); showMsg('💎 +'+_fragsEarned+' frammenti!','#4af0d0'); }
+  // Salva ghost se record
+  ghostSaveIfRecord();
   setTimeout(()=>{if(window._pendingAch&&window._pendingAch.length){const b=window._pendingAch.splice(0);b.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));}},500);
   document.getElementById('c').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
@@ -6519,7 +6972,7 @@ async function endGame(){
   const _bbMult=hasBounceBack()?2:1;
   const _objXPBonus = _objectiveDone&&_runObjective?_runObjective.xpBonus:0;
   const _objMult = _objectiveDone&&G._objMultBonus?(1+G._objMultBonus):1;
-  const _xpGained=Math.floor((calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult()*_objMult)+_objXPBonus);
+  const _xpGained=Math.floor((calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult()*_objMult*getUpgradeXPMult())+_objXPBonus);
   const _newXP=addXP(_xpGained);
   syncAccountToFirebase();
   const secs=Math.floor(G.frameCount/60);
@@ -6579,6 +7032,11 @@ async function endGame(){
   const _wlb=await getWeeklyLB();const _myWPos=Array.isArray(_wlb)?_wlb.findIndex(e=>e.name===playerName)+1:0;
   const _wEl=document.getElementById('goWeeklyCtx');
   if(_wEl&&_myWPos>0) _wEl.textContent='Posizione settimanale: #'+_myWPos+' di '+_wlb.length;
+  // Frammenti guadagnati — mostra nel game over
+  if(_fragsEarned>0){
+    const _wEl2=document.getElementById('goWeeklyCtx');
+    if(_wEl2) _wEl2.textContent=(_wEl2.textContent?_wEl2.textContent+'  |  ':'')+' 💎 +'+_fragsEarned+' frammenti';
+  }
   // Messaggio motivazionale
   const _mot=document.getElementById('goMotivation');
   if(_mot){
