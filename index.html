@@ -2523,11 +2523,11 @@ function applyOrbPower(){
 //  SISTEMA SECONDO POTERE PARAGON
 // ══════════════════════════════════════════════════════════════
 const PARAGON_BONUS_POWERS = [
-  { id:'pb_shield_pulse', name:'Scudo Astrale', desc:'Ogni 45s: scudo automatico gratuito',
+  { id:'pb_shield_pulse', name:'Scudo Astrale', desc:'Ogni 120s: scudo automatico gratuito',
     apply: ()=>{ G.orbPowerData._pbShieldTimer=0; },
     update: ()=>{
       G.orbPowerData._pbShieldTimer=(G.orbPowerData._pbShieldTimer||0)+1;
-      if(G.orbPowerData._pbShieldTimer>=45*60&&!G.shieldActive){
+      if(G.orbPowerData._pbShieldTimer>=120*60&&!G.shieldActive){
         G.orbPowerData._pbShieldTimer=0;
         const px2=CX+Math.cos(G.angle)*ORBIT_R, py2=CY+Math.sin(G.angle)*ORBIT_R;
         applyPowerup('shield',px2,py2);
@@ -2570,23 +2570,29 @@ const PARAGON_BONUS_POWERS = [
       }
     }
   },
-  { id:'pb_prisma', name:'Prisma', desc:'Ogni near miss: anello che rallenta i nemici -20% (max 3, dura 4s)',
+  { id:'pb_prisma', name:'Prisma', desc:'Ogni near miss: anello che rallenta i nemici -15% al primo contatto (max 3, dura 5s)',
     apply: ()=>{ G.orbPowerData._prismaRings=[]; },
     update: ()=>{
       if(!G.orbPowerData._prismaRings) G.orbPowerData._prismaRings=[];
       const now=G.frameCount;
-      // Decade ogni anello dopo 4s
-      G.orbPowerData._prismaRings=G.orbPowerData._prismaRings.filter(ring=>now-ring.born<4*60);
-      // Rallenta nemici dentro gli anelli
+      // Decade ogni anello dopo 5s
+      G.orbPowerData._prismaRings=G.orbPowerData._prismaRings.filter(ring=>now-ring.born<5*60);
+      // Rallenta nemici solo al primo ingresso nell'anello (non ogni frame)
       const px=CX+Math.cos(G.angle)*ORBIT_R;
       const py=CY+Math.sin(G.angle)*ORBIT_R;
-      G.orbPowerData._prismaRings.forEach(ring=>{
+      G.orbPowerData._prismaRings.forEach((ring,ri)=>{
         G.enemies.forEach(e=>{
-          if(e.type.isPowerup||e._prismaSlowed) return;
-          if(Math.hypot(e.x-px,e.y-py)<ring.r){ e.vx*=0.8; e.vy*=0.8; e._prismaSlowed=true; }
+          if(e.type.isPowerup) return;
+          if(!e._prismaHitRing) e._prismaHitRing={};
+          const inside=Math.hypot(e.x-px,e.y-py)<ring.r;
+          if(inside&&!e._prismaHitRing[ri]){
+            e._prismaHitRing[ri]=true;
+            e.vx*=0.85; e.vy*=0.85; // rallenta solo al primo ingresso
+          } else if(!inside){
+            e._prismaHitRing[ri]=false; // resetta quando esce
+          }
         });
       });
-      G.enemies.forEach(e=>{ e._prismaSlowed=false; });
     }
   },
   { id:'pb_ghost_dodge', name:'Spettro', desc:'1x per partita: attraversi un nemico senza danno',
@@ -3236,8 +3242,8 @@ function startGame(seed){
   _vortexActive=false; _vortexTimer=0;
   _weatherTimer=0; _nextWeatherIn=45*60; _currentWeather=null;
   _allySphereShown=false;
-  // Spawn alleata dopo 30s
-  setTimeout(()=>{ if(G&&G.running) spawnAlly(); }, 30000);
+  // Spawn alleata solo in modalità CORSA
+  if(_raceMode) setTimeout(()=>{ if(G&&G.running) spawnAlly(); }, 30000);
   // Applica upgrade start_bonus
   const _startBonusLv=getUpgradeLevel('start_score');
   if(_startBonusLv>0) G.scoreBonus=(G.scoreBonus||0)+_startBonusLv*25;
@@ -4175,10 +4181,10 @@ function showRaceChoice(){
     btn.onmouseenter=()=>btn.style.background='rgba(74,240,208,.1)';
     btn.onmouseleave=()=>btn.style.background='rgba(255,255,255,.05)';
     btn.onclick=()=>{
-      try{ p.apply(); }catch(e){}
       overlay.remove();
       G.paused=false;
       _raceChoiceActive=false;
+      try{ p.apply(); }catch(e){}
     };
     overlay.appendChild(btn);
   });
@@ -4427,15 +4433,20 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
         e._nm=true;
         G.nearMissStreak=(G.nearMissStreak||0)+1;
         G._totalNearMiss=(G._totalNearMiss||0)+1;
-        G._lastNearMissFrame=G.frameCount;
+        // Aggiorna _lastNearMissFrame solo se la finestra PD non è già aperta
+        // (evita che near miss multipli consecutivi blocchino il perfect dodge)
+        if(G.frameCount-(G._lastNearMissFrame||0)>8){
+          G._lastNearMissFrame=G.frameCount;
+        }
         orbPowerOnNearMiss();
         onFirstNearMiss();
         // ── PARAGON pb_score_chain: bonus +50pt a cascata sui near miss ──
         if(G.orbPowerData&&G.orbPowerData._paragonBonusId==='pb_score_chain'){
           G.orbPowerData._pbChain=(G.orbPowerData._pbChain||0)+1;
+          if(G.orbPowerData._pbChain>5){ G.orbPowerData._pbChain=1; } // reset dopo 5
           const _pbBonus=G.orbPowerData._pbChain*50;
           G.scoreBonus=(G.scoreBonus||0)+_pbBonus;
-          if(G.orbPowerData._pbChain>=2) showMsg('✦ PARAGON CHAIN x'+G.orbPowerData._pbChain+'! +'+_pbBonus,'#ffd700');
+          if(G.orbPowerData._pbChain>=2) showMsg('✦ CASCATA x'+G.orbPowerData._pbChain+'! +'+_pbBonus,'#ffd700');
         }
         const sa=Math.atan2(py2-e.y,px2-e.x);
         for(let k=0;k<6;k++){const a2=sa+(.5-Math.random())*1.2;G.particles.push({x:px2,y:py2,vx:Math.cos(a2)*3,vy:Math.sin(a2)*3,life:18,color:'#ffee44',r:1.5});}
