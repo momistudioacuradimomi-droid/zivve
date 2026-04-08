@@ -3238,9 +3238,10 @@ function startGame(seed){
   pickRunObjective();
   if(!_raceMode){ _raceWave=0; _raceChoiceActive=false; }
   if(_raceMode) _showRaceWaveHUD();
-  ghostStartRecording();
-  _vortexActive=false; _vortexTimer=0;
-  _weatherTimer=0; _nextWeatherIn=45*60; _currentWeather=null;
+  if(_raceMode){
+    ghostStartRecording();
+    _weatherTimer=0; _nextWeatherIn=45*60; _currentWeather=null;
+  }
   _allySphereShown=false;
   // Spawn alleata solo in modalità CORSA
   if(_raceMode) setTimeout(()=>{ if(G&&G.running) spawnAlly(); }, 30000);
@@ -4227,11 +4228,9 @@ function update(){
   checkRunObjective();
   checkRaceWave();
   updateComboHUD();
-  updateAlly();
-  weatherTick();
-  updateVortex();
+  updateAlly(); // solo in raceMode (spawn condizionale)
+  if(_raceMode){ weatherTick(); ghostTick(); }
   upgradeLifeRegenTick();
-  ghostTick();
   // Accumula near miss totali per obiettivo
   G._totalNearMiss = G._totalNearMiss||0;
   updateBoss();  const _sm2=(getScoreMultiplier()||1)*getRaceMultiplier();
@@ -4256,14 +4255,8 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
       setTimeout(()=>showMsg('🔓 MODALITÀ INVERSA SBLOCCATA!','#ff8844'),1500);
     }
     if(nl%10===0&&!G.bossActive){
-      // Alterna: vortice ai multipli di 10 dispari (10,30,50...), boss ai pari (20,40,60...)
-      const isVortex = (nl/10)%2===1;
-      if(isVortex){
-        setTimeout(()=>{ if(G&&G.running) startVortex(); }, 800);
-      } else {
-        setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnZigzagWave(); } },800);
-        setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnBoss(); } },6000);
-      }
+      setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnZigzagWave(); } },800);
+      setTimeout(()=>{ if(G&&G.running&&!G.bossActive){ spawnBoss(); } },6000);
     }
   }
   survivalFill.style.width=((G.frameCount%FRAMES_PER_LEVEL)/FRAMES_PER_LEVEL*100)+'%';
@@ -4294,7 +4287,12 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
     // Max 2 powerup totali in campo, max 1 per tipo
     if(nTotal<2){
       if(nShield===0){
-        spawnPowerup(ENEMY_TYPES[7]); // SEMPRE shield se non c'è
+        // Scudo: 60% di probabilità + cooldown minimo 45s (2700 frame)
+        if(!G._lastShieldSpawn) G._lastShieldSpawn=0;
+        if(Math.random()<0.6 && G.frameCount-G._lastShieldSpawn>2700){
+          spawnPowerup(ENEMY_TYPES[7]);
+          G._lastShieldSpawn=G.frameCount;
+        }
       } else {
         // Secondo powerup: 80% slow, 20% boost
         if(nSlow===0&&Math.random()<0.8) spawnPowerup(ENEMY_TYPES[5]);
@@ -4779,7 +4777,7 @@ function draw(){
   if(!G||!G.running)return;
   ctx.clearRect(0,0,W,H);
   if(G.shaking>0){const i=G.shaking*.4;ctx.save();ctx.translate((Math.random()-.5)*i,(Math.random()-.5)*i);}
-  drawBg();drawVortex();drawShockwaves();drawRings();drawTrail();drawEnemies();drawAlly();drawGhost();drawPlayer();drawParticles();drawCenter();drawWeatherFog();drawPowerupHUD();drawOrbPowerHUD();drawBossHUD();
+  drawBg();drawShockwaves();drawRings();drawTrail();drawEnemies();if(_raceMode){drawAlly();drawGhost();}drawPlayer();drawParticles();drawCenter();if(_raceMode)drawWeatherFog();drawPowerupHUD();drawOrbPowerHUD();drawBossHUD();
   if(G.shaking>0)ctx.restore();
 }
 let _stars=null;
@@ -5797,12 +5795,12 @@ function hexToRgb(hex){
 
 // XP per partita
 function calcXPForGame(score,level,time,nearMisses,perfectDodges){
-  let xp=Math.floor(score/10);
-  xp+=level*8;
-  xp+=Math.floor(time/10);
-  xp+=nearMisses*3;
-  xp+=perfectDodges*15;
-  return Math.max(10,xp);
+  let xp=Math.floor(score/5);      // era /10 — raddoppiato
+  xp+=level*20;                     // era *8 — x2.5
+  xp+=Math.floor(time/5);           // era /10 — raddoppiato
+  xp+=nearMisses*8;                 // era *3
+  xp+=perfectDodges*40;             // era *15
+  return Math.max(20,xp);           // minimo 20 XP per partita
 }
 
 
@@ -7014,7 +7012,7 @@ async function endGame(){
   const _fragsEarned = calcFragmentsForGame(G.score, G.level, Math.floor(G.frameCount/60));
   if(_fragsEarned>0){ addFragments(_fragsEarned); showMsg('💎 +'+_fragsEarned+' frammenti!','#4af0d0'); }
   // Salva ghost se record
-  ghostSaveIfRecord();
+  if(_raceMode) ghostSaveIfRecord();
   setTimeout(()=>{if(window._pendingAch&&window._pendingAch.length){const b=window._pendingAch.splice(0);b.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));}},500);
   document.getElementById('c').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
