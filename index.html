@@ -2559,16 +2559,9 @@ const PARAGON_BONUS_POWERS = [
     apply: ()=>{},
     update: ()=>{} // applicato in endGame via getParagonXPMult
   },
-  { id:'pb_life_steal', name:'Drenaggio', desc:'Ogni 200pt: recuperi 1 vita (max 5)',
-    apply: ()=>{ G.orbPowerData._pbLifeThreshold=200; },
-    update: ()=>{
-      if(G.score>0&&G.score>=(G.orbPowerData._pbLifeThreshold||200)&&G.lives<5){
-        G.orbPowerData._pbLifeThreshold=(G.orbPowerData._pbLifeThreshold||200)+200;
-        G.lives++; updateLivesUI();
-        showMsg('✦ PARAGON — +1 vita!','#ffd700');
-        flashScreen('rgba(255,215,0,.18)');
-      }
-    }
+  { id:'pb_second_breath', name:'Secondo Respiro', desc:'1x per partita: quando perdi l\'ultima vita, slow-mo 3s e nemici respinti',
+    apply: ()=>{ G.orbPowerData._sbUsed=false; },
+    update: ()=>{} // gestito in registerHit
   },
   { id:'pb_prisma', name:'Prisma', desc:'Ogni near miss: anello che rallenta i nemici -15% al primo contatto (max 3, dura 5s)',
     apply: ()=>{ G.orbPowerData._prismaRings=[]; },
@@ -4427,14 +4420,27 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
       if(e._isBoss) continue; // boss: non colpisce direttamente, sopravvivi 30s
       const _prec=getOrbPower()==='precision'?0.8:1;
       const _bigHitMult=G._penaltyBigHit>0?1.8:1;
-  const eHitR=hitR*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1)*_prec*_bigHitMult;
+      const eHitR=hitR*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1)*_prec*_bigHitMult;
       const _elegR=hitR*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1)*1.15;
+
+      // Swept collision: controlla più punti sull'arco percorso per prevenire tunneling
+      const _arcStep=(G.speed*(Math.PI/180))*ORBIT_R;
+      const _steps=Math.max(1,Math.ceil(_arcStep/(eHitR*0.8)));
+      let _hit=false,_hitPx=px,_hitPy=py;
+      for(let _si=0;_si<=_steps&&!_hit;_si++){
+        const _frac=_si/_steps;
+        const _interpAngle=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_frac);
+        const _ix=CX+Math.cos(_interpAngle)*ORBIT_R;
+        const _iy=CY+Math.sin(_interpAngle)*ORBIT_R;
+        if(Math.hypot(_ix-e.x,_iy-e.y)<eHitR){_hit=true;_hitPx=_ix;_hitPy=_iy;}
+      }
+
+      // Near miss elegance zone (solo posizione attuale)
       const _dist=Math.hypot(px-e.x,py-e.y);
-      // Near miss elegance zone
       if(_dist<_elegR*1.25&&_dist>eHitR&&getOrbPower()==='elegance'){
         if(!e._elegNM){e._elegNM=true;orbPowerOnNearMiss();}
       } else {e._elegNM=false;}
-      if(_dist<eHitR){registerHit(px,py,e);G.enemies.splice(i,1);spawnEnemy(false);break;}
+      if(_hit){registerHit(_hitPx,_hitPy,e);G.enemies.splice(i,1);spawnEnemy(false);break;}
     }
   }
 
@@ -4754,6 +4760,27 @@ function registerHit(px,py,e){
   if(G.lives<=1)sndLastLife();else sndHit();
   haptic([40,20,60]);
   if(G.lives<=0){
+    // ── PARAGON: pb_second_breath — slow-mo 3s + respinta nemici, 1x per partita ──
+    if(G.orbPowerData&&G.orbPowerData._paragonBonusId==='pb_second_breath'&&!G.orbPowerData._sbUsed){
+      G.orbPowerData._sbUsed=true;
+      G.lives=1; updateLivesUI();
+      G.slowMo=3*60;
+      G.invincible=3*60;
+      G.enemies.forEach(e=>{
+        if(e.type.isPowerup) return;
+        const dx=e.x-CX, dy=e.y-CY, d=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+        e.vx+=(dx/d)*10; e.vy+=(dy/d)*10;
+      });
+      flashScreen('rgba(74,240,208,.5)');
+      for(let _i=0;_i<5;_i++) G.shockwaves.push({r:_i*25,alpha:.8,grow:22,color:'#4af0d0'});
+      for(let _i=0;_i<40;_i++){
+        const _a=Math.random()*Math.PI*2, _s=Math.random()*8+3;
+        G.particles.push({x:px,y:py,vx:Math.cos(_a)*_s,vy:Math.sin(_a)*_s,life:80,color:['#4af0d0','#ffffff','#7ec8ff'][_i%3],r:Math.random()*4+2});
+      }
+      showMsg('✦ SECONDO RESPIRO — Ancora in gioco!','#4af0d0');
+      haptic([50,20,100,20,200]);
+      return;
+    }
     // ── PARAGON: pb_invert_shield — 3s invincibilità bonus prima della morte ──
     if(G.orbPowerData&&!G.orbPowerData._pbInvertUsed){
       G.orbPowerData._pbInvertUsed=true;
