@@ -1817,7 +1817,7 @@ const USE_LB=true;
 // Testa connessione Firebase all'avvio — avvisa se bloccato
 (async()=>{
   try{
-    const r=await fetch(FIREBASE_URL+'/scores.json?limitToFirst=1&_='+Date.now(),{cache:'no-store'});
+    const r=await fetch(FIREBASE_URL+'/scores.json?shallow=true&_='+Date.now(),{cache:'no-store'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     window._fbOk=true;
   }catch(e){
