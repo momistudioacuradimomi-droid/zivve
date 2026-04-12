@@ -1823,19 +1823,6 @@ const USE_LB=true;
     window._fbOk=true;
   }catch(e){
     window._fbOk=false;
-    console.warn('[FB] Firebase bloccato — probabilmente ad-blocker o Brave Shields attivi. Classifica e inventario non disponibili.');
-    // Mostra avviso una sola volta
-    setTimeout(()=>{
-      const el=document.getElementById('startOverlay');
-      if(el&&!localStorage.getItem('zivve_fb_warn_shown')){
-        localStorage.setItem('zivve_fb_warn_shown','1');
-        const w=document.createElement('div');
-        w.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(255,100,0,.9);color:#fff;padding:10px 18px;border-radius:8px;font-family:Orbitron,sans-serif;font-size:11px;z-index:9999;text-align:center;max-width:280px';
-        w.innerHTML='⚠️ Classifica non disponibile<br><span style="font-size:9px;opacity:.8">Disattiva ad-blocker o Brave Shields</span>';
-        document.body.appendChild(w);
-        setTimeout(()=>w.remove(),6000);
-      }
-    },2000);
   }
 })();
 async function fbGet(path){const res=await fetch(FIREBASE_URL+path+'.json?_='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache','Pragma':'no-cache'}});if(!res.ok)throw new Error('FB GET '+res.status);return res.json();}
@@ -3270,7 +3257,7 @@ function startGame(seed){
   setTimeout(()=>{if(G&&G.running)spawnPowerup(ENEMY_TYPES[7]);},3000);
   applyOrbPower(); // attiva potere sfera
   pickRunObjective();
-  window._speedOffset=0; // reset offset velocità manuale
+  
   if(!_raceMode){ _raceWave=0; _raceChoiceActive=false; }
   if(_raceMode) _showRaceWaveHUD();
   if(_raceMode){
@@ -3594,84 +3581,17 @@ function shareOrDownloadPD(dataUrl){
 // Tap per invertire direzione — SOLO pointerdown
 // (pointerdown unifica touch e mouse; touchstart crea doppio trigger su Android)
 const _gameCanvas=document.getElementById('c');
-// ── SISTEMA SWIPE ──
-// Destra → orario | Sinistra → antiorario | Su → +velocità | Giù → -velocità
-let _swipeStartX=0, _swipeStartY=0, _swipeStartTime=0;
-const SWIPE_MIN_DIST=30; // pixel minimi per riconoscere uno swipe
-const SWIPE_MAX_TIME=400; // ms massimi per uno swipe valido
-const SPEED_SWIPE_STEP=0.8; // incremento velocità per swipe
-const SPEED_SWIPE_MIN=-5;   // offset minimo rispetto alla base
-const SPEED_SWIPE_MAX=10;   // offset massimo rispetto alla base
-if(!G) window._speedOffset=0; // offset manuale del giocatore
-window._speedOffset=window._speedOffset||0;
-
+let _lastTapTime=0;
 _gameCanvas.addEventListener('pointerdown',e=>{
   e.preventDefault();
   e.stopPropagation();
-  _swipeStartX=e.clientX;
-  _swipeStartY=e.clientY;
-  _swipeStartTime=Date.now();
+  const now=Date.now();
+  if(now-_lastTapTime<50)return;
+  _lastTapTime=now;
+  if(G&&G.running) reverseDir();
 },{passive:false});
-
-_gameCanvas.addEventListener('pointerup',e=>{
-  e.preventDefault();
-  if(!G||!G.running) return;
-  const dx=e.clientX-_swipeStartX;
-  const dy=e.clientY-_swipeStartY;
-  const dt=Date.now()-_swipeStartTime;
-  const dist=Math.sqrt(dx*dx+dy*dy);
-
-  if(dist<SWIPE_MIN_DIST||dt>SWIPE_MAX_TIME) return; // troppo corto o lento
-
-  const absX=Math.abs(dx), absY=Math.abs(dy);
-
-  if(absX>absY){
-    // Swipe orizzontale — cambio direzione
-    if(dx>0){
-      // Destra → senso orario (dir = +1)
-      if(G.dir!==-1){ G.dir=1; _triggerSwipeDir(1); }
-      else { G.dir=1; _triggerSwipeDir(1); }
-    } else {
-      // Sinistra → senso antiorario (dir = -1)
-      G.dir=-1; _triggerSwipeDir(-1);
-    }
-  } else {
-    // Swipe verticale — velocità
-    const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
-    if(dy<0){
-      // Su → aumenta
-      window._speedOffset=Math.min(window._speedOffset+SPEED_SWIPE_STEP, SPEED_SWIPE_MAX);
-    } else {
-      // Giù → diminuisce
-      window._speedOffset=Math.max(window._speedOffset-SPEED_SWIPE_STEP, SPEED_SWIPE_MIN);
-    }
-    G.speed=Math.max(0.5, baseSpd+window._speedOffset);
-    const sign=dy<0?'▲':'▼';
-    showMsg(sign+' Velocità: '+(window._speedOffset>=0?'+':'')+window._speedOffset.toFixed(1),'#4af0d0');
-  }
-},{passive:false});
-
-function _triggerSwipeDir(dir){
-  // Stesso effetto di reverseDir ma imposta direzione assoluta
-  if(G._penaltyInvert>0) dir*=-1;
-  const px=CX+Math.cos(G.angle)*ORBIT_R, py=CY+Math.sin(G.angle)*ORBIT_R;
-  // Controlla perfect dodge
-  const lastNM=G._lastNearMissFrame||0;
-  if((G.frameCount-lastNM)<=10&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
-  if(G.adapt) G.adapt.framesSinceTap=0;
-  if(G.orbPower==='tango'&&G.orbPowerData) G.orbPowerData.tangoCount=(G.orbPowerData.tangoCount||0)+1;
-  if(G.orbPower==='samurai') G.slowMo=Math.min((G.slowMo||0)+30,120);
-  G.rings.push({x:px,y:py,r:0,alpha:.7,color:'#4af0d0',grow:6});
-  for(let i=0;i<7;i++){const a=Math.random()*Math.PI*2;G.particles.push({x:px,y:py,vx:Math.cos(a)*2.5,vy:Math.sin(a)*2.5,life:22,color:'#4af0d0',r:Math.random()*2+.8});}
-  sndTap(); haptic(15);
-}
-
 document.addEventListener('keydown',e=>{
-  if(e.code==='ArrowRight'){e.preventDefault();if(G&&G.running){G.dir=1;_triggerSwipeDir(1);}}
-  if(e.code==='ArrowLeft'){e.preventDefault();if(G&&G.running){G.dir=-1;_triggerSwipeDir(-1);}}
-  if(e.code==='ArrowUp'){e.preventDefault();if(G&&G.running){const b=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;window._speedOffset=Math.min(window._speedOffset+SPEED_SWIPE_STEP,SPEED_SWIPE_MAX);G.speed=Math.max(0.5,b+window._speedOffset);}}
-  if(e.code==='ArrowDown'){e.preventDefault();if(G&&G.running){const b=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;window._speedOffset=Math.max(window._speedOffset-SPEED_SWIPE_STEP,SPEED_SWIPE_MIN);G.speed=Math.max(0.5,b+window._speedOffset);}}
-  if(e.code==='Space'){e.preventDefault();if(G&&G.running){G.dir*=-1;_triggerSwipeDir(G.dir);}}
+  if(e.code==='Space'||e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();if(G&&G.running)reverseDir();}
   if(e.code==='Escape'&&G&&G.running)pauseGame();
   if(e.code==='Escape'&&G&&G.paused)resumeGame();
 });
@@ -4387,7 +4307,7 @@ function update(){
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
   if(nl!==G.level){
     G.level=nl;
-    G.speed=Math.max(0.5,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL+(window._speedOffset||0));
+    G.speed=Math.max(0.5,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL);
     // Decay scoreBonus: -5% per livello dopo il lv5 — frena l'accumulo infinito
     // scoreBonus non decade più per livello — i bonus si mantengono
     // Flow design: picchi e respiri
@@ -4495,61 +4415,45 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
     }
   }
   if(G.invincible>0)G.invincible--;
-  else{
+  // Raccolta powerup — sempre attiva, anche con invincible/scudo
+  {
     const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13*getHitboxMult();
     for(let i=G.enemies.length-1;i>=0;i--){
       const e=G.enemies[i];
-      if(e.type.isPowerup){
-        if(e._isDragon){
-          // Drago: schivarlo da vicino dà +500
-          // Swept per drago
-          const _dSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(hitR*3*0.8)));
-          let _dHit=false;
-          for(let _ds=0;_ds<=_dSteps&&!_dHit;_ds++){const _da=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_ds/_dSteps);if(Math.hypot(CX+Math.cos(_da)*ORBIT_R-e.x,CY+Math.sin(_da)*ORBIT_R-e.y)<hitR*3)_dHit=true;}
-          if(_dHit){
-            G.enemies.splice(i,1);
-            G.scoreBonus=(G.scoreBonus||0)+500;
-            showMsg('🐉 +500 DRAGONE!','#ffd700');
-            flashScreen('rgba(255,200,0,.2)');
-            haptic([30,10,80]);
-          }
-          continue;
-        }
-        if(e._isBlackOrb){
-          // Swept per sfera nera
-          const _bSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(hitR*2.5*0.8)));
-          let _bHit=false;
-          for(let _bs=0;_bs<=_bSteps&&!_bHit;_bs++){const _ba=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_bs/_bSteps);if(Math.hypot(CX+Math.cos(_ba)*ORBIT_R-e.x,CY+Math.sin(_ba)*ORBIT_R-e.y)<hitR*2.5)_bHit=true;}
-          if(_bHit){
-            G.enemies.splice(i,1);
-            G.lives=Math.min(G.lives+3,6);
-            updateLivesUI();
-            showMsg('⚫ +3 VITE — SFERA MISTERIOSA!','#ffffff');
-            flashScreen('rgba(255,255,255,.4)');
-            haptic([100,50,100,50,200]);
-            localStorage.setItem('zivve_black_orb_found','1');
-          }
-          continue;
-        }
-        // Power-up collection — swept per non perdere powerup a velocità alta
-        const _pbMagnetBonus=(G.orbPowerData&&G.orbPowerData._pbMagnet)?2:1;
-        const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.8:1)*(getOrbPower()==='harvest'?1.6:1)*_pbMagnetBonus;
-        const _puSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(_collectR*0.8)));
-        let _puCollected=false;
-        for(let _psi=0;_psi<=_puSteps&&!_puCollected;_psi++){
-          const _pFrac=_psi/_puSteps;
-          const _pAngle=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_pFrac);
-          const _pix=CX+Math.cos(_pAngle)*ORBIT_R;
-          const _piy=CY+Math.sin(_pAngle)*ORBIT_R;
-          if(Math.hypot(_pix-e.x,_piy-e.y)<_collectR){_puCollected=true;}
-        }
-        if(_puCollected){
-          G.enemies.splice(i,1);
-          applyPowerup(e.type.key,px,py);
-          onFirstPowerup(e.type.key);
-        }
+      if(!e.type.isPowerup) continue;
+      if(e._isDragon){
+        const _dSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(hitR*3*0.8)));
+        let _dHit=false;
+        for(let _ds=0;_ds<=_dSteps&&!_dHit;_ds++){const _da=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_ds/_dSteps);if(Math.hypot(CX+Math.cos(_da)*ORBIT_R-e.x,CY+Math.sin(_da)*ORBIT_R-e.y)<hitR*3)_dHit=true;}
+        if(_dHit){G.enemies.splice(i,1);G.scoreBonus=(G.scoreBonus||0)+500;showMsg('🐉 +500 DRAGONE!','#ffd700');flashScreen('rgba(255,200,0,.2)');haptic([30,10,80]);}
         continue;
       }
+      if(e._isBlackOrb){
+        const _bSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(hitR*2.5*0.8)));
+        let _bHit=false;
+        for(let _bs=0;_bs<=_bSteps&&!_bHit;_bs++){const _ba=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_bs/_bSteps);if(Math.hypot(CX+Math.cos(_ba)*ORBIT_R-e.x,CY+Math.sin(_ba)*ORBIT_R-e.y)<hitR*2.5)_bHit=true;}
+        if(_bHit){G.enemies.splice(i,1);G.lives=Math.min(G.lives+3,6);updateLivesUI();showMsg('⚫ +3 VITE — SFERA MISTERIOSA!','#ffffff');flashScreen('rgba(255,255,255,.4)');haptic([100,50,100,50,200]);localStorage.setItem('zivve_black_orb_found','1');}
+        continue;
+      }
+      const _pbMagnetBonus=(G.orbPowerData&&G.orbPowerData._pbMagnet)?2:1;
+      const _collectR=hitR*2.4*(getOrbPower()==='powerup_magnet'?2.8:1)*(getOrbPower()==='harvest'?1.6:1)*_pbMagnetBonus;
+      const _puSteps=Math.max(1,Math.ceil((G.speed*(Math.PI/180))*ORBIT_R/(_collectR*0.8)));
+      let _puCollected=false;
+      for(let _psi=0;_psi<=_puSteps&&!_puCollected;_psi++){
+        const _pFrac=_psi/_puSteps;
+        const _pAngle=G.angle-G.speed*G.dir*(Math.PI/180)*(1-_pFrac);
+        const _pix=CX+Math.cos(_pAngle)*ORBIT_R;
+        const _piy=CY+Math.sin(_pAngle)*ORBIT_R;
+        if(Math.hypot(_pix-e.x,_piy-e.y)<_collectR){_puCollected=true;}
+      }
+      if(_puCollected){G.enemies.splice(i,1);applyPowerup(e.type.key,px,py);onFirstPowerup(e.type.key);}
+    }
+  }
+  if(G.invincible===0){
+    const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R,hitR=ORBIT_R*.13*getHitboxMult();
+    for(let i=G.enemies.length-1;i>=0;i--){
+      const e=G.enemies[i];
+      if(e.type.isPowerup) continue; // già gestiti sopra
       if(e._isDragon) continue;
       if(e._isBoss) continue; // boss: non colpisce direttamente, sopravvivi 30s
       const _prec=getOrbPower()==='precision'?0.8:1;
@@ -6008,7 +5912,7 @@ function showAccountLevelUp(acc){
 // Paragon level up
 function showParagonLevelUp(acc){
   const div=document.createElement('div');
-  div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:400;text-align:center;pointer-events:none;font-family:Orbitron,sans-serif';
+  div.style.cssText='position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:400;text-align:center;pointer-events:none;font-family:Orbitron,sans-serif;background:rgba(3,3,10,.85);border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:12px 24px;backdrop-filter:blur(6px)';
   div.innerHTML=
     '<div style="font-size:10px;letter-spacing:.3em;color:#ffd700;margin-bottom:6px">PARAGON</div>'+
     '<div style="font-size:44px;font-weight:900;color:#ffd700;text-shadow:0 0 40px #ffd700;margin-bottom:4px">(P'+acc.paragon+')</div>'+
