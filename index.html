@@ -487,6 +487,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <button class="btn-play" onclick="startGame()" data-i18n="play">▶ PLAY</button>
   <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(74,240,208,.4);color:#4af0d0;font-size:12px" onclick="startRaceModeGame()">🏁 MODALITÀ CORSA</button>
   <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(255,215,0,.4);color:#ffd700;font-size:12px" onclick="showUpgradeScreen()">⚗ UPGRADE <span id="fragsMenuCount"></span></button>
+  <button class="btn-outline" style="width:100%;max-width:300px;margin:16px 0 0;border-color:rgba(255,34,68,.3);color:#ff4455;font-size:12px" onclick="try{window.close();}catch(e){}">✕ ESCI</button>
 
   <!-- 6. INIZIA LA SERIE (Last Zivver Standing) -->
   <!-- Hidden event elements per compatibilità -->
@@ -2467,7 +2468,11 @@ function hideTut(){document.getElementById('tutBox').classList.remove('show');}
 // ══════════════════════════════════════
 //  GAME CONTROLS
 // ══════════════════════════════════════
-function pauseGame(){
+function exitGame(){
+  // Prova a chiudere la finestra (funziona su TWA e app native)
+  // Su browser normale mostra conferma
+  hide('pauseOverlay');
+  if(G){ G.running=false; G.paused=false; }
   if(!G.running&&!G.paused)return;
   G.paused=true;G.running=false;
   show('pauseOverlay');
@@ -3265,6 +3270,7 @@ function startGame(seed){
   setTimeout(()=>{if(G&&G.running)spawnPowerup(ENEMY_TYPES[7]);},3000);
   applyOrbPower(); // attiva potere sfera
   pickRunObjective();
+  window._speedOffset=0; // reset offset velocità manuale
   if(!_raceMode){ _raceWave=0; _raceChoiceActive=false; }
   if(_raceMode) _showRaceWaveHUD();
   if(_raceMode){
@@ -3588,19 +3594,86 @@ function shareOrDownloadPD(dataUrl){
 // Tap per invertire direzione — SOLO pointerdown
 // (pointerdown unifica touch e mouse; touchstart crea doppio trigger su Android)
 const _gameCanvas=document.getElementById('c');
-let _lastTapTime=0;
+// ── SISTEMA SWIPE ──
+// Destra → orario | Sinistra → antiorario | Su → +velocità | Giù → -velocità
+let _swipeStartX=0, _swipeStartY=0, _swipeStartTime=0;
+const SWIPE_MIN_DIST=30; // pixel minimi per riconoscere uno swipe
+const SWIPE_MAX_TIME=400; // ms massimi per uno swipe valido
+const SPEED_SWIPE_STEP=0.8; // incremento velocità per swipe
+const SPEED_SWIPE_MIN=-5;   // offset minimo rispetto alla base
+const SPEED_SWIPE_MAX=10;   // offset massimo rispetto alla base
+if(!G) window._speedOffset=0; // offset manuale del giocatore
+window._speedOffset=window._speedOffset||0;
+
 _gameCanvas.addEventListener('pointerdown',e=>{
   e.preventDefault();
   e.stopPropagation();
-  const now=Date.now();
-  if(now-_lastTapTime<50)return; // throttle 50ms — più reattivo su mobile
-  _lastTapTime=now;
-  if(G&&G.running) reverseDir();
+  _swipeStartX=e.clientX;
+  _swipeStartY=e.clientY;
+  _swipeStartTime=Date.now();
 },{passive:false});
+
+_gameCanvas.addEventListener('pointerup',e=>{
+  e.preventDefault();
+  if(!G||!G.running) return;
+  const dx=e.clientX-_swipeStartX;
+  const dy=e.clientY-_swipeStartY;
+  const dt=Date.now()-_swipeStartTime;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+
+  if(dist<SWIPE_MIN_DIST||dt>SWIPE_MAX_TIME) return; // troppo corto o lento
+
+  const absX=Math.abs(dx), absY=Math.abs(dy);
+
+  if(absX>absY){
+    // Swipe orizzontale — cambio direzione
+    if(dx>0){
+      // Destra → senso orario (dir = +1)
+      if(G.dir!==-1){ G.dir=1; _triggerSwipeDir(1); }
+      else { G.dir=1; _triggerSwipeDir(1); }
+    } else {
+      // Sinistra → senso antiorario (dir = -1)
+      G.dir=-1; _triggerSwipeDir(-1);
+    }
+  } else {
+    // Swipe verticale — velocità
+    const baseSpd=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    if(dy<0){
+      // Su → aumenta
+      window._speedOffset=Math.min(window._speedOffset+SPEED_SWIPE_STEP, SPEED_SWIPE_MAX);
+    } else {
+      // Giù → diminuisce
+      window._speedOffset=Math.max(window._speedOffset-SPEED_SWIPE_STEP, SPEED_SWIPE_MIN);
+    }
+    G.speed=Math.max(0.5, baseSpd+window._speedOffset);
+    const sign=dy<0?'▲':'▼';
+    showMsg(sign+' Velocità: '+(window._speedOffset>=0?'+':'')+window._speedOffset.toFixed(1),'#4af0d0');
+  }
+},{passive:false});
+
+function _triggerSwipeDir(dir){
+  // Stesso effetto di reverseDir ma imposta direzione assoluta
+  if(G._penaltyInvert>0) dir*=-1;
+  const px=CX+Math.cos(G.angle)*ORBIT_R, py=CY+Math.sin(G.angle)*ORBIT_R;
+  // Controlla perfect dodge
+  const lastNM=G._lastNearMissFrame||0;
+  if((G.frameCount-lastNM)<=10&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
+  if(G.adapt) G.adapt.framesSinceTap=0;
+  if(G.orbPower==='tango'&&G.orbPowerData) G.orbPowerData.tangoCount=(G.orbPowerData.tangoCount||0)+1;
+  if(G.orbPower==='samurai') G.slowMo=Math.min((G.slowMo||0)+30,120);
+  G.rings.push({x:px,y:py,r:0,alpha:.7,color:'#4af0d0',grow:6});
+  for(let i=0;i<7;i++){const a=Math.random()*Math.PI*2;G.particles.push({x:px,y:py,vx:Math.cos(a)*2.5,vy:Math.sin(a)*2.5,life:22,color:'#4af0d0',r:Math.random()*2+.8});}
+  sndTap(); haptic(15);
+}
+
 document.addEventListener('keydown',e=>{
-  if(e.code==='Space'||e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();reverseDir();}
-  if(e.code==='Escape'&&G.running)pauseGame();
-  if(e.code==='Escape'&&G.paused)resumeGame();
+  if(e.code==='ArrowRight'){e.preventDefault();if(G&&G.running){G.dir=1;_triggerSwipeDir(1);}}
+  if(e.code==='ArrowLeft'){e.preventDefault();if(G&&G.running){G.dir=-1;_triggerSwipeDir(-1);}}
+  if(e.code==='ArrowUp'){e.preventDefault();if(G&&G.running){const b=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;window._speedOffset=Math.min(window._speedOffset+SPEED_SWIPE_STEP,SPEED_SWIPE_MAX);G.speed=Math.max(0.5,b+window._speedOffset);}}
+  if(e.code==='ArrowDown'){e.preventDefault();if(G&&G.running){const b=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;window._speedOffset=Math.max(window._speedOffset-SPEED_SWIPE_STEP,SPEED_SWIPE_MIN);G.speed=Math.max(0.5,b+window._speedOffset);}}
+  if(e.code==='Space'){e.preventDefault();if(G&&G.running){G.dir*=-1;_triggerSwipeDir(G.dir);}}
+  if(e.code==='Escape'&&G&&G.running)pauseGame();
+  if(e.code==='Escape'&&G&&G.paused)resumeGame();
 });
 
 
@@ -4314,7 +4387,7 @@ function update(){
   const nl=Math.floor(G.frameCount/FRAMES_PER_LEVEL)+1;
   if(nl!==G.level){
     G.level=nl;
-    G.speed=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
+    G.speed=Math.max(0.5,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL+(window._speedOffset||0));
     // Decay scoreBonus: -5% per livello dopo il lv5 — frena l'accumulo infinito
     // scoreBonus non decade più per livello — i bonus si mantengono
     // Flow design: picchi e respiri
