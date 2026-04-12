@@ -3583,7 +3583,7 @@ function shareOrDownloadPD(dataUrl){
 // (pointerdown unifica touch e mouse; touchstart crea doppio trigger su Android)
 const _gameCanvas=document.getElementById('c');
 let _lastTapTime=0;
-let _swipeStartY=0, _swipeStartTime=0;
+let _swipeStartY=0, _swipeStartTime=0, _swipeMoved=false;
 const SPEED_STEP=0.8, SPEED_MIN=-5, SPEED_MAX=10;
 
 _gameCanvas.addEventListener('pointerdown',e=>{
@@ -3591,6 +3591,12 @@ _gameCanvas.addEventListener('pointerdown',e=>{
   e.stopPropagation();
   _swipeStartY=e.clientY;
   _swipeStartTime=Date.now();
+  _swipeMoved=false;
+},{passive:false});
+
+_gameCanvas.addEventListener('pointermove',e=>{
+  if(!_swipeStartTime) return;
+  if(Math.abs(e.clientY-_swipeStartY)>20) _swipeMoved=true;
 },{passive:false});
 
 _gameCanvas.addEventListener('pointerup',e=>{
@@ -3598,20 +3604,20 @@ _gameCanvas.addEventListener('pointerup',e=>{
   if(!G||!G.running) return;
   const dy=e.clientY-_swipeStartY;
   const dt=Date.now()-_swipeStartTime;
-  const absDY=Math.abs(dy);
+  _swipeStartTime=0;
 
-  if(absDY>40&&dt<400){
+  if(_swipeMoved&&Math.abs(dy)>25&&dt<500){
     // Swipe verticale — cambia velocità
     const base=BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL;
     if(!G._speedOff) G._speedOff=0;
     if(dy<0){
-      G._speedOff=Math.min(G._speedOff+SPEED_STEP, SPEED_MAX);
+      G._speedOff=Math.min(G._speedOff+SPEED_STEP,SPEED_MAX);
     } else {
-      G._speedOff=Math.max(G._speedOff-SPEED_STEP, SPEED_MIN);
+      G._speedOff=Math.max(G._speedOff-SPEED_STEP,SPEED_MIN);
     }
-    G.speed=Math.max(0.5, base+G._speedOff);
-    showMsg((dy<0?'▲':' ▼')+' Velocità '+(G._speedOff>=0?'+':'')+G._speedOff.toFixed(1),'#4af0d0');
-  } else if(absDY<15&&dt<300){
+    G.speed=Math.max(0.5,base+G._speedOff);
+    showMsg((dy<0?'▲':'▼')+' Velocità '+(G._speedOff>=0?'+':'')+G._speedOff.toFixed(1),'#4af0d0');
+  } else if(!_swipeMoved){
     // Tap — cambia direzione
     const now=Date.now();
     if(now-_lastTapTime<50) return;
