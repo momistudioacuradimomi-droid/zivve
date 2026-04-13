@@ -38,7 +38,7 @@ function shareChallengeLink(){
 
 
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#03030a;--accent:#4af0d0;--accent2:#7ec8ff;--red:#ff2244;--red2:#ff6633;--gold:#ffe566;--dim:rgba(200,220,255,0.32);--white:#f0f4ff}
@@ -52,7 +52,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #ui{position:fixed;inset:0;pointer-events:none;z-index:10}
 #scoreWrap{position:absolute;top:72px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
 #scoreLbl{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase}
-#scoreVal{font-family:'Orbitron',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
+#scoreVal{font-family:'Syncopate',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
 #scoreVal.pop{transform:scale(1.3);color:var(--gold);text-shadow:0 0 40px var(--gold)}
 #livesWrap{position:absolute;top:68px;right:14px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 #livesLbl{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
@@ -63,13 +63,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .heart.dead{background:rgba(255,34,68,.1);box-shadow:none}.heart.dead::before,.heart.dead::after{background:rgba(255,34,68,.1)}
 #levelWrap{position:absolute;top:22px;left:14px;display:flex;flex-direction:column;gap:3px}
 #levelLbl{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
-#levelVal{font-family:'Orbitron',sans-serif;font-size:19px;font-weight:700;color:var(--accent);text-shadow:0 0 12px var(--accent);transition:all .2s}
+#levelVal{font-family:'Syncopate',sans-serif;font-size:19px;font-weight:700;color:var(--accent);text-shadow:0 0 12px var(--accent);transition:all .2s}
 #levelVal.bump{transform:scale(1.45);color:var(--gold);text-shadow:0 0 30px var(--gold)}
 #enemyCount{position:absolute;bottom:70px;right:14px;font-size:9px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;text-align:right}
-#enemyCount span{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--red);display:block;text-shadow:0 0 8px var(--red)}
+#enemyCount span{font-family:'Syncopate',sans-serif;font-size:13px;font-weight:700;color:var(--red);display:block;text-shadow:0 0 8px var(--red)}
 #msgWrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;text-align:center;opacity:0;transition:opacity .25s,transform .25s}
 #msgWrap.show{opacity:1;transform:translate(-50%,-65%)}
-#msgText{font-family:'Orbitron',sans-serif;font-size:clamp(13px,4vw,22px);font-weight:900;letter-spacing:.1em;white-space:nowrap}
+#msgText{font-family:'Syncopate',sans-serif;font-size:clamp(13px,4vw,22px);font-weight:900;letter-spacing:.1em;white-space:nowrap}
 #survivalBar{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
 #survivalFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:background .5s}
 #dangerRing{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;border-radius:50%;pointer-events:none;transition:all .3s;border:2px solid transparent}
@@ -89,7 +89,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .game-title{font-family:'Orbitron',sans-serif;font-size:clamp(58px,17vw,110px);font-weight:900;letter-spacing:.06em;background:linear-gradient(150deg,#e8f4ff 0%,var(--accent2) 45%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(74,240,208,.45));line-height:1;animation:titlePulse 2.8s ease-in-out infinite}
 @keyframes titlePulse{0%,100%{filter:drop-shadow(0 0 25px rgba(74,240,208,.3))}50%{filter:drop-shadow(0 0 65px rgba(74,240,208,.8))}}
 .subtitle{font-size:clamp(9px,2.5vw,12px);letter-spacing:.4em;color:var(--dim);text-transform:uppercase;margin-top:3px;margin-bottom:24px}
-.btn-play{font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;padding:16px 48px;cursor:pointer;pointer-events:all;touch-action:manipulation;border-radius:4px;box-shadow:0 0 30px rgba(74,240,208,.45);transition:transform .15s,box-shadow .3s;-webkit-appearance:none;min-height:54px;display:block;width:min(280px,80vw)}
+.btn-play{font-family:'Syncopate',sans-serif;font-weight:700;font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;padding:16px 48px;cursor:pointer;pointer-events:all;touch-action:manipulation;border-radius:14px;box-shadow:0 0 30px rgba(74,240,208,.45),0 4px 20px rgba(0,0,0,.3);transition:transform .15s,box-shadow .3s;-webkit-appearance:none;min-height:54px;display:block;width:min(280px,80vw)}
 .btn-play:hover{box-shadow:0 0 50px rgba(74,240,208,.7);transform:translateY(-1px)}.btn-play:active{transform:scale(.95)}
 
 .btn-outline{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);background:transparent;border:1px solid rgba(200,220,255,.14);padding:10px 28px;cursor:pointer;pointer-events:all;touch-action:manipulation;border-radius:4px;transition:all .25s;margin-top:7px;-webkit-appearance:none;min-height:44px}
@@ -98,12 +98,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .btn-outline:active{color:var(--white);background:rgba(74,240,208,.1);transform:scale(.97)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .best-row{font-size:11px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:20px}
-.best-row span{color:var(--gold);font-family:'Orbitron',sans-serif;font-weight:700}
+.best-row span{color:var(--gold);font-family:'Syncopate',sans-serif;font-weight:700}
 /* Menu nav grid */
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:300px;margin-bottom:20px}
-.menu-btn{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,220,255,.65);background:rgba(255,255,255,.04);border:1px solid rgba(200,220,255,.1);padding:12px 10px;cursor:pointer;pointer-events:all;touch-action:manipulation;border-radius:6px;transition:background .2s;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-appearance:none;min-height:48px}
-.menu-btn .micon{font-size:20px}
-.menu-btn:active,.menu-btn:hover{color:var(--white);background:rgba(74,240,208,.1);border-color:rgba(74,240,208,.3)}
+.menu-btn{font-family:'Syncopate',sans-serif;font-weight:400;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,220,255,.75);background:rgba(3,3,18,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(74,240,208,.3);padding:14px 10px;cursor:pointer;pointer-events:all;touch-action:manipulation;border-radius:14px;transition:all .25s cubic-bezier(.2,1,.4,1);display:flex;flex-direction:column;align-items:center;gap:6px;-webkit-appearance:none;min-height:52px;box-shadow:0 2px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)}
+.menu-btn .micon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 4px rgba(74,240,208,.4))}
+.menu-btn:active,.menu-btn:hover{color:#fff;background:rgba(74,240,208,.12);border-color:rgba(74,240,208,.5);box-shadow:0 0 18px rgba(74,240,208,.25),0 2px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);transform:translateY(-1px)}
 /* How to play */
 .how-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:380px;margin-bottom:20px}
 .how-item{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:12px;border-radius:4px}
@@ -111,12 +111,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .how-text{font-size:11px;color:rgba(200,220,255,.7);line-height:1.5;letter-spacing:.04em}
 .how-text strong{color:var(--white);display:block;margin-bottom:2px;font-size:12px}
 /* Stats / game over */
-.go-title{font-family:'Orbitron',sans-serif;font-size:clamp(26px,8vw,54px);font-weight:900;letter-spacing:.04em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 22px rgba(255,34,68,.5));margin-bottom:4px}
-.pause-title{font-family:'Orbitron',sans-serif;font-size:clamp(26px,8vw,52px);font-weight:900;letter-spacing:.04em;color:var(--accent);text-shadow:0 0 30px var(--accent);margin-bottom:4px}
+.go-title{font-family:'Syncopate',sans-serif;font-size:clamp(26px,8vw,54px);font-weight:900;letter-spacing:.04em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 22px rgba(255,34,68,.5));margin-bottom:4px}
+.pause-title{font-family:'Syncopate',sans-serif;font-size:clamp(26px,8vw,52px);font-weight:900;letter-spacing:.04em;color:var(--accent);text-shadow:0 0 30px var(--accent);margin-bottom:4px}
 .stats-row{display:flex;gap:24px;margin:18px 0 22px;flex-wrap:wrap;justify-content:center}
 .stat-block{text-align:center}
 .stat-lbl{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:2px}
-.stat-val{font-family:'Orbitron',sans-serif;font-size:clamp(20px,5.5vw,34px);font-weight:900;color:var(--white);line-height:1}
+.stat-val{font-family:'Syncopate',sans-serif;font-size:clamp(20px,5.5vw,34px);font-weight:900;color:var(--white);line-height:1}
 .stat-val.record{color:var(--gold);text-shadow:0 0 20px var(--gold);animation:recPop .4s ease 3}
 @keyframes recPop{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
 .rec-badge{font-size:9px;letter-spacing:.22em;color:var(--gold);border:1px solid var(--gold);padding:2px 10px;margin-top:4px;display:inline-block;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);animation:badgeGlow 1s ease-in-out infinite}
@@ -126,10 +126,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #lbWrap{width:100%;max-width:280px;margin-top:10px}
 .lb-title{font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:7px;text-align:center}
 .lb-row{display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
-.lb-rank{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--dim);width:20px;text-align:center}
+.lb-rank{font-family:'Syncopate',sans-serif;font-size:10px;font-weight:700;color:var(--dim);width:20px;text-align:center}
 .lb-rank.gold{color:var(--gold);text-shadow:0 0 8px var(--gold)}.lb-rank.silver{color:#ccc}.lb-rank.bronze{color:#cd7f32}
 .lb-name{flex:1;color:var(--white);font-weight:600;letter-spacing:.04em;font-size:13px}
-.lb-score{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
+.lb-score{font-family:'Syncopate',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
 .lb-me{background:rgba(74,240,208,.07);border-radius:3px;padding-left:4px}
 #lbStatus{font-size:10px;color:var(--dim);text-align:center;letter-spacing:.12em;padding:5px 0}
 /* Share */
@@ -141,7 +141,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .share-btn{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;pointer-events:all;padding:7px 14px;border-radius:2px;border:none;transition:all .2s;background:rgba(74,240,208,.14);color:var(--accent);border:1px solid rgba(74,240,208,.35)}
 .share-btn:active{background:rgba(74,240,208,.28)}
 /* ── SHOP ── */
-.shop-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,5vw,30px);font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);letter-spacing:.06em;margin-bottom:4px}
+.shop-title{font-family:'Syncopate',sans-serif;font-size:clamp(20px,5vw,30px);font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);letter-spacing:.06em;margin-bottom:4px}
 .shop-subtitle{font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:18px}
 .orb-categories{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;max-height:60vh;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
 .orb-cat-title{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
@@ -177,11 +177,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   font-family:'Rajdhani',sans-serif;font-weight:700;white-space:nowrap;
 }
 /* ── INSTRUCTIONS ── */
-.instr-title{font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--accent);letter-spacing:.06em;margin-bottom:4px}
+.instr-title{font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--accent);letter-spacing:.06em;margin-bottom:4px}
 .instr-sub{font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px}
 .instr-body{max-width:340px;width:100%;max-height:55vh;overflow-y:auto}
 .instr-section{margin-bottom:16px}
-.instr-section h3{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(74,240,208,.15);padding-bottom:4px}
+.instr-section h3{font-family:'Syncopate',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(74,240,208,.15);padding-bottom:4px}
 .instr-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
 .instr-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
 .instr-text{font-size:12px;color:rgba(200,220,255,.75);line-height:1.5;letter-spacing:.03em}
@@ -201,16 +201,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 /* ── NAME ── */
 #nameOverlay{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(3,3,10,.96);backdrop-filter:blur(8px);padding:30px}
 #nameOverlay.hidden{display:none}
-.name-title{font-family:'Orbitron',sans-serif;font-size:clamp(17px,5vw,26px);font-weight:900;color:var(--accent);letter-spacing:.1em;margin-bottom:6px;text-shadow:0 0 18px var(--accent)}
+.name-title{font-family:'Syncopate',sans-serif;font-size:clamp(17px,5vw,26px);font-weight:900;color:var(--accent);letter-spacing:.1em;margin-bottom:6px;text-shadow:0 0 18px var(--accent)}
 .name-sub{font-size:10px;color:var(--dim);letter-spacing:.22em;text-transform:uppercase;margin-bottom:20px}
-#nameInput{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:700;background:rgba(74,240,208,.08);border:1.5px solid rgba(74,240,208,.5);color:var(--white);padding:11px 18px;text-align:center;width:100%;max-width:250px;border-radius:3px;letter-spacing:.15em;text-transform:uppercase;outline:none;margin-bottom:14px}
+#nameInput{font-family:'Syncopate',sans-serif;font-size:17px;font-weight:700;background:rgba(74,240,208,.08);border:1.5px solid rgba(74,240,208,.5);color:var(--white);padding:11px 18px;text-align:center;width:100%;max-width:250px;border-radius:3px;letter-spacing:.15em;text-transform:uppercase;outline:none;margin-bottom:14px}
 #nameInput::placeholder{color:rgba(200,220,255,.22)}
 /* Flash */
 #flash{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:0;transition:opacity .05s}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 
 /* ── CHALLENGE SYSTEM ── */
-.ch-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;letter-spacing:.06em;margin-bottom:4px}
+.ch-title{font-family:'Syncopate',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;letter-spacing:.06em;margin-bottom:4px}
 .ch-subtitle{font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px}
 .ch-mode-grid{display:grid;grid-template-columns:1fr;gap:12px;width:100%;max-width:340px;margin-bottom:18px}
 .ch-mode-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:6px;padding:16px 18px;cursor:pointer;pointer-events:all;transition:all .25s;display:flex;gap:14px;align-items:flex-start;text-align:left}
@@ -218,7 +218,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ch-mode-card.active{border-color:var(--accent);background:rgba(74,240,208,.1);box-shadow:0 0 14px rgba(74,240,208,.2)}
 .ch-mode-icon{font-size:26px;flex-shrink:0;margin-top:2px}
 .ch-mode-body{}
-.ch-mode-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--white);letter-spacing:.08em;margin-bottom:3px}
+.ch-mode-name{font-family:'Syncopate',sans-serif;font-size:13px;font-weight:700;color:var(--white);letter-spacing:.08em;margin-bottom:3px}
 .ch-mode-desc{font-size:11px;color:var(--dim);line-height:1.5;letter-spacing:.03em}
 .ch-mode-badge{display:inline-block;font-size:8px;letter-spacing:.15em;text-transform:uppercase;padding:2px 8px;border-radius:10px;font-weight:700;margin-top:5px}
 .ch-mode-badge.async{background:rgba(74,240,208,.18);color:var(--accent)}
@@ -226,13 +226,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ch-mode-badge.tourney{background:rgba(255,100,50,.18);color:#ff8855}
 /* Room / lobby */
 .ch-room-box{background:rgba(255,255,255,.04);border:1px solid rgba(74,240,208,.2);border-radius:6px;padding:14px 18px;width:100%;max-width:320px;margin-bottom:14px}
-.ch-room-code{font-family:'Orbitron',sans-serif;font-size:clamp(26px,7vw,38px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);letter-spacing:.25em;text-align:center;margin:6px 0}
+.ch-room-code{font-family:'Syncopate',sans-serif;font-size:clamp(26px,7vw,38px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);letter-spacing:.25em;text-align:center;margin:6px 0}
 .ch-room-label{font-size:9px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;text-align:center}
 .ch-players-list{width:100%;max-width:320px;margin-bottom:14px}
 .ch-player-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .ch-player-orb{width:28px;height:28px;border-radius:50%;flex-shrink:0}
 .ch-player-name{flex:1;font-size:13px;font-weight:600;color:var(--white);letter-spacing:.05em}
-.ch-player-score{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--accent)}
+.ch-player-score{font-family:'Syncopate',sans-serif;font-size:12px;font-weight:700;color:var(--accent)}
 .ch-player-status{font-size:10px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
 .ch-player-row.me .ch-player-name{color:var(--accent)}
 .ch-player-row.winner .ch-player-name{color:var(--gold)}
@@ -245,14 +245,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ch-hud-entry.me{border-color:rgba(74,240,208,.4)}
 .ch-hud-entry.leading{border-color:rgba(255,229,102,.5)}
 .ch-hud-name{font-size:10px;color:var(--dim);letter-spacing:.06em}
-.ch-hud-score{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--white)}
+.ch-hud-score{font-family:'Syncopate',sans-serif;font-size:11px;font-weight:700;color:var(--white)}
 /* Input */
-.ch-input{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;background:rgba(74,240,208,.08);border:1.5px solid rgba(74,240,208,.4);color:var(--white);padding:12px 20px;text-align:center;width:100%;max-width:260px;border-radius:3px;letter-spacing:.25em;text-transform:uppercase;outline:none;margin-bottom:14px}
+.ch-input{font-family:'Syncopate',sans-serif;font-size:20px;font-weight:700;background:rgba(74,240,208,.08);border:1.5px solid rgba(74,240,208,.4);color:var(--white);padding:12px 20px;text-align:center;width:100%;max-width:260px;border-radius:3px;letter-spacing:.25em;text-transform:uppercase;outline:none;margin-bottom:14px}
 .ch-input::placeholder{color:rgba(200,220,255,.2);font-size:14px}
 /* Countdown */
 #countdownOverlay{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:rgba(3,3,10,.85);pointer-events:none;opacity:0;transition:opacity .3s}
 #countdownOverlay.show{opacity:1}
-#countdownNum{font-family:'Orbitron',sans-serif;font-size:clamp(80px,22vw,160px);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:countPop .9s ease-out}
+#countdownNum{font-family:'Syncopate',sans-serif;font-size:clamp(80px,22vw,160px);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:countPop .9s ease-out}
 @keyframes countPop{0%{transform:scale(2);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
 /* Bracket */
 .bracket-wrap{width:100%;max-width:340px;max-height:55vh;overflow-y:auto}
@@ -263,10 +263,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .bracket-player.winner{border-color:var(--gold);color:var(--gold);background:rgba(255,229,102,.08)}
 .bracket-player.me{border-color:rgba(74,240,208,.3);color:var(--accent)}
 .bracket-vs{font-size:9px;color:var(--dim);letter-spacing:.1em}
-.bracket-score{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--accent)}
+.bracket-score{font-family:'Syncopate',sans-serif;font-size:10px;font-weight:700;color:var(--accent)}
 
 /* ── ACHIEVEMENTS ── */
-.ach-overlay-title{font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--gold);letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 18px var(--gold)}
+.ach-overlay-title{font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--gold);letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 18px var(--gold)}
 .ach-list{width:100%;max-width:340px;max-height:62vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
 .ach-item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:10px 14px;transition:all .2s}
 .ach-item.unlocked{border-color:rgba(255,229,102,.3);background:rgba(255,229,102,.05)}
@@ -281,12 +281,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ach-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
 
 /* ── PROFILE / STATS ── */
-.profile-title{font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 14px var(--accent)}
+.profile-title{font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);letter-spacing:.06em;margin-bottom:4px;text-shadow:0 0 14px var(--accent)}
 .profile-avatar{width:72px;height:72px;border-radius:50%;border:2px solid;margin-bottom:12px;position:relative;overflow:hidden;flex-shrink:0}
 .profile-name-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%;max-width:340px;margin-bottom:14px;max-height:40vh;overflow-y:auto}
 .stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:8px 4px;text-align:center}
-.stat-card-val{font-family:'Orbitron',sans-serif;font-size:clamp(14px,3.5vw,20px);font-weight:900;color:var(--white);line-height:1}
+.stat-card-val{font-family:'Syncopate',sans-serif;font-size:clamp(14px,3.5vw,20px);font-weight:900;color:var(--white);line-height:1}
 .stat-card-lbl{font-size:8px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-top:3px}
 .stat-card-val.accent{color:var(--accent);text-shadow:0 0 10px var(--accent)}
 .stat-card-val.gold{color:var(--gold);text-shadow:0 0 10px var(--gold)}
@@ -299,11 +299,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .weekly-prize-card.gold-card{border-color:rgba(255,229,102,.5);background:rgba(255,229,102,.06)}
 .weekly-prize-card.silver-card{border-color:rgba(200,200,220,.35);background:rgba(200,200,220,.04)}
 .weekly-prize-card.bronze-card{border-color:rgba(205,127,50,.35);background:rgba(205,127,50,.04)}
-.weekly-rank-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;padding:4px 10px;border-radius:20px;letter-spacing:.08em}
+.weekly-rank-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Syncopate',sans-serif;font-size:11px;font-weight:900;padding:4px 10px;border-radius:20px;letter-spacing:.08em}
 .champion-crown{display:inline-block;animation:crownPulse 1.5s ease-in-out infinite}
 @keyframes crownPulse{0%,100%{transform:scale(1) rotate(-5deg)}50%{transform:scale(1.15) rotate(5deg)}}
-.prize-mult{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)}
-.weekly-timer{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--accent);letter-spacing:.1em}
+.prize-mult{font-family:'Syncopate',sans-serif;font-size:18px;font-weight:900;color:var(--gold)}
+.weekly-timer{font-family:'Syncopate',sans-serif;font-size:13px;color:var(--accent);letter-spacing:.1em}
 #weeklyRewardBanner{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(3,3,10,.97);padding:24px}
 
 
@@ -313,7 +313,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .account-photo-placeholder{width:100px;height:100px;border-radius:50%;border:3px dashed rgba(74,240,208,.4);display:flex;align-items:center;justify-content:center;font-size:36px;background:rgba(74,240,208,.05);cursor:pointer;transition:all .2s}
 .account-photo-placeholder:active{background:rgba(74,240,208,.12)}
 .account-photo-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--bg);cursor:pointer}
-.account-name-input{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white);background:transparent;border:none;border-bottom:2px solid rgba(74,240,208,.3);text-align:center;letter-spacing:.1em;width:100%;max-width:220px;outline:none;padding:4px 0;transition:border-color .2s}
+.account-name-input{font-family:'Syncopate',sans-serif;font-size:18px;font-weight:900;color:var(--white);background:transparent;border:none;border-bottom:2px solid rgba(74,240,208,.3);text-align:center;letter-spacing:.1em;width:100%;max-width:220px;outline:none;padding:4px 0;transition:border-color .2s}
 .account-name-input:focus{border-bottom-color:var(--accent)}
 .account-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 12px;font-size:10px;letter-spacing:.1em;color:var(--dim);cursor:pointer;transition:all .2s;touch-action:manipulation}
 .account-tag:active,.account-tag:hover{background:rgba(74,240,208,.1);border-color:rgba(74,240,208,.3);color:var(--accent)}
@@ -323,7 +323,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .account-color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;touch-action:manipulation;flex-shrink:0}
 .account-color-dot.active{border-color:var(--white);transform:scale(1.15)}
 .account-stat-mini{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 8px;min-width:72px}
-.account-stat-mini .val{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white);line-height:1}
+.account-stat-mini .val{font-family:'Syncopate',sans-serif;font-size:18px;font-weight:900;color:var(--white);line-height:1}
 .account-stat-mini .lbl{font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
 
 #achToast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;opacity:0;transition:all .4s;pointer-events:none;min-width:260px;max-width:320px}
@@ -355,7 +355,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <canvas id="shareCanvas" width="800" height="450"></canvas>
 <div id="introOverlay" style="position:fixed;inset:0;background:#000;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:1;transition:opacity 1s ease">
   <canvas id="introCanvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
-  <div style="position:relative;z-index:1;text-align:center;font-family:'Orbitron',sans-serif;pointer-events:none;padding:0 24px">
+  <div style="position:relative;z-index:1;text-align:center;font-family:'Syncopate',sans-serif;pointer-events:none;padding:0 24px">
     <div id="introLine1" style="font-size:11px;letter-spacing:.5em;color:rgba(74,240,208,0);transition:color 1.5s ease;text-transform:uppercase;margin-bottom:24px">In principio era il moto.</div>
     <div id="introLogo" style="font-size:52px;font-weight:900;color:rgba(255,255,255,0);transition:color 2s ease;letter-spacing:.2em;text-shadow:0 0 60px rgba(74,240,208,.5)">ZIVVE</div>
     <div id="introLine2" style="font-size:11px;letter-spacing:.35em;color:rgba(74,240,208,0);transition:color 1.5s ease;text-transform:uppercase;margin-top:16px">Orbita. Schiva. Sopravvivi.</div>
@@ -365,7 +365,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       Non fermarti mai.
     </div>
   </div>
-  <button onclick="skipIntro()" style="position:absolute;bottom:32px;right:24px;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.4);font-size:10px;letter-spacing:.2em;padding:6px 14px;cursor:pointer;font-family:'Orbitron',sans-serif;border-radius:3px">SKIP</button>
+  <button onclick="skipIntro()" style="position:absolute;bottom:32px;right:24px;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.4);font-size:10px;letter-spacing:.2em;padding:6px 14px;cursor:pointer;font-family:'Syncopate',sans-serif;border-radius:3px">SKIP</button>
 </div>
 <div id="flash"></div>
 
@@ -382,8 +382,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <button class="ctrl-btn" onclick="confirmStop()" title="Stop" id="stopBtn">⏹</button>
     <button class="ctrl-btn" onclick="newGame()" title="New Game" id="newBtn">↺</button>
     <button class="ctrl-btn" onclick="goMenu()" title="Menu" id="menuBtn">⌂</button>
-    <button class="ctrl-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
-    <button class="ctrl-btn" onclick="toggleHaptic()" id="hapticBtn" title="Haptic">📳</button>
+    <button class="ctrl-btn" onclick="toggleMusicBtn()" id="musicCtrlBtn" title="Musica">🎵</button>
+    <button class="ctrl-btn" onclick="toggleSfxBtn()" id="sfxCtrlBtn" title="Suoni">🔊</button>
+    <button class="ctrl-btn" onclick="toggleHaptic()" id="hapticBtn" title="Vibrazione">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 9v6M3 11v2M19 9v6M21 11v2M8 6v12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1z"/></svg>
+    </button>
   </div>
   <div id="msgWrap"><div id="msgText"></div></div>
   <div id="survivalBar"><div id="survivalFill"></div></div>
@@ -404,7 +407,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <span style="color:var(--gold);font-size:10px">Scegli bene — ti rappresenta nel gioco!</span>
   </div>
   <input id="nameInput" type="text" maxlength="12" placeholder="INSERISCI NOME" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
-  <div id="namePreview" style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--accent);letter-spacing:.2em;height:20px;margin:4px 0"></div>
+  <div id="namePreview" style="font-family:'Syncopate',sans-serif;font-size:13px;color:var(--accent);letter-spacing:.2em;height:20px;margin:4px 0"></div>
   <button class="btn-play" onclick="saveName()">✓ INIZIA A GIOCARE</button>
   <button class="btn-outline" onclick="saveName('ZIVVER')" style="margin-top:6px;font-size:10px">Salta — gioca come ZIVVER</button>
 </div>
@@ -415,7 +418,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <!-- Step 1 -->
     <div id="ob1" style="display:flex;flex-direction:column;align-items:center;gap:16px">
       <div style="font-size:72px">☝️</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--accent);text-align:center">TOCCA PER GIOCARE</div>
+      <div style="font-family:'Syncopate',sans-serif;font-size:22px;font-weight:900;color:var(--accent);text-align:center">TOCCA PER GIOCARE</div>
       <div style="font-size:14px;color:rgba(200,220,255,.7);text-align:center;line-height:1.7;max-width:260px">La tua sfera orbita automaticamente.<br>Tocca lo schermo per <strong style="color:var(--white)">invertire la direzione</strong>.</div>
       <canvas id="obCanvas1" width="200" height="200" style="border-radius:50%;margin:8px auto;display:block"></canvas>
       <button class="btn-play" onclick="showOnboardStep(2)" style="min-width:200px">Capito! →</button>
@@ -423,7 +426,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <!-- Step 2 -->
     <div id="ob2" style="display:none;flex-direction:column;align-items:center;gap:16px">
       <div style="font-size:72px">🔴</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--red);text-align:center">SCHIVA LE SFERE</div>
+      <div style="font-family:'Syncopate',sans-serif;font-size:22px;font-weight:900;color:var(--red);text-align:center">SCHIVA LE SFERE</div>
       <div style="font-size:14px;color:rgba(200,220,255,.7);text-align:center;line-height:1.7;max-width:260px">Le sfere rosse ti inseguono.<br>Ogni colpo = <strong style="color:var(--red)">-1 vita</strong>.<br>Hai 3 vite. Sopravvivi il più a lungo possibile.</div>
       <div style="display:flex;gap:16px;align-items:center;justify-content:center;margin:8px 0">
         <div style="text-align:center"><div style="font-size:32px">❤️</div><div style="font-size:9px;color:var(--dim)">3 vite</div></div>
@@ -435,7 +438,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <!-- Step 3 -->
     <div id="ob3" style="display:none;flex-direction:column;align-items:center;gap:16px">
       <div style="font-size:72px">⚡</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:center">RACCOLTA POWER-UP</div>
+      <div style="font-family:'Syncopate',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:center">RACCOLTA POWER-UP</div>
       <div style="font-size:14px;color:rgba(200,220,255,.7);text-align:center;line-height:1.7;max-width:260px">Le sfere colorate sono <strong style="color:var(--gold)">power-up</strong>.<br>
         <span style="color:#00ffaa">⚡ Verde</span> = velocità doppia<br>
         <span style="color:#8833ff">🔮 Viola</span> = ultra slow-mo<br>
@@ -461,133 +464,108 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <!-- 1. ZIVVE -->
   <div class="game-title">ZIVVE</div>
 
-  <!-- 2. Orbita. Schiva. Sopravvivi. -->
+  <!-- 2. Tagline -->
   <div class="subtitle" data-i18n="tagline">Orbita. Schiva. Sopravvivi.</div>
 
   <!-- 3. Brand -->
-  <div style="font-size:9px;color:rgba(74,240,208,.5);letter-spacing:.18em;text-transform:uppercase;margin-top:2px;text-align:center;font-family:'Orbitron',sans-serif">Momi Digital Labs · Step by Step</div>
-  <div id="liveCounter" style="font-size:9px;color:rgba(100,255,150,.6);letter-spacing:.06em;text-align:center;margin:3px 0;font-family:'Orbitron',sans-serif"></div>
-  <span id="sessionStreakBadge" style="display:none;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:#ff6600;letter-spacing:.1em"></span>
-
-  <!-- 4. Record + XP bar -->
-  <div class="best-row" data-i18n-best></div>
-  <div style="width:min(280px,80vw);margin:4px auto 2px;display:flex;align-items:center;gap:8px">
-    <span id="accountLvBadge" style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:#4af0d0;white-space:nowrap;min-width:36px">LV.1</span>
-    <span id="paragonBadge" style="display:none;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:#ffd700;white-space:nowrap;margin-left:2px"></span>
-    <div style="flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden">
-      <div id="xpBar" style="height:100%;width:0%;background:#4af0d0;border-radius:4px;transition:width .6s ease"></div>
-    </div>
-    <span id="xpLabel" style="font-size:11px;color:rgba(200,220,255,.5);white-space:nowrap;min-width:56px;text-align:right">0/100 XP</span>
+  <div style="font-size:9px;color:rgba(74,240,208,.5);letter-spacing:.18em;text-transform:uppercase;margin-top:2px;text-align:center;font-family:'Syncopate',sans-serif;line-height:1.8">
+    Momi Digital Labs<br>
+    a project by Momi Studio · Step by Step<br>
+    a cura di Momi
   </div>
-  <div id="cosmicStatus" style="font-size:12px;letter-spacing:.12em;text-align:center;margin:2px 0 4px;font-family:'Orbitron',sans-serif;color:#666">◈ Cenere</div>
-  <div id="menuPlayerTitle" style="font-size:10px;color:var(--gold);letter-spacing:.12em;margin-bottom:4px;min-height:14px;text-align:center"></div>
-  <div id="streakBar" style="font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:10px;text-align:center;min-height:24px"></div>
 
-  <!-- 5. GIOCA -->
-  <button class="btn-play" onclick="startGame()" data-i18n="play">▶ PLAY</button>
-  <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(74,240,208,.4);color:#4af0d0;font-size:12px" onclick="startRaceModeGame()">🏁 MODALITÀ CORSA</button>
-  <button class="btn-outline" style="width:100%;max-width:300px;margin:4px 0 0;border-color:rgba(255,215,0,.4);color:#ffd700;font-size:12px" onclick="showUpgradeScreen()">⚗ UPGRADE <span id="fragsMenuCount"></span></button>
-  <button class="btn-outline" style="width:100%;max-width:300px;margin:16px 0 0;border-color:rgba(255,34,68,.3);color:#ff4455;font-size:12px" onclick="try{window.close();}catch(e){}">✕ ESCI</button>
+  <!-- XP bar (nascosta dal menu, mantieni per funzionamento interno) -->
+  <div style="display:none">
+    <span id="accountLvBadge">LV.1</span>
+    <span id="paragonBadge"></span>
+    <div><div id="xpBar"></div></div>
+    <span id="xpLabel">0/100 XP</span>
+  </div>
+  <div id="cosmicStatus" style="display:none"></div>
+  <div id="menuPlayerTitle" style="display:none"></div>
+  <div id="streakBar" style="display:none"></div>
 
-  <!-- 6. INIZIA LA SERIE (Last Zivver Standing) -->
   <!-- Hidden event elements per compatibilità -->
   <div id="eventMenuBtn" style="display:none"></div>
   <span id="eventMenuIcon" style="display:none">🎪</span>
   <span id="eventMenuLabel" style="display:none">Evento</span>
-  <button class="btn-outline" style="width:100%;max-width:300px;margin:8px 0 4px;border-color:rgba(255,34,68,.4);color:#ff8888" onclick="startLVS()">
-    👑 INIZIA LA SERIE &nbsp;<span id="lvsCountdown" style="font-size:9px;opacity:.6"></span>
-  </button>
 
-  <!-- GRIGLIA PRINCIPALE: 2 colonne -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px;margin-top:8px;margin-bottom:8px">
-
-    <!-- 7. Profilo utente -->
-    <button class="menu-btn" onclick="showProfile()" id="profileMenuBtn">
-      <span class="micon">👤</span><span id="profileMenuName">Profilo</span>
-    </button>
-
-    <!-- 8. Lingua -->
-    <button class="menu-btn" onclick="show('langOverlay');hide('startOverlay')">
-      <span class="micon">🌐</span><span data-i18n="language">Lingua</span>
-    </button>
-
-    <!-- 9. Classifica -->
-    <button class="menu-btn" onclick="showLeaderboard()">
-      <span class="micon">🏆</span><span data-i18n="leaderboard">Classifica</span>
-    </button>
-
-    <!-- 10. Badges -->
-    <button class="menu-btn" onclick="showAchievements()">
-      <span class="micon">🏅</span><span>Badge</span>
-    </button>
-
+  <!-- 4. TASTO GIOCA con menu a tendina -->
+  <div style="width:100%;max-width:300px;position:relative">
+    <button class="btn-play" style="width:100%" onclick="toggleGiocaMenu()">▶ GIOCA</button>
+    <div id="giocaMenu" style="display:none;width:100%;background:rgba(3,3,18,.98);border:1px solid rgba(74,240,208,.25);border-radius:8px;margin-top:4px;overflow:hidden">
+      <button onclick="startGame();closeGiocaMenu()" style="width:100%;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:#fff;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(74,240,208,.07)'" onmouseleave="this.style.background='none'">🎮 Partita Classica</button>
+      <button onclick="startRaceModeGame();closeGiocaMenu()" style="width:100%;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:#4af0d0;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(74,240,208,.07)'" onmouseleave="this.style.background='none'">🏁 Modalità Corsa</button>
+      <button onclick="startLVS();closeGiocaMenu()" style="width:100%;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:#ff8888;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(255,136,136,.07)'" onmouseleave="this.style.background='none'">👑 Inizia la Serie &nbsp;<span id="lvsCountdown" style="font-size:9px;opacity:.6"></span></button>
+      <button onclick="shareChallengeLink();closeGiocaMenu()" style="width:100%;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:#ffe566;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(255,229,102,.07)'" onmouseleave="this.style.background='none'">⚔️ Sfida un Amico</button>
+      <button onclick="showTourneyScreen();closeGiocaMenu()" style="width:100%;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:#ffd700;font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(255,215,0,.07)'" onmouseleave="this.style.background='none'">🏆 The King Say</button>
+      <button onclick="showReplay();closeGiocaMenu()" style="width:100%;background:none;border:none;color:rgba(200,220,255,.6);font-family:'Syncopate',sans-serif;font-size:12px;letter-spacing:.15em;padding:13px 16px;cursor:pointer;text-align:left;transition:background .15s" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background='none'">▶ Replay</button>
+    </div>
   </div>
 
-  <!-- BOTTONE ALTRO -->
-  <button class="btn-outline" style="width:100%;max-width:300px;margin-bottom:4px" onclick="toggleSecondaryMenu()">
-    ⋯ Altro
-  </button>
+  <!-- GRIGLIA MENU: 2 colonne -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px;margin-top:10px">
 
-  <!-- MENU SECONDARIO -->
-  <div id="secondaryMenu" style="display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px;margin-top:6px">
+    <!-- 5. Profilo -->
+    <button class="menu-btn" onclick="showProfile()" id="profileMenuBtn">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><span id="profileMenuName">Profilo</span>
+    </button>
 
-    <!-- Come giocare -->
+    <!-- 6. Statistiche -->
+    <button class="menu-btn" onclick="showStatsScreen()">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span><span>Statistiche</span>
+    </button>
+
+    <!-- 7. Lingua -->
+    <button class="menu-btn" onclick="toggleLangMenu()">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/><path d="M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9"/><path d="M3.6 9h16.8M3.6 15h16.8"/></svg></span><span data-i18n="language">Lingua</span>
+    </button>
+
+    <!-- 8. Classifica -->
+    <button class="menu-btn" onclick="showLeaderboard()">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 21v-4"/><path d="M5 5H3a1 1 0 0 0-1 1v3c0 2.2 1.8 4 4 4"/><path d="M19 5h2a1 1 0 0 1 1 1v3c0 2.2-1.8 4-4 4"/><path d="M7 3h10v9a5 5 0 0 1-10 0V3z"/></svg></span><span data-i18n="leaderboard">Classifica</span>
+    </button>
+
+    <!-- 9. Negozio sfere -->
+    <button class="menu-btn" onclick="show('shopOverlay');hide('startOverlay')">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="#4af0d0" stroke="none"/><circle cx="20" cy="8" r="1.5" fill="#ff2244" stroke="none"/></svg></span><span data-i18n="shop">Negozio Sfere</span>
+    </button>
+
+    <!-- 10. Regolamento -->
     <button class="menu-btn" onclick="show('howOverlay');hide('startOverlay')">
-      <span class="micon">📖</span><span data-i18n="howToPlay">Come Giocare</span>
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h9a1 1 0 0 1 1 1v15a1 1 0 0 1-1 0H2V4z"/><path d="M22 4h-9a1 1 0 0 0-1 1v15a1 1 0 0 0 1 0h9V4z"/><line x1="12" y1="5" x2="12" y2="20"/></svg></span><span>Regolamento</span>
     </button>
 
-    <!-- Negozio sfere -->
-    <button class="menu-btn" style="border-color:rgba(74,240,208,.25);background:rgba(74,240,208,.04)" onclick="show('shopOverlay');hide('startOverlay')">
-      <span class="micon">🎯</span><span data-i18n="shop">Negozio Sfere</span>
+    <!-- Tendina Lingua (larghezza intera, nascosta) -->
+    <div id="langInlineMenu" style="display:none;grid-column:span 2;background:rgba(3,3,18,.98);border:1px solid rgba(74,240,208,.2);border-radius:8px;padding:14px;margin-top:-4px">
+      <div style="font-size:9px;letter-spacing:.3em;color:#4af0d0;margin-bottom:10px;text-align:center">🌐 LINGUA</div>
+      <div id="langInlineGrid" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div>
+    </div>
+
+    <!-- 11. Community con tendina (larghezza intera) -->
+    <button class="menu-btn" style="grid-column:span 2" onclick="toggleCommunityMenu()">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="4" cy="9" r="2.5"/><path d="M1 20c0-2.8 1.8-5 4-5"/><circle cx="20" cy="9" r="2.5"/><path d="M23 20c0-2.8-1.8-5-4-5"/></svg></span><span>Community</span>
     </button>
 
-    <!-- Daily -->
-    <button class="menu-btn" style="border-color:rgba(74,240,208,.25);background:rgba(74,240,208,.04)" onclick="startDailyChallenge()">
-      <span class="micon">📅</span><span>Daily</span>
-    </button>
-
-    <!-- Challenge -->
-    <button class="menu-btn" style="border-color:rgba(255,229,102,.25);background:rgba(255,229,102,.04)" onclick="openChallenge()">
-      <span class="micon">⚔️</span><span>Challenge</span>
-    </button>
-
-    <!-- Survival -->
-    <button class="menu-btn" style="border-color:rgba(255,136,0,.25);background:rgba(255,136,0,.04)" onclick="show('survivalOverlay');hide('startOverlay');updateSurvivalBest()">
-      <span class="micon">♾</span><span>Survival</span>
-    </button>
-
-    <!-- Replay -->
-    <button class="menu-btn" onclick="showReplay()">
-      <span class="micon">▶</span><span>Replay</span>
-    </button>
-
-    <!-- Torneo tra amici -->
-    <button class="menu-btn" style="grid-column:span 2;border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.06)" onclick="showTourneyScreen()">
-      <span class="micon">🏆</span><span>The King Say</span>
-    </button>
-
-    <!-- Sfida un amico -->
-    <button class="menu-btn" style="grid-column:span 2;border-color:rgba(255,229,102,.2);background:rgba(255,229,102,.04)" onclick="shareChallengeLink()">
-      <span class="micon">⚔️</span><span>Sfida un Amico</span>
-    </button>
-
-    <!-- Community -->
-    <button class="menu-btn" style="grid-column:span 2;border-color:rgba(74,240,208,.3);background:rgba(74,240,208,.05)" onclick="showCommunityScreen()">
-      <span class="micon">🌐</span><span>Community</span>
-    </button>
+    <!-- Tendina Community (larghezza intera, nascosta) -->
+    <div id="communityInlineMenu" style="display:none;grid-column:span 2;background:rgba(3,3,18,.98);border:1px solid rgba(74,240,208,.2);border-radius:8px;overflow:hidden;margin-top:-4px">
+      <a href="https://t.me/+h1n4REci1sthOGJk" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06);transition:background .15s" onmouseenter="this.style.background='rgba(0,136,204,.08)'" onmouseleave="this.style.background='none'"><span style="font-size:22px">✈️</span><div><div style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;font-family:Orbitron,sans-serif">Telegram</div><div style="color:rgba(200,220,255,.5);font-size:9px;margin-top:1px;font-family:Orbitron,sans-serif">Canale ufficiale</div></div></a>
+      <a href="https://discord.gg/guH9fZTKp" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06);transition:background .15s" onmouseenter="this.style.background='rgba(88,101,242,.08)'" onmouseleave="this.style.background='none'"><span style="font-size:22px">💬</span><div><div style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;font-family:Orbitron,sans-serif">Discord</div><div style="color:rgba(200,220,255,.5);font-size:9px;margin-top:1px;font-family:Orbitron,sans-serif">Server ufficiale</div></div></a>
+      <a href="https://www.reddit.com/r/zivve/" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;transition:background .15s" onmouseenter="this.style.background='rgba(255,69,0,.08)'" onmouseleave="this.style.background='none'"><span style="font-size:22px">🤖</span><div><div style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;font-family:Orbitron,sans-serif">Reddit</div><div style="color:rgba(200,220,255,.5);font-size:9px;margin-top:1px;font-family:Orbitron,sans-serif">r/zivve</div></div></a>
+    </div>
 
   </div>
 </div>
 
-<!-- HOW TO PLAY -->
+<!-- REGOLAMENTO -->
 <div class="overlay hidden" id="howOverlay" style="display:none">
-  <div class="instr-title" data-i18n="howToPlay">HOW TO PLAY</div>
+  <div class="instr-title" data-i18n="howToPlay">REGOLAMENTO</div>
   <div style="font-size:10px;color:rgba(74,240,208,.55);letter-spacing:.1em;text-align:center;margin:-4px 0 12px;font-style:italic;padding:0 16px;line-height:1.6">
     "Prima della luce, esisteva solo il moto.<br>Le sfere rosse vogliono fermarti.<br>Tu sei l'ultima. Non fermarti mai."
   </div>
-  <div class="instr-sub" data-i18n="readCarefully">Read carefully</div>
+  <div class="instr-sub" data-i18n="instrSub">Padroneggia ZIVVE</div>
   <div class="instr-body" id="instrBody"></div>
-  <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.12em;text-align:center;margin:18px 0 10px;text-shadow:0 0 16px var(--gold)">⭐ LA REGOLA D'ORO — NON MORIRE! ⭐</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.12em;text-align:center;margin:18px 0 10px;text-shadow:0 0 16px var(--gold)">⭐ LA REGOLA D'ORO — NON MORIRE! ⭐</div>
   <button class="btn-play" style="margin-top:6px" onclick="hide('howOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
@@ -609,7 +587,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- CONFIRM STOP -->
 <div class="overlay hidden" id="stopOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px" data-i18n="stopConfirm">Stop this game?</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px" data-i18n="stopConfirm">Stop this game?</div>
   <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px" data-i18n="progressLost">Progress will be lost</div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.4)" onclick="forceStop()" data-i18n="yes">YES, STOP</button>
   <button class="btn-outline" onclick="hide('stopOverlay');resumeGame()" data-i18n="cancel">Cancel</button>
@@ -628,8 +606,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <!-- Confronto settimanale -->
   <div id="goWeeklyCtx" style="font-size:10px;color:var(--dim);letter-spacing:.1em;margin-bottom:8px;text-align:center;min-height:16px"></div>
   <div id="goXPProgress" style="width:100%;max-width:280px;margin:0 auto 6px;padding:0 12px"></div>
-  <div id="bounceBackBanner" style="display:none;font-family:'Orbitron',sans-serif;font-size:11px;text-align:center;color:#ffd700;margin:0 auto 4px;padding:5px 16px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:6px;max-width:280px"></div>
-  <div id="rivalDisplay" style="display:none;font-family:'Orbitron',sans-serif;font-size:11px;text-align:center;color:rgba(200,220,255,.8);margin:0 auto 8px;padding:5px 16px;background:rgba(255,64,136,.07);border:1px solid rgba(255,64,136,.18);border-radius:6px;max-width:280px"></div>
+  <div id="bounceBackBanner" style="display:none;font-family:'Syncopate',sans-serif;font-size:11px;text-align:center;color:#ffd700;margin:0 auto 4px;padding:5px 16px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:6px;max-width:280px"></div>
+  <div id="rivalDisplay" style="display:none;font-family:'Syncopate',sans-serif;font-size:11px;text-align:center;color:rgba(200,220,255,.8);margin:0 auto 8px;padding:5px 16px;background:rgba(255,64,136,.07);border:1px solid rgba(255,64,136,.18);border-radius:6px;max-width:280px"></div>
   <!-- Motivazione -->
   <div id="goMotivation" style="font-size:12px;color:rgba(200,220,255,.6);margin-bottom:12px;text-align:center;min-height:16px;letter-spacing:.04em"></div>
   <!-- Leaderboard -->
@@ -652,13 +630,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- LEADERBOARD -->
 <div class="overlay hidden" id="lbOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);margin-bottom:14px;letter-spacing:.05em">🏆 TOP ZIVVERS</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);margin-bottom:14px;letter-spacing:.05em">🏆 TOP ZIVVERS</div>
   <div class="lb-tabs">
     <button class="lb-tab active" id="lbTabWorld" onclick="switchLbTab('world')">🌍 World</button>
     <button class="lb-tab" id="lbTabCountry" onclick="switchLbTab('country')">📍 Country</button>
-    <button class="lb-tab" id="lbTabSurvival" onclick="switchLbTab('survival')">♾ Survival</button>
-    <button class="lb-tab" id="lbTabEvent" onclick="switchLbTab('event')">🎪 Event</button>
-    <button class="lb-tab" id="lbTabWeekly" onclick="switchLbTab('weekly')" style="color:var(--gold)">🏆 Weekly</button>
   </div>
   <div id="lbFullRows" style="width:100%;max-width:300px;max-height:52vh;overflow-y:auto"></div>
   <button class="btn-play" style="margin-top:16px" onclick="hide('lbOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
@@ -667,7 +642,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <!-- WEEKLY REWARD BANNER -->
 <div id="weeklyRewardBanner" style="display:none">
   <div style="font-size:56px;margin-bottom:8px" id="wrIcon">🏆</div>
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;color:var(--gold);text-shadow:0 0 30px var(--gold);text-align:center;letter-spacing:.05em" id="wrTitle">CAMPIONE SETTIMANALE!</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;color:var(--gold);text-shadow:0 0 30px var(--gold);text-align:center;letter-spacing:.05em" id="wrTitle">CAMPIONE SETTIMANALE!</div>
   <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin:6px 0 20px;text-align:center" id="wrSub">Settimana precedente</div>
   <div style="width:100%;max-width:340px" id="wrPrizes"></div>
   <div style="margin-top:8px;font-size:10px;color:rgba(200,220,255,.4);text-align:center" id="wrExpiry"></div>
@@ -676,7 +651,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- DAILY EVENT OVERLAY -->
 <div class="overlay hidden" id="eventOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;margin-bottom:4px;text-align:center" id="evOvTitle">🎪 EVENTO GIORNALIERO</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;margin-bottom:4px;text-align:center" id="evOvTitle">🎪 EVENTO GIORNALIERO</div>
   <div style="font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:10px;text-align:center" id="evOvSubtitle">Solo oggi</div>
   <!-- Calendario 7 giorni -->
   <div id="evCalendar" style="display:flex;gap:4px;margin-bottom:14px;width:100%;max-width:320px;justify-content:center"></div>
@@ -684,8 +659,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <span style="font-size:48px;flex-shrink:0" id="evOvIcon">🎪</span>
     <div>
       <div style="font-size:9px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:3px" id="evOvLabel">EVENT</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(16px,4.5vw,22px);font-weight:900;line-height:1.1" id="evOvName">—</div>
-      <div style="font-size:11px;color:var(--dim);letter-spacing:.08em;margin-top:4px">Resets in <strong id="evOvTimer" style="font-family:'Orbitron',sans-serif;font-size:12px">—</strong></div>
+      <div style="font-family:'Syncopate',sans-serif;font-size:clamp(16px,4.5vw,22px);font-weight:900;line-height:1.1" id="evOvName">—</div>
+      <div style="font-size:11px;color:var(--dim);letter-spacing:.08em;margin-top:4px">Resets in <strong id="evOvTimer" style="font-family:'Syncopate',sans-serif;font-size:12px">—</strong></div>
     </div>
   </div>
   <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:12px 16px;max-width:320px;width:100%;margin-bottom:12px">
@@ -716,12 +691,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <!-- TABS -->
   <div style="display:flex;gap:0;width:100%;max-width:340px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:20px">
     <button id="profTabAccount" onclick="switchProfileTab('account')"
-      style="flex:1;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);padding:10px 6px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.2em;cursor:pointer;touch-action:manipulation">
+      style="flex:1;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);padding:10px 4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;cursor:pointer;touch-action:manipulation">
       👤 ACCOUNT
     </button>
     <button id="profTabStats" onclick="switchProfileTab('stats')"
-      style="flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);padding:10px 6px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.2em;cursor:pointer;touch-action:manipulation">
-      📊 STATISTICHE
+      style="flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);padding:10px 4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;cursor:pointer;touch-action:manipulation">
+      📊 STATS
+    </button>
+    <button id="profTabAch" onclick="switchProfileTab('ach')"
+      style="flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);padding:10px 4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;cursor:pointer;touch-action:manipulation">
+      🏅 ACHIEVEMENT
     </button>
   </div>
 
@@ -770,7 +749,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <!-- Titolo attivo -->
     <div class="account-section" id="titleSection" style="display:none">
       <div class="account-section-title">Titolo in Classifica</div>
-      <div id="titleDisplay" style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--gold);text-align:center;padding:8px;background:rgba(255,229,102,.08);border:1px solid rgba(255,229,102,.2);border-radius:8px"></div>
+      <div id="titleDisplay" style="font-family:'Syncopate',sans-serif;font-size:14px;font-weight:900;color:var(--gold);text-align:center;padding:8px;background:rgba(255,229,102,.08);border:1px solid rgba(255,229,102,.2);border-radius:8px"></div>
     </div>
 
     <!-- Anteprima card profilo -->
@@ -779,7 +758,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <div id="accountPreviewCard" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 16px">
         <div id="previewAvatarWrap" style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid var(--accent)"></div>
         <div style="flex:1">
-          <div id="previewName" style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--white)">—</div>
+          <div id="previewName" style="font-family:'Syncopate',sans-serif;font-size:14px;font-weight:900;color:var(--white)">—</div>
           <div id="previewTitle" style="font-size:9px;color:var(--gold);margin-top:2px;min-height:12px"></div>
           <div id="previewBadges" style="font-size:14px;margin-top:3px;min-height:18px"></div>
         </div>
@@ -799,6 +778,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <button class="btn-outline" style="width:100%;max-width:320px;color:rgba(255,80,80,.6);border-color:rgba(255,80,80,.2)" onclick="resetProfile()">🗑 Reset Statistiche</button>
   </div>
 
+  <!-- TAB ACHIEVEMENT -->
+  <div id="profPanelAch" style="width:100%;max-width:340px;display:none;flex-direction:column;align-items:center">
+    <div id="achPanelContent" style="width:100%"></div>
+  </div>
+
   <!-- Footer bottoni -->
   <div style="display:flex;gap:8px;width:100%;max-width:340px;margin-top:16px;flex-shrink:0">
     <button class="btn-play" style="flex:1;margin-top:0" onclick="hide('profileOverlay');show('startOverlay')">← INDIETRO</button>
@@ -808,7 +792,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- SURVIVAL MODE -->
 <div class="overlay hidden" id="survivalOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">♾ SURVIVAL</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">♾ SURVIVAL</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px">No lives. Pure endurance.</div>
   <div style="background:rgba(255,34,68,.06);border:1px solid rgba(255,34,68,.2);border-radius:6px;padding:16px 20px;max-width:300px;width:100%;margin-bottom:20px">
     <div style="font-size:12px;color:rgba(200,220,255,.7);line-height:1.7;letter-spacing:.04em">
@@ -819,7 +803,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       ● Exclusive <span style="color:var(--gold)">♾ SURVIVOR</span> badge at level 10
     </div>
   </div>
-  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;margin-bottom:16px">Best survival: <span style="color:var(--accent);font-family:'Orbitron',sans-serif" id="survivalBest">0</span></div>
+  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;margin-bottom:16px">Best survival: <span style="color:var(--accent);font-family:'Syncopate',sans-serif" id="survivalBest">0</span></div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.5)" onclick="startSurvivalMode()">▶ ENTER SURVIVAL</button>
   <button class="btn-outline" style="margin-top:10px" onclick="hide('survivalOverlay');show('startOverlay')">← BACK</button>
 </div>
@@ -1009,7 +993,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- LANGUAGE -->
 <div class="overlay hidden" id="langOverlay" style="display:none">
-  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:18px" data-i18n="chooseLang">Choose your language</div>
   <div class="lang-grid" id="langGrid"></div>
   <button class="btn-play" onclick="hide('langOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
@@ -1020,8 +1004,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 //  i18n — 12 LANGUAGES
 // ══════════════════════════════════════
 const LANGS = {
-  en:{flag:'🇬🇧',name:'English',t:{level:'Level',score:'Score',lives:'Lives',orbs:'orbs',play:'▶ PLAY',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'How to Play',shop:'Orb Shop',leaderboard:'Leaderboard',language:'Language',gameOver:'GAME OVER',best:'Best',survived:'Survived',again:'↺ AGAIN',share:'⬆ SHARE',saveImage:'⬇ Save',shareBtn:'📤 Share',mainMenu:'⌂ Menu',back:'← BACK',paused:'⏸ PAUSED',pauseSub:'Game is paused',resume:'▶ RESUME',newGame:'↺ NEW GAME',stopConfirm:'Stop this game?',progressLost:'Progress will be lost',yes:'YES, STOP',cancel:'Cancel',whoAreYou:'WHO ARE YOU?',nameSubtitle:'Your name on the leaderboard',namePlaceholder:'ENTER NAME',confirm:'CONFIRM',loading:'Loading...',newBest:'NEW BEST',readCarefully:'Read carefully',shopTitle:'ORB SHOP',shopSub:'Choose your orb',select:'✓ SELECT',chooseLang:'Choose your language',bestLabel:'Best:',free:'FREE',owned:'OWNED',premium:'PREMIUM',locked:'LOCKED',buy:'BUY',tutStep0:'Your orb orbits the center automatically',tutStep1:'Tap anywhere to reverse direction ↺',tutStep2:'Red orbs are coming — dodge them!',tutStep3:'Survive as long as you can 🔴',instrTitle:'HOW TO PLAY',instrSub:'Master the drift',s_goal:'Objective',s_controls:'Controls',s_enemies:'Enemy Types',s_tips:'Pro Tips',i_goal1:'Your orb orbits the center. Tap to reverse direction.',i_goal2:'Avoid all red orbs. Lose a life for each collision.',i_goal3:'Survive as long as possible to maximize your score.',i_ctrl1:'Tap screen or press Space to reverse orbit direction.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ New Game · ⌂ Menu',i_ctrl3:'Every tap triggers a direction change immediately.',i_e1:'Normal — standard size and speed.',i_e2:'Fast — small, quick, leaves a trail.',i_e3:'Heavy — large and slow, bigger hitbox.',i_e4:'Ghost — semi-transparent, unpredictable.',i_tip1:'Reverse direction before orbs reach you — anticipate.',i_tip2:'At high levels keep reversing rapidly to stay ahead.',i_tip3:'The center dot turns red when danger is near.'}},
-  it:{flag:'🇮🇹',name:'Italiano',t:{level:'Livello',score:'Punteggio',lives:'Vite',orbs:'sfere',play:'▶ GIOCA',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'Come Giocare',shop:'Negozio Sfere',leaderboard:'Classifica',language:'Lingua',gameOver:'GAME OVER',best:'Record',survived:'Sopravvissuto',again:'↺ ANCORA',share:'⬆ CONDIVIDI',saveImage:'⬇ Salva',shareBtn:'📤 Condividi',mainMenu:'⌂ Menu',back:'← INDIETRO',paused:'⏸ PAUSA',pauseSub:'Gioco in pausa',resume:'▶ RIPRENDI',newGame:'↺ NUOVA PARTITA',stopConfirm:'Interrompere la partita?',progressLost:'I progressi saranno persi',yes:'SÌ, STOP',cancel:'Annulla',whoAreYou:'CHI SEI?',nameSubtitle:'Il tuo nome in classifica',namePlaceholder:'INSERISCI NOME',confirm:'CONFERMA',loading:'Caricamento...',newBest:'NUOVO RECORD',readCarefully:'Leggi con attenzione',shopTitle:'NEGOZIO SFERE',shopSub:'Scegli la tua sfera',select:'✓ SCEGLI',chooseLang:'Scegli la lingua',bestLabel:'Record:',free:'GRATIS',owned:'POSSEDUTO',premium:'PREMIUM',locked:'BLOCCATO',buy:'ACQUISTA',tutStep0:'La tua sfera orbita automaticamente al centro',tutStep1:'Tocca ovunque per invertire la direzione ↺',tutStep2:'Le sfere rosse arrivano — schivale!',tutStep3:'Sopravvivi il più a lungo possibile 🔴',instrTitle:'COME GIOCARE',instrSub:'Padroneggia il drift',s_goal:'Obiettivo',s_controls:'Controlli',s_enemies:'Tipi di Nemici',s_tips:'Consigli Pro',i_goal1:'La tua sfera orbita al centro. Tocca per invertire la direzione.',i_goal2:'Evita tutte le sfere rosse. Perdi una vita per ogni collisione.',i_goal3:'Sopravvivi il più a lungo possibile per massimizzare il punteggio.',i_ctrl1:'Tocca lo schermo o premi Spazio per invertire la direzione.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nuova Partita · ⌂ Menu',i_ctrl3:'Ogni tocco cambia immediatamente la direzione.',i_e1:'Normale — dimensione e velocità standard.',i_e2:'Veloce — piccola, rapida, lascia una scia.',i_e3:'Pesante — grande e lenta, hitbox maggiore.',i_e4:'Fantasma — semitrasparente, imprevedibile.',i_tip1:'Inverti prima che le sfere ti raggiungano — anticipa.',i_tip2:'Agli alti livelli inverti rapidamente per restare avanti.',i_tip3:'Il punto centrale diventa rosso quando il pericolo è vicino.'}},
+  en:{flag:'🇬🇧',name:'English',t:{level:'Level',score:'Score',lives:'Lives',orbs:'orbs',play:'▶ PLAY',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'How to Play',shop:'Orb Shop',leaderboard:'Leaderboard',language:'Language',gameOver:'GAME OVER',best:'Best',survived:'Survived',again:'↺ AGAIN',share:'⬆ SHARE',saveImage:'⬇ Save',shareBtn:'📤 Share',mainMenu:'⌂ Menu',back:'← BACK',paused:'⏸ PAUSED',pauseSub:'Game is paused',resume:'▶ RESUME',newGame:'↺ NEW GAME',stopConfirm:'Stop this game?',progressLost:'Progress will be lost',yes:'YES, STOP',cancel:'Cancel',whoAreYou:'WHO ARE YOU?',nameSubtitle:'Your name on the leaderboard',namePlaceholder:'ENTER NAME',confirm:'CONFIRM',loading:'Loading...',newBest:'NEW BEST',readCarefully:'Read carefully',shopTitle:'ORB SHOP',shopSub:'Choose your orb',select:'✓ SELECT',chooseLang:'Choose your language',bestLabel:'Best:',free:'FREE',owned:'OWNED',premium:'PREMIUM',locked:'LOCKED',buy:'BUY',tutStep0:'Your orb orbits the center automatically',tutStep1:'Tap anywhere to reverse direction ↺',tutStep2:'Red orbs are coming — dodge them!',tutStep3:'Survive as long as you can 🔴',instrTitle:'RULES',instrSub:'Master ZIVVE',s_goal:'Objective',s_controls:'Controls',s_enemies:'Enemy Types',s_tips:'Pro Tips',i_goal1:'Your orb orbits the center. Tap to reverse direction.',i_goal2:'Avoid all red orbs. Lose a life for each collision.',i_goal3:'Survive as long as possible to maximize your score.',i_ctrl1:'Tap screen or press Space to reverse orbit direction.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ New Game · ⌂ Menu',i_ctrl3:'Every tap triggers a direction change immediately.',i_e1:'Normal — standard size and speed.',i_e2:'Fast — small, quick, leaves a trail.',i_e3:'Heavy — large and slow, bigger hitbox.',i_e4:'Ghost — semi-transparent, unpredictable.',i_tip1:'Reverse direction before orbs reach you — anticipate.',i_tip2:'At high levels keep reversing rapidly to stay ahead.',i_tip3:'The center dot turns red when danger is near.'}},
+  it:{flag:'🇮🇹',name:'Italiano',t:{level:'Livello',score:'Punteggio',lives:'Vite',orbs:'sfere',play:'▶ GIOCA',tagline:'Orbita. Schiva. Sopravvivi.',howToPlay:'Regolamento',shop:'Negozio Sfere',leaderboard:'Classifica',language:'Lingua',gameOver:'GAME OVER',best:'Record',survived:'Sopravvissuto',again:'↺ ANCORA',share:'⬆ CONDIVIDI',saveImage:'⬇ Salva',shareBtn:'📤 Condividi',mainMenu:'⌂ Menu',back:'← INDIETRO',paused:'⏸ PAUSA',pauseSub:'Gioco in pausa',resume:'▶ RIPRENDI',newGame:'↺ NUOVA PARTITA',stopConfirm:'Interrompere la partita?',progressLost:'I progressi saranno persi',yes:'SÌ, STOP',cancel:'Annulla',whoAreYou:'CHI SEI?',nameSubtitle:'Il tuo nome in classifica',namePlaceholder:'INSERISCI NOME',confirm:'CONFERMA',loading:'Caricamento...',newBest:'NUOVO RECORD',readCarefully:'Leggi con attenzione',shopTitle:'NEGOZIO SFERE',shopSub:'Scegli la tua sfera',select:'✓ SCEGLI',chooseLang:'Scegli la lingua',bestLabel:'Record:',free:'GRATIS',owned:'POSSEDUTO',premium:'PREMIUM',locked:'BLOCCATO',buy:'ACQUISTA',tutStep0:'La tua sfera orbita automaticamente al centro',tutStep1:'Tocca ovunque per invertire la direzione ↺',tutStep2:'Le sfere rosse arrivano — schivale!',tutStep3:'Sopravvivi il più a lungo possibile 🔴',instrTitle:'REGOLAMENTO',instrSub:'Padroneggia ZIVVE',s_goal:'Obiettivo',s_controls:'Controlli',s_enemies:'Tipi di Nemici',s_tips:'Consigli Pro',i_goal1:'La tua sfera orbita al centro. Attento ai nemici.',i_goal2:'Perdi una vita ad ogni collisione.',i_goal3:'Sopravvivi il più a lungo possibile per aumentare di livello.',i_ctrl1:'📱 Tocca lo schermo sul tuo smartphone per cambiare direzione.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nuova Partita · ⌂ Menu',i_ctrl3:'💻 Tasto Spazio dal PC per invertire rotta.',i_e1:'Normale — dimensione e velocità standard.',i_e2:'Veloce — piccola, rapida, lascia una scia.',i_e3:'Pesante — grande e lenta, hitbox maggiore.',i_e4:'Fantasma — semitrasparente, imprevedibile.',i_e5:'Cacciatore — ti segue attivamente.',i_e6:'Pulsante — si carica e scatta verso di te.',i_e7:'Magnetico — devia la tua orbita.',i_tip1:'Inverti prima che le sfere ti raggiungano.',i_tip2:'Agli alti livelli inverti rapidamente.',i_tip3:'Il punto centrale diventa rosso quando il pericolo è vicino.'}},
   es:{flag:'🇪🇸',name:'Español',t:{level:'Nivel',score:'Puntos',lives:'Vidas',orbs:'esferas',play:'▶ JUGAR',tagline:'Orbita. Esquiva. Sobrevive.',howToPlay:'Cómo Jugar',shop:'Tienda',leaderboard:'Clasificación',language:'Idioma',gameOver:'FIN DEL JUEGO',best:'Récord',survived:'Sobrevivido',again:'↺ OTRA VEZ',share:'⬆ COMPARTIR',saveImage:'⬇ Guardar',shareBtn:'📤 Compartir',mainMenu:'⌂ Menú',back:'← VOLVER',paused:'⏸ PAUSADO',pauseSub:'Juego en pausa',resume:'▶ REANUDAR',newGame:'↺ NUEVA PARTIDA',stopConfirm:'¿Detener la partida?',progressLost:'Se perderá el progreso',yes:'SÍ, PARAR',cancel:'Cancelar',whoAreYou:'¿QUIÉN ERES?',nameSubtitle:'Tu nombre en el ranking',namePlaceholder:'ESCRIBE NOMBRE',confirm:'CONFIRMAR',loading:'Cargando...',newBest:'NUEVO RÉCORD',readCarefully:'Lee con atención',shopTitle:'TIENDA',shopSub:'Elige tu esfera',select:'✓ ELEGIR',chooseLang:'Elige tu idioma',bestLabel:'Récord:',free:'GRATIS',owned:'TUYO',premium:'PREMIUM',locked:'BLOQUEADO',buy:'COMPRAR',tutStep0:'Tu esfera orbita el centro automáticamente',tutStep1:'Toca en cualquier lugar para invertir ↺',tutStep2:'¡Las esferas rojas vienen — esquívalas!',tutStep3:'Sobrevive el mayor tiempo posible 🔴',instrTitle:'CÓMO JUGAR',instrSub:'Domina el drift',s_goal:'Objetivo',s_controls:'Controles',s_enemies:'Tipos de Enemigos',s_tips:'Consejos Pro',i_goal1:'Tu esfera orbita el centro. Toca para invertir.',i_goal2:'Evita todas las esferas rojas. Pierdes una vida por colisión.',i_goal3:'Sobrevive el máximo tiempo para maximizar puntos.',i_ctrl1:'Toca la pantalla o pulsa Espacio para invertir.',i_ctrl2:'⏸ Pausa · ⏹ Stop · ↺ Nueva · ⌂ Menú',i_ctrl3:'Cada toque cambia la dirección inmediatamente.',i_e1:'Normal — tamaño y velocidad estándar.',i_e2:'Rápida — pequeña, veloz, deja estela.',i_e3:'Pesada — grande y lenta, área mayor.',i_e4:'Fantasma — semitransparente, impredecible.',i_tip1:'Invierte antes de que lleguen — anticípate.',i_tip2:'En niveles altos invierte rápidamente.',i_tip3:'El punto central se vuelve rojo cerca del peligro.'}},
   fr:{flag:'🇫🇷',name:'Français',t:{level:'Niveau',score:'Score',lives:'Vies',orbs:'sphères',play:'▶ JOUER',tagline:'Orbite. Esquive. Survie.',howToPlay:'Comment Jouer',shop:'Boutique',leaderboard:'Classement',language:'Langue',gameOver:'FIN DE PARTIE',best:'Record',survived:'Survécu',again:'↺ ENCORE',share:'⬆ PARTAGER',saveImage:'⬇ Sauver',shareBtn:'📤 Partager',mainMenu:'⌂ Menu',back:'← RETOUR',paused:'⏸ EN PAUSE',pauseSub:'Jeu en pause',resume:'▶ REPRENDRE',newGame:'↺ NOUVELLE PARTIE',stopConfirm:'Arrêter la partie?',progressLost:'La progression sera perdue',yes:'OUI, STOP',cancel:'Annuler',whoAreYou:'QUI ES-TU?',nameSubtitle:'Ton nom au classement',namePlaceholder:'ENTRE TON NOM',confirm:'CONFIRMER',loading:'Chargement...',newBest:'NOUVEAU RECORD',readCarefully:'Lis attentivement',shopTitle:'BOUTIQUE',shopSub:'Choisis ta sphère',select:'✓ CHOISIR',chooseLang:'Choisir la langue',bestLabel:'Record:',free:'GRATUIT',owned:'POSSÉDÉ',premium:'PREMIUM',locked:'VERROUILLÉ',buy:'ACHETER',tutStep0:'Ta sphère orbite automatiquement',tutStep1:'Touche pour inverser la direction ↺',tutStep2:'Les sphères rouges arrivent — esquive!',tutStep3:'Survive le plus longtemps possible 🔴',instrTitle:'COMMENT JOUER',instrSub:'Maîtrise le drift',s_goal:'Objectif',s_controls:'Contrôles',s_enemies:'Types d\'Ennemis',s_tips:'Conseils Pro',i_goal1:'Ta sphère orbite le centre. Touche pour inverser.',i_goal2:'Évite toutes les sphères rouges. Tu perds une vie par collision.',i_goal3:'Survie le plus longtemps pour maximiser le score.',i_ctrl1:'Touche l\'écran ou Espace pour inverser.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Nouveau · ⌂ Menu',i_ctrl3:'Chaque touche change la direction immédiatement.',i_e1:'Normal — taille et vitesse standard.',i_e2:'Rapide — petite, vive, laisse une traînée.',i_e3:'Lourde — grande et lente, grande zone.',i_e4:'Fantôme — semi-transparente, imprévisible.',i_tip1:'Inverse avant qu\'elles arrivent — anticipe.',i_tip2:'À hauts niveaux inverse rapidement.',i_tip3:'Le point central devient rouge près du danger.'}},
   de:{flag:'🇩🇪',name:'Deutsch',t:{level:'Level',score:'Punkte',lives:'Leben',orbs:'Kugeln',play:'▶ SPIELEN',tagline:'Orbit. Ausweichen. Überleben.',howToPlay:'Spielanleitung',shop:'Shop',leaderboard:'Bestenliste',language:'Sprache',gameOver:'SPIEL VORBEI',best:'Rekord',survived:'Überlebt',again:'↺ NOCHMAL',share:'⬆ TEILEN',saveImage:'⬇ Speichern',shareBtn:'📤 Teilen',mainMenu:'⌂ Menü',back:'← ZURÜCK',paused:'⏸ PAUSE',pauseSub:'Spiel pausiert',resume:'▶ WEITER',newGame:'↺ NEUES SPIEL',stopConfirm:'Spiel beenden?',progressLost:'Fortschritt geht verloren',yes:'JA, STOP',cancel:'Abbrechen',whoAreYou:'WER BIST DU?',nameSubtitle:'Dein Name auf der Bestenliste',namePlaceholder:'NAME EINGEBEN',confirm:'BESTÄTIGEN',loading:'Laden...',newBest:'NEUER REKORD',readCarefully:'Aufmerksam lesen',shopTitle:'SHOP',shopSub:'Wähle deine Kugel',select:'✓ WÄHLEN',chooseLang:'Sprache wählen',bestLabel:'Rekord:',free:'GRATIS',owned:'BESESSEN',premium:'PREMIUM',locked:'GESPERRT',buy:'KAUFEN',tutStep0:'Deine Kugel kreist automatisch um die Mitte',tutStep1:'Tippe um die Richtung umzukehren ↺',tutStep2:'Rote Kugeln kommen — weiche aus!',tutStep3:'Überlebe so lange wie möglich 🔴',instrTitle:'SPIELANLEITUNG',instrSub:'Meistere den Drift',s_goal:'Ziel',s_controls:'Steuerung',s_enemies:'Gegnertypen',s_tips:'Profi-Tipps',i_goal1:'Deine Kugel kreist. Tippe zum Umkehren.',i_goal2:'Weiche roten Kugeln aus. Eine Kollision = ein Leben.',i_goal3:'Überlebe so lang wie möglich für mehr Punkte.',i_ctrl1:'Tippe oder Leertaste zum Umkehren.',i_ctrl2:'⏸ Pause · ⏹ Stop · ↺ Neu · ⌂ Menü',i_ctrl3:'Jeder Tipp ändert sofort die Richtung.',i_e1:'Normal — Standardgröße und -geschwindigkeit.',i_e2:'Schnell — klein, flink, hinterlässt Spur.',i_e3:'Schwer — groß und langsam, größerer Bereich.',i_e4:'Geist — halbtransparent, unberechenbar.',i_tip1:'Kehre um bevor sie ankommen — antizipiere.',i_tip2:'Bei hohen Leveln schnell umkehren.',i_tip3:'Zentralpunkt wird rot bei naher Gefahr.'}},
@@ -1072,20 +1056,20 @@ function buildInstructions(){
     <div class="instr-row"><span class="instr-icon">⏱</span><span class="instr-text">${T('i_goal3')}</span></div>
   </div>
   <div class="instr-section"><h3>${T('s_controls')}</h3>
-    <div class="instr-row"><span class="instr-icon">↺</span><span class="instr-text">${T('i_ctrl1')}</span></div>
+    <div class="instr-row"><span class="instr-icon">📱</span><span class="instr-text">${T('i_ctrl1')}</span></div>
+    <div class="instr-row"><span class="instr-icon">💻</span><span class="instr-text">${T('i_ctrl3')}</span></div>
     <div class="instr-row"><span class="instr-icon">🎮</span><span class="instr-text">${T('i_ctrl2')}</span></div>
-    <div class="instr-row"><span class="instr-icon">⚡</span><span class="instr-text">${T('i_ctrl3')}</span></div>
   </div>
   <div class="instr-section"><h3>${T('s_enemies')}</h3>
     <div class="instr-row"><span class="instr-icon">🔴</span><span class="instr-text">${T('i_e1')}</span></div>
     <div class="instr-row"><span class="instr-icon">🟠</span><span class="instr-text">${T('i_e2')}</span></div>
     <div class="instr-row"><span class="instr-icon">🩸</span><span class="instr-text">${T('i_e3')}</span></div>
     <div class="instr-row"><span class="instr-icon">👻</span><span class="instr-text">${T('i_e4')}</span></div>
-  </div>
-  <div class="instr-section"><h3>${T('s_tips')}</h3>
-    <div class="instr-row"><span class="instr-icon">💡</span><span class="instr-text">${T('i_tip1')}</span></div>
-    <div class="instr-row"><span class="instr-icon">💡</span><span class="instr-text">${T('i_tip2')}</span></div>
-    <div class="instr-row"><span class="instr-icon">💡</span><span class="instr-text">${T('i_tip3')}</span></div>
+    <div class="instr-row"><span class="instr-icon">🎯</span><span class="instr-text">${T('i_e5')||'Cacciatore — ti segue attivamente.'}</span></div>
+    <div class="instr-row"><span class="instr-icon">💥</span><span class="instr-text">${T('i_e6')||'Pulsante — si carica e scatta verso di te.'}</span></div>
+    <div class="instr-row"><span class="instr-icon">🧲</span><span class="instr-text">${T('i_e7')||'Magnetico — devia la tua orbita.'}</span></div>
+    <div class="instr-row"><span class="instr-icon">⚡</span><span class="instr-text">Sfere Zig Zag — traiettoria imprevedibile, appaiono ogni 10 livelli.</span></div>
+    <div class="instr-row"><span class="instr-icon">💀</span><span class="instr-text">Il Boss — appare ogni 20 livelli, lancia proiettili casuali. Sopravvivi 30 secondi.</span></div>
   </div>`;
 }
 
@@ -1956,6 +1940,11 @@ function updateAudioUI(){
   const ml=document.getElementById('musicLabel');if(ml)ml.textContent=musicOn?'Music ON':'Music OFF';
   const sl=document.getElementById('sfxLabel');  if(sl)sl.textContent=sfxOn?'SFX ON':'SFX OFF';
   const mu=document.getElementById('muteLabel'); if(mu)mu.textContent=none?'Sound OFF':'Sound ON';
+  // Aggiorna colore tasti in-game
+  const musicBtn=document.getElementById('musicCtrlBtn');
+  if(musicBtn) musicBtn.style.color=musicOn?'rgba(255,255,255,.6)':'rgba(255,80,80,.5)';
+  const sfxBtn=document.getElementById('sfxCtrlBtn');
+  if(sfxBtn) sfxBtn.style.color=sfxOn?'rgba(255,255,255,.6)':'rgba(255,80,80,.5)';
 }
 
 // ── Core tone/noise → sfxGain ──
@@ -2356,13 +2345,31 @@ function setAmbientTension(level){
 }
 // setAmbientTension merged into startAmbient above
 let hapticOn=localStorage.getItem('drift_haptic')!=='0';
-function haptic(p){if(!hapticOn)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
+function haptic(p){
+  if(!hapticOn) return;
+  try{
+    if(typeof navigator.vibrate==='function') navigator.vibrate(p);
+    else if(navigator.vibrate) navigator.vibrate(p);
+  }catch(e){}
+}
 function toggleHaptic(){
   hapticOn=!hapticOn;
   localStorage.setItem('drift_haptic',hapticOn?'1':'0');
-  const btn=document.getElementById('hapticBtn');if(btn)btn.textContent=hapticOn?'📳':'🔕';
+  const btn=document.getElementById('hapticBtn');
+  if(btn) btn.style.color=hapticOn?'rgba(255,255,255,.6)':'rgba(255,80,80,.5)';
   const lbl=document.getElementById('hapticLabel');if(lbl)lbl.textContent=hapticOn?'Haptic ON':'Haptic OFF';
-  if(hapticOn)haptic([20,10,20]);
+  if(hapticOn){
+    // Test vibrazione — pattern lungo e distinguibile
+    try{
+      if(typeof navigator.vibrate==='function') navigator.vibrate([100,50,100,50,200]);
+      else if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    }catch(e){}
+    // Feedback visivo di conferma
+    flashScreen('rgba(74,240,208,.3)');
+    showMsg('📳 Vibrazione ON','#4af0d0');
+  } else {
+    showMsg('📳 Vibrazione OFF','rgba(255,80,80,.8)');
+  }
 }
 
 
@@ -2464,6 +2471,99 @@ function exitGame(){
   G.paused=true;G.running=false;
   show('pauseOverlay');
   sndPause();haptic(20);
+}
+function toggleGiocaMenu(){
+  const m=document.getElementById('giocaMenu');
+  if(!m) return;
+  const open=m.style.display==='block';
+  // Chiudi altri menu
+  closeAllInlineMenus();
+  m.style.display=open?'none':'block';
+}
+function closeGiocaMenu(){
+  const m=document.getElementById('giocaMenu');
+  if(m) m.style.display='none';
+}
+function toggleLangMenu(){
+  const m=document.getElementById('langInlineMenu');
+  if(!m) return;
+  const open=m.style.display!=='none';
+  closeAllInlineMenus();
+  if(!open){
+    // Popola griglia lingue
+    const grid=document.getElementById('langInlineGrid');
+    if(grid&&grid.children.length===0){
+      Object.entries(LANGS).forEach(([code,lang])=>{
+        const btn=document.createElement('button');
+        btn.style.cssText='background:'+(curLang===code?'rgba(74,240,208,.15)':'rgba(255,255,255,.04)')+';border:1px solid rgba('+(curLang===code?'74,240,208':'255,255,255')+','+(curLang===code?'.4':'.1')+');color:#fff;padding:8px 10px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:60px';
+        btn.innerHTML='<span style="font-size:18px">'+lang.flag+'</span><span style="font-size:8px;letter-spacing:.1em;color:rgba(200,220,255,.7)">'+lang.name+'</span>';
+        btn.onclick=()=>{ setLang(code); closeAllInlineMenus(); };
+        grid.appendChild(btn);
+      });
+    }
+    m.style.display='block';
+  }
+}
+function toggleCommunityMenu(){
+  const m=document.getElementById('communityInlineMenu');
+  if(!m) return;
+  const open=m.style.display!=='none';
+  closeAllInlineMenus();
+  if(!open) m.style.display='block';
+}
+function closeAllInlineMenus(){
+  ['giocaMenu','langInlineMenu','communityInlineMenu'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+}
+// Chiudi menu inline se click fuori
+document.addEventListener('pointerdown',e=>{
+  ['giocaMenu','langInlineMenu','communityInlineMenu'].forEach(id=>{
+    const menu=document.getElementById(id);
+    if(menu&&menu.style.display!=='none'){
+      if(!menu.contains(e.target)&&!e.target.closest('.btn-play')&&!e.target.closest('.menu-btn'))
+        menu.style.display='none';
+    }
+  });
+},{passive:true});
+function showStatsScreen(){
+  const acc=getAccountLevel();
+  const best=parseInt(localStorage.getItem('drift_best')||'0');
+  const games=parseInt(localStorage.getItem('drift_games_played')||'0');
+  const pds=parseInt(localStorage.getItem('drift_perfect_dodges')||'0');
+  const frags=getFragments();
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:250;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:24px 20px;font-family:Orbitron,sans-serif';
+  div.innerHTML=`
+    <div style="font-size:11px;letter-spacing:.4em;color:#4af0d0;margin-bottom:20px;margin-top:8px">📊 STATISTICHE</div>
+    <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,240,208,.15);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">🏆 PUNTEGGIO MIGLIORE</span>
+        <span style="font-size:16px;font-weight:900;color:#fff">${best.toLocaleString('it-IT')}</span>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,240,208,.15);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">⭐ LIVELLO</span>
+        <span style="font-size:16px;font-weight:900;color:#4af0d0">LV.${acc.lv||1}</span>
+      </div>
+      ${acc.isMax&&acc.paragon>0?`<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:rgba(255,215,0,.7);letter-spacing:.1em">✦ PARAGON</span><span style="font-size:16px;font-weight:900;color:#ffd700">P${acc.paragon}</span></div>`:''}
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,215,0,.15);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">💎 FRAMMENTI</span>
+        <span style="font-size:16px;font-weight:900;color:#ffd700">${frags}</span>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,240,208,.1);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">🎮 PARTITE GIOCATE</span>
+        <span style="font-size:16px;font-weight:900;color:#fff">${games}</span>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,240,208,.1);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">✨ PERFECT DODGE</span>
+        <span style="font-size:16px;font-weight:900;color:#ffe566">${pds}</span>
+      </div>
+      <button onclick="this.closest('[style*=fixed]').remove();showUpgradeScreen()" style="width:100%;padding:12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:#ffd700;font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:.2em;cursor:pointer;margin-top:4px">⚗ GESTISCI UPGRADE</button>
+    </div>
+    <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);padding:10px 24px;border-radius:6px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:.2em;margin-top:20px">← CHIUDI</button>
+  `;
+  document.body.appendChild(div);
 }
 function resumeGame(){
   hide('pauseOverlay');hide('stopOverlay');
@@ -3812,7 +3912,7 @@ function showPaymentWaitModal(orbId, orbName){
   d.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.95);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;font-family:Rajdhani,sans-serif';
   d.innerHTML=`
     <div style="font-size:48px;margin-bottom:16px">💳</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--accent);margin-bottom:8px">PAGAMENTO IN CORSO</div>
+    <div style="font-family:'Syncopate',sans-serif;font-size:20px;font-weight:900;color:var(--accent);margin-bottom:8px">PAGAMENTO IN CORSO</div>
     <div style="font-size:13px;color:rgba(200,220,255,.7);text-align:center;line-height:1.6;max-width:280px;margin-bottom:20px">
       Completa il pagamento nella finestra Stripe.<br>Torna qui dopo — la sfera verrà sbloccata automaticamente.
     </div>
@@ -3882,7 +3982,7 @@ function showReferralPanel(){
   d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,20,.98);border-top:1px solid rgba(74,240,208,.3);padding:20px;z-index:90;font-family:Rajdhani,sans-serif;max-height:60vh;overflow-y:auto';
   d.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--accent)">⚔️ SFIDA UN AMICO</div>
+      <div style="font-family:'Syncopate',sans-serif;font-size:16px;font-weight:900;color:var(--accent)">⚔️ SFIDA UN AMICO</div>
       <button onclick="document.getElementById('referralPanel').remove()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer">✕</button>
     </div>
     <div style="font-size:12px;color:rgba(200,220,255,.6);margin-bottom:12px;line-height:1.6">
@@ -4047,7 +4147,7 @@ function updateComboHUD(){
   const multLabel = mult>1?`<div style="font-size:11px;letter-spacing:.1em;color:${color};margin-top:2px">× ${mult} MOLTIPLICATORE</div>`:'';
 
   _comboHUD.innerHTML = `
-    <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:${color};
+    <div style="font-family:'Syncopate',sans-serif;font-size:16px;font-weight:900;color:${color};
       text-shadow:0 0 20px ${color};letter-spacing:.1em;animation:comboPop .2s ease">${label}</div>
     ${multLabel}`;
   _comboHUD.style.opacity='1';
@@ -6219,7 +6319,8 @@ async function heartbeatPresence(){
 }
 
 async function updateLiveCounter(){
-  const el=document.getElementById('liveCounter');
+  // Elemento rimosso dal DOM — funzione disabilitata
+  return;
   if(!el) return;
   try{
     const data=await fbGet('/players');
@@ -8401,8 +8502,8 @@ function showProfile(){
 }
 
 function switchProfileTab(tab){
-  const tabs   = ['account','stats'];
-  const panels = {account:'profPanelAccount', stats:'profPanelStats'};
+  const tabs   = ['account','stats','ach'];
+  const panels = {account:'profPanelAccount', stats:'profPanelStats', ach:'profPanelAch'};
   tabs.forEach(t=>{
     const btn = document.getElementById('profTab'+t.charAt(0).toUpperCase()+t.slice(1));
     const pan = document.getElementById(panels[t]);
@@ -8413,6 +8514,47 @@ function switchProfileTab(tab){
     }
     if(pan) pan.style.display = active ? 'flex' : 'none';
   });
+  // Popola achievement quando si apre la tab
+  if(tab==='ach') buildAchievementPanel();
+}
+
+function buildAchievementPanel(){
+  const el=document.getElementById('achPanelContent');
+  if(!el) return;
+  const unlocked=getUnlocked();
+  const s=buildLiveStats();
+  const pct2=Math.round(unlocked.length/ACHIEVEMENTS.length*100);
+  const legendClaimed=localStorage.getItem('drift_legend_claimed');
+
+  el.innerHTML=`
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:22px;margin-bottom:4px">🏅🥇</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:16px;font-weight:900;color:var(--gold);letter-spacing:.06em">BADGE & PREMI</div>
+      <div style="font-size:9px;color:var(--dim);margin-top:4px;letter-spacing:.1em">
+        <span style="color:var(--accent)">${unlocked.length}</span> / ${ACHIEVEMENTS.length} badge
+        ${legendClaimed?'&nbsp;<span style="color:var(--gold)">🌟 LEGGENDA!</span>':`&nbsp;(${pct2}% — completa tutti per diventare LEGGENDA)`}
+      </div>
+    </div>
+    ${ACHIEVEMENTS.map(a=>{
+      const done=unlocked.includes(a.id);
+      const [cur,max]=a.prog(s);
+      const pct=Math.min(100,Math.round(cur/max*100));
+      const reward=BADGE_REWARDS[a.id];
+      const prizeHtml=reward?(
+        (reward.orb?`<div style="font-size:8px;color:#4af0d0;margin-top:3px">🌟 Sfera: ${reward.orb.name}</div>`:'')
+        +(reward.mult?`<div style="font-size:8px;color:var(--gold);margin-top:1px">⚡ x${reward.mult.value} score per ${reward.mult.days} giorni</div>`:'')
+        +(reward.title?`<div style="font-size:8px;color:var(--gold);margin-top:1px">👑 Titolo: ${reward.title}</div>`:'')
+      ):'';
+      return`<div class="ach-item ${done?'unlocked':'locked'}">
+        <span class="ach-icon">${a.icon}</span>
+        <div class="ach-body">
+          <div class="ach-name">${a.name}</div>
+          <div class="ach-desc">${a.desc}</div>
+          ${done?`<div class="ach-status done">✓ Sbloccato${prizeHtml?'<br>'+prizeHtml:''}</div>`:`<div class="ach-status prog">${cur}/${max}</div><div class="ach-prog-bar"><div class="ach-prog-fill" style="width:${pct}%"></div></div><div style="margin-top:3px">${prizeHtml}</div>`}
+        </div>
+      </div>`;
+    }).join('')}
+  `;
 }
 
 function loadAccountPhoto(acc){
@@ -9123,7 +9265,7 @@ function showEventOverlay(){
     const lb=getEventLB(ev.id);const rank=lb.findIndex(r=>r.name===playerName)+1;
     myScoreEl.innerHTML=`<div style="background:rgba(74,240,208,.08);border:1px solid rgba(74,240,208,.25);border-radius:6px;padding:9px 14px">
       <span style="font-size:9px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase">Your best today</span><br>
-      <span style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--accent)">${myScore}</span>
+      <span style="font-family:'Syncopate',sans-serif;font-size:22px;font-weight:900;color:var(--accent)">${myScore}</span>
       ${rank>0?`<span style="font-size:11px;color:var(--gold);margin-left:8px">Rank #${rank}</span>`:''}
     </div>`;
     myScoreEl.style.display='block';
@@ -9134,9 +9276,9 @@ function showEventOverlay(){
     const isMe=r.name===playerName;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
     return `<div style="display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);${isMe?'background:rgba(74,240,208,.07);border-radius:3px;padding-left:4px':''}">
-      <span style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;width:22px;text-align:center;color:${i<3?'var(--gold)':'var(--dim)'}">${medal}</span>
+      <span style="font-family:'Syncopate',sans-serif;font-size:10px;font-weight:700;width:22px;text-align:center;color:${i<3?'var(--gold)':'var(--dim)'}">${medal}</span>
       <span style="flex:1;font-size:11px;font-weight:600;color:${isMe?'var(--accent)':'var(--white)'};letter-spacing:.04em">${r.name}${isMe?' ◀':''}</span>
-      <span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:${ev.color}">${r.score}</span>
+      <span style="font-family:'Syncopate',sans-serif;font-size:11px;font-weight:700;color:${ev.color}">${r.score}</span>
     </div>`;
   }).join('');
   // Play button
@@ -9765,11 +9907,11 @@ function showWeeklyRewardBanner(){
   if(prize.multiplier>1)
     prizes.push(`<div class="weekly-prize-card ${prize.cssClass}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">⚡</span><div><div class="prize-mult">x${prize.multiplier} SCORE</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Attivo per ${prize.multDays} giorni — tutte le partite</div></div></div></div>`);
   if(prize.badge)
-    prizes.push(`<div class="weekly-prize-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">${prize.badge.icon}</span><div><div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--white)">${prize.badge.name}</div><div style="font-size:10px;color:var(--dim);margin-top:2px">${prize.badge.desc}</div></div></div></div>`);
+    prizes.push(`<div class="weekly-prize-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">${prize.badge.icon}</span><div><div style="font-family:'Syncopate',sans-serif;font-size:13px;font-weight:900;color:var(--white)">${prize.badge.name}</div><div style="font-size:10px;color:var(--dim);margin-top:2px">${prize.badge.desc}</div></div></div></div>`);
   if(prize.orb==='champion')
-    prizes.push(`<div class="weekly-prize-card gold-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">🌟</span><div><div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--gold)">SFERA CHAMPION</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Sfera esclusiva — solo per i vincitori settimanali</div></div></div></div>`);
+    prizes.push(`<div class="weekly-prize-card gold-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">🌟</span><div><div style="font-family:'Syncopate',sans-serif;font-size:13px;font-weight:900;color:var(--gold)">SFERA CHAMPION</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Sfera esclusiva — solo per i vincitori settimanali</div></div></div></div>`);
   if(prize.title)
-    prizes.push(`<div class="weekly-prize-card gold-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">👑</span><div><div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--gold)">"${prize.title}" in classifica</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Visibile per 7 giorni</div></div></div></div>`);
+    prizes.push(`<div class="weekly-prize-card gold-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">👑</span><div><div style="font-family:'Syncopate',sans-serif;font-size:13px;font-weight:900;color:var(--gold)">"${prize.title}" in classifica</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Visibile per 7 giorni</div></div></div></div>`);
 
   document.getElementById('wrPrizes').innerHTML=prizes.join('');
   document.getElementById('weeklyRewardBanner').style.display='flex';
@@ -9954,7 +10096,7 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
 // Sync audio + haptic states on load
 (()=>{
-  const hb=document.getElementById('hapticBtn');if(hb)hb.textContent=hapticOn?'📳':'🔕';
+  const hb=document.getElementById('hapticBtn');if(hb)hb.style.color=hapticOn?'rgba(255,255,255,.6)':'rgba(255,80,80,.5)';
   updateAudioUI();
   // Start menu music on first interaction (browser requires user gesture)
   const startMenuOnce=(e)=>{
