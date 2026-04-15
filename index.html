@@ -521,6 +521,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="#4af0d0" stroke="none"/><circle cx="20" cy="8" r="1.5" fill="#ff2244" stroke="none"/></svg></span><span data-i18n="shop">Negozio Sfere</span>
     </button>
 
+    <!-- Stagioni -->
+    <button class="menu-btn" onclick="showSeasonScreen()">
+      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span><span>Stagioni</span>
+    </button>
+
     <!-- 10. Regolamento -->
     <button class="menu-btn" onclick="show('howOverlay');hide('startOverlay')">
       <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h9a1 1 0 0 1 1 1v15a1 1 0 0 1-1 0H2V4z"/><path d="M22 4h-9a1 1 0 0 0-1 1v15a1 1 0 0 0 1 0h9V4z"/><line x1="12" y1="5" x2="12" y2="20"/></svg></span><span>Regolamento</span>
@@ -1059,7 +1064,7 @@ function buildInstructions(){
     <div class="instr-row"><span class="instr-icon">💥</span><span class="instr-text">${T('i_e6')||'Pulsante — si carica e scatta verso di te.'}</span></div>
     <div class="instr-row"><span class="instr-icon">🧲</span><span class="instr-text">${T('i_e7')||'Magnetico — devia la tua orbita.'}</span></div>
     <div class="instr-row"><span class="instr-icon">⚡</span><span class="instr-text">Sfere Zig Zag — traiettoria imprevedibile, appaiono ogni 10 livelli.</span></div>
-    <div class="instr-row"><span class="instr-icon">💀</span><span class="instr-text">Il Boss — appare ogni 20 livelli, lancia proiettili casuali. Sopravvivi 30 secondi.</span></div>
+    <div class="instr-row"><span class="instr-icon">💀</span><span class="instr-text">Il Boss — appare ogni 10 livelli, lancia proiettili casuali. Sopravvivi 30 secondi.</span></div>
   </div>`;
 }
 
@@ -3168,7 +3173,7 @@ function getScoreMultiplier(){
 // ══════════════════════════════════════
 function spawnBoss(){
   G.bossActive=true;
-  G.bossTimer=30*60; // 30 secondi totali a 60fps
+  G.bossTimer=(30+( seasonHasPower('boss_time')?5:0))*60;
   G.bossPhase=1; // Fase 1: 30→20s
   G.bossLevel=G.level;
   // Rimuovi tutti i nemici normali
@@ -3381,13 +3386,14 @@ function startGame(seed){
      enemies:[],particles:[],trails:[],rings:[],shockwaves:[],
      bossActive:false,bossTimer:0,bossLevel:0,
      spawnTimer:0,maxEnemies:BASE_ENEMIES,frameCount:0,score:0,scoreBonus:0,
-     lives:3,level:1,shaking:0,invincible:180,slowMo:0,
+     lives:seasonHasPower('extra_life')?4:3,level:1,shaking:0,invincible:180,slowMo:0,
      nearMissStreak:0,_lastNearMissFrame:0,perfectDodgeCount:0,
      survivedZigzag:false,survivedZigzagCount:0,survivalMode:false,
      _forceEnemyType:null,_noPowerup:false,_nmMult:1,_perfectMult:1,
      _collectCount:0,_zigzagLevelMod:null,
      shieldActive:false,
      adapt:{framesSinceTap:0,nearMissAccum:0,wasClose:false}};
+  try{applySeasonPowers(G);}catch(e){}
   for(let i=0;i<BASE_ENEMIES;i++)spawnEnemy(true);
   // Pulisci eventuali powerup residui e spawna scudo
   G.enemies=G.enemies.filter(e=>!e.type||!e.type.isPowerup);
@@ -3418,30 +3424,94 @@ function startGame(seed){
 }
 
 function showBattlePassScreen(){
-  const has=hasBattlePass()||isTester();
-  const month=getBPMonth();
-  const daysLeft=getSeasonDaysLeft();
-  let html='<div style="font-family:Orbitron,sans-serif;text-align:center;padding:16px">';
-  html+='<div style="font-size:11px;letter-spacing:.3em;color:#ffd700;margin-bottom:8px">⭐ BATTLE PASS '+month+'</div>';
-  html+='<div style="font-size:13px;color:rgba(200,220,255,.7);margin-bottom:16px">'+daysLeft+' giorni rimasti</div>';
-  if(has){
-    html+='<div style="color:#4af0d0;font-size:14px;font-weight:700;margin-bottom:12px">✅ ATTIVO — XP x1.5</div>';
-  } else {
-    html+='<div style="color:#ffd700;font-size:22px;font-weight:900;margin-bottom:4px">€2.99/mese</div>';
-    html+='<div style="font-size:11px;color:rgba(200,220,255,.6);margin-bottom:16px">XP x1.5 · Sfera esclusiva · Badge</div>';
-    const bpBtn=document.createElement('button');bpBtn.textContent='ACQUISTA';bpBtn.style.cssText='background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:6px;padding:12px 24px;font-weight:900;font-size:13px;cursor:pointer;letter-spacing:.1em;font-family:Orbitron,sans-serif';bpBtn.onclick=()=>window.open(BATTLE_PASS_PRICE,'_blank');html+='<div id="bpBtnSlot"></div>';
+  const hasBP = hasBattlePass()||isTester();
+  const month = getBPMonth();
+  const daysLeft = getSeasonDaysLeft();
+  const gamesMonth = parseInt(localStorage.getItem('zivve_games_month_'+month)||'0');
+  const bpLevel = Math.min(10, Math.floor(gamesMonth/3));
+  const bpPct = (gamesMonth % 3) / 3 * 100;
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:250;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:24px 20px;font-family:Syncopate,sans-serif';
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'width:100%;max-width:320px;text-align:center;margin-bottom:16px';
+  hdr.innerHTML =
+    '<div style="font-size:11px;letter-spacing:.4em;color:#ffd700;margin-bottom:6px">BATTLE PASS '+month+'</div>'+
+    '<div style="font-size:9px;color:rgba(200,220,255,.4);letter-spacing:.15em;margin-bottom:14px">'+daysLeft+' GIORNI RIMASTI</div>'+
+    (hasBP
+      ? '<div style="font-size:12px;color:#4af0d0;letter-spacing:.1em">ATTIVO — Livello '+bpLevel+'/10</div>'
+      : '<div style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,136,0,.1));border:1px solid rgba(255,215,0,.4);border-radius:10px;padding:12px 16px">'
+        +'<div style="font-size:20px;font-weight:900;color:#ffd700;margin-bottom:4px">€2.99/mese</div>'
+        +'<div style="font-size:10px;color:rgba(200,220,255,.6)">Sblocca tutti i 10 livelli</div>'
+        +'</div>'
+    );
+  div.appendChild(hdr);
+  if(hasBP){
+    const barWrap = document.createElement('div');
+    barWrap.style.cssText = 'width:100%;max-width:320px;margin-bottom:18px';
+    barWrap.innerHTML =
+      '<div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(200,220,255,.4);margin-bottom:4px">'
+      +'<span>Partite: '+gamesMonth+'</span>'
+      +'<span>'+(gamesMonth%3)+'/3 al prossimo livello</span>'
+      +'</div>'
+      +'<div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px">'
+      +'<div style="height:100%;width:'+bpPct+'%;background:linear-gradient(90deg,#ffd700,#ff8800);border-radius:3px"></div>'
+      +'</div>';
+    div.appendChild(barWrap);
   }
-  html+='</div>';
-  const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.95);z-index:200;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML=html+'<button id="bpCloseBtn" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer">×</button>';
-  const slot=overlay.querySelector('#bpBtnSlot');if(slot&&typeof bpBtn!=='undefined')slot.replaceWith(bpBtn);
-  overlay.querySelector('#bpCloseBtn').onclick=()=>overlay.remove();
-  document.body.appendChild(overlay);
-//OLD:" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer">×</button>';
-  document.body.appendChild(overlay);
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px';
+  BP_REWARDS.forEach(function(r){
+    const unlocked = hasBP || r.free;
+    const reached = bpLevel >= r.lv;
+    const claimKey = 'zivve_bp_claimed_'+month+'_'+r.lv;
+    const claimed = localStorage.getItem(claimKey)==='1';
+    const canClaim = reached && unlocked && !claimed;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba('
+      +(claimed?'74,240,208,.3':reached&&unlocked?'255,215,0,.3':'255,255,255,.06')+');border-radius:8px;padding:11px 14px;opacity:'
+      +(unlocked?'1':'.45');
+    const lvBadge = document.createElement('div');
+    lvBadge.style.cssText = 'width:28px;height:28px;border-radius:50%;background:'
+      +(claimed?'rgba(74,240,208,.2)':reached?'rgba(255,215,0,.2)':'rgba(255,255,255,.06)')
+      +';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'
+      +(claimed?'#4af0d0':reached?'#ffd700':'rgba(200,220,255,.4)')+';flex-shrink:0';
+    lvBadge.textContent = r.lv;
+    const descEl = document.createElement('div');
+    descEl.style.cssText = 'flex:1;font-size:10px;color:rgba(200,220,255,'+(unlocked?'.8':'.4')+');letter-spacing:.04em';
+    descEl.innerHTML = r.desc+(r.free?'<div style="font-size:8px;color:#4af0d0;margin-top:2px">GRATUITO</div>':'');
+    const statusEl = document.createElement('div');
+    statusEl.style.cssText = 'flex-shrink:0';
+    if(claimed){
+      statusEl.innerHTML = '<span style="font-size:11px;color:#4af0d0">✓</span>';
+    } else if(canClaim){
+      const btn = document.createElement('button');
+      btn.style.cssText = 'background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:6px;padding:5px 10px;font-family:Syncopate,sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;cursor:pointer';
+      btn.textContent = 'RITIRA';
+      btn.onclick = (function(rr,ck,dd){ return function(){ claimBPReward(rr,ck,dd); }; })(r,claimKey,div);
+      statusEl.appendChild(btn);
+    } else if(!unlocked){
+      statusEl.innerHTML = '<span style="font-size:10px;color:rgba(200,220,255,.3)">🔒</span>';
+    } else {
+      statusEl.innerHTML = '<span style="font-size:9px;color:rgba(200,220,255,.3)">LV.'+r.lv+'</span>';
+    }
+    row.appendChild(lvBadge); row.appendChild(descEl); row.appendChild(statusEl);
+    wrap.appendChild(row);
+  });
+  div.appendChild(wrap);
+  if(!hasBP){
+    const buyBtn = document.createElement('button');
+    buyBtn.style.cssText = 'width:100%;max-width:320px;padding:14px;background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:12px;font-family:Syncopate,sans-serif;font-size:13px;font-weight:700;letter-spacing:.2em;cursor:pointer;margin-top:16px;box-shadow:0 0 20px rgba(255,215,0,.3)';
+    buyBtn.textContent = 'ACQUISTA — 2.99/mese';
+    buyBtn.onclick = function(){ if(typeof BATTLE_PASS_PRICE!=='undefined') window.open(BATTLE_PASS_PRICE,'_blank'); };
+    div.appendChild(buyBtn);
+  }
+  const closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);padding:10px 24px;border-radius:6px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.2em;margin-top:16px';
+  closeBtn.textContent = 'CHIUDI';
+  closeBtn.onclick = function(){ div.remove(); };
+  div.appendChild(closeBtn);
+  document.body.appendChild(div);
 }
-
 
 function showBgThemeScreen(){
   const unlocked=isTester()?BG_THEMES:getUnlockedBgThemes();
@@ -3642,6 +3712,10 @@ function triggerPerfectDodge(px,py){
   sndPerfectDodge();haptic([10,5,10,5,30,5,60]);
   const pd=parseInt(localStorage.getItem('drift_perfect_dodges')||'0')+1;
   localStorage.setItem('drift_perfect_dodges',pd);
+  // Traccia max PD in singola partita per obiettivo stagionale sg5
+  const pdSingle = G.perfectDodgeCount||0;
+  const pdBestSingle = parseInt(localStorage.getItem('zivve_pd_best_single')||'0');
+  if(pdSingle > pdBestSingle) localStorage.setItem('zivve_pd_best_single', pdSingle);
   G.rings.push({x:px,y:py,r:0,alpha:.25,color:'#4af0d0',grow:5});
   orbPowerOnPerfect();
   // Dopo 2s, mostra invito condivisione
@@ -4275,7 +4349,12 @@ function pickEnemyType(l){
     if(r<.12) return ENEMY_TYPES[9];  // hunter
     if(r<.20) return ENEMY_TYPES[10]; // pulsar
     if(r<.26) return ENEMY_TYPES[11]; // magnet
-  } else if(l>=18){
+  } else if(l>=20){
+    const r=Math.random();
+    if(r<.10) return ENEMY_TYPES[9];
+    if(r<.18) return ENEMY_TYPES[10];
+    if(r<.22) return ENEMY_TYPES[11]; // magnet dal 20+
+  } else if(l>=15){
     const r=Math.random();
     if(r<.08) return ENEMY_TYPES[9];
     if(r<.14) return ENEMY_TYPES[10];
@@ -4302,7 +4381,8 @@ function updateSpecialEnemies(){
     if(e.type.isHunter){
       const dx=px-e.x, dy=py-e.y;
       const d=Math.max(Math.sqrt(dx*dx+dy*dy),1);
-      const spd=1.2+(G.level-1)*.06;
+      const _seasonSlow=seasonHasPower('slow_enemies')?0.90:1.0;
+    const spd=(1.2+(G.level-1)*.06)*_seasonSlow;
       e.vx+=(dx/d)*0.08; e.vy+=(dy/d)*0.08;
       const cur=Math.hypot(e.vx,e.vy);
       if(cur>spd){e.vx=(e.vx/cur)*spd;e.vy=(e.vy/cur)*spd;}
@@ -4726,7 +4806,7 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
         }
         const sa=Math.atan2(py2-e.y,px2-e.x);
         for(let k=0;k<6;k++){const a2=sa+(.5-Math.random())*1.2;G.particles.push({x:px2,y:py2,vx:Math.cos(a2)*3,vy:Math.sin(a2)*3,life:18,color:'#ffee44',r:1.5});}
-        if(G.nearMissStreak>=3){showMsg('🔥 NEAR MISS x'+G.nearMissStreak,'#ffee44');if(G.nearMissStreak%3===0)G.scoreBonus=(G.scoreBonus||0)+G.nearMissStreak*2;}
+        if(G.nearMissStreak>=(seasonHasPower('fast_combo')?2:3)){showMsg('🔥 NEAR MISS x'+G.nearMissStreak,'#ffee44');if(G.nearMissStreak%3===0)G.scoreBonus=(G.scoreBonus||0)+G.nearMissStreak*2;}
         const angle2=Math.atan2(py2-e.y,px2-e.x);
         sndNearMiss(600+Math.cos(angle2)*200+(G.nearMissStreak||1)*40);
       }
@@ -4953,7 +5033,17 @@ function registerHit(px,py,e){
     sndShieldHit();haptic([10,5,10]);
     return; // nessun danno
   }
-  G.lives--;G.shaking=24;G.invincible=180;updateLivesUI();
+  // first_shield: primo colpo assorbito
+  if(G._hasFirstShield && !G._firstShieldUsed){
+    G._firstShieldUsed=true; G._hasFirstShield=false;
+    G.invincible=180; G.shaking=12; updateLivesUI();
+    showMsg('\u{1F338} SCUDO FIORE — Colpo assorbito!','#ffaacc');
+    flashScreen('rgba(255,170,204,.3)');
+    return;
+  }
+  G.lives--;G.shaking=24;
+  G.invincible=seasonHasPower('long_invincible')?300:180;
+  updateLivesUI();
   G._perfectMult=1;G.perfectDodgeCount=0; // reset moltiplicatore
   // Esplosione drammatica al colpo
   const _hp=CX+Math.cos(G.angle)*ORBIT_R,_hy=CY+Math.sin(G.angle)*ORBIT_R;
@@ -6217,12 +6307,18 @@ function hasBattlePass(){ return localStorage.getItem('zivve_bp_'+getBPMonth())=
 function activateBattlePass(){ localStorage.setItem('zivve_bp_'+getBPMonth(),'1'); showMsg('⭐ BATTLE PASS ATTIVO!','#ffd700'); }
 function getBPXPMultiplier(){ return hasBattlePass()?1.5:1; }
 // Battle pass rewards per level
-const BP_REWARDS={
-  3:{desc:'Sfera esclusiva del mese',orbId:'bp_monthly'},
-  5:{desc:'XP x1.5 per tutto il mese'},
-  7:{desc:'Badge Battle Pass'},
-  10:{desc:'Cornice nome in classifica'},
-};
+const BP_REWARDS=[
+  {lv:1,  type:'frags',    value:50,   desc:'50 💎 Frammenti',                    free:true},
+  {lv:2,  type:'orb',      value:'bp_monthly', desc:'Sfera Esclusiva BP',          free:false},
+  {lv:3,  type:'frags',    value:100,  desc:'100 💎 Frammenti',                   free:false},
+  {lv:4,  type:'xp_mult',  value:1.25, desc:'XP x1.25 per tutto il mese',         free:false},
+  {lv:5,  type:'bg_theme', value:'bp', desc:'Tema Campo Esclusivo BP',             free:false},
+  {lv:6,  type:'frags',    value:150,  desc:'150 💎 Frammenti',                   free:false},
+  {lv:7,  type:'badge',    value:'bp', desc:'Badge BP su profilo e classifica',    free:false},
+  {lv:8,  type:'xp_mult',  value:1.50, desc:'XP x1.5 per tutto il mese',          free:false},
+  {lv:9,  type:'frags',    value:300,  desc:'300 💎 Frammenti',                   free:false},
+  {lv:10, type:'legendary',value:'bp_legendary', desc:'Sfera Leggendaria BP + Titolo BP ELITE', free:false},
+];
 
 
 // ══════════════════════════════════════════════════════════════
@@ -7330,6 +7426,8 @@ async function endGame(){
   setTimeout(()=>{if(window._pendingAch&&window._pendingAch.length){const b=window._pendingAch.splice(0);b.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));}},500);
   document.getElementById('c').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
+  // score_bonus stagionale +10%
+  if(seasonHasPower('score_bonus')) G.score=Math.floor(G.score*1.10);
   const isRec=G.score>bestScore;
   if(isRec){bestScore=G.score;localStorage.setItem('drift_best',bestScore);try{_zPlayRecordSound();}catch(e){}}
   checkBounceBack(G.score);
@@ -7340,7 +7438,8 @@ async function endGame(){
   const _objXPBonus = (_objectiveDone&&_runObjective?_runObjective.xpBonus:0)+(G._critXPBonus||0);
   if((G._critCount||0)>0) showMsg('🔥 '+G._critCount+' CRITICI — +'+G._critXPBonus+' XP bonus!','#ff6600');
   const _objMult = _objectiveDone&&G._objMultBonus?(1+G._objMultBonus):1;
-  const _xpGained=Math.floor((calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult()*_objMult*getUpgradeXPMult())+_objXPBonus);
+  const _xpSeasonMult=seasonHasPower('xp_boost')?1.25:1.0;
+  const _xpGained=Math.floor((calcXPForGame(G.score,G.level,Math.floor(G.frameCount/60),G.nearMissStreak||0,G.perfectDodgeCount||0)*getBPXPMultiplier()*_bbMult*getParagonBonusXPMult()*_objMult*getUpgradeXPMult())*_xpSeasonMult+_objXPBonus);
   const _newXP=addXP(_xpGained);
   syncAccountToFirebase();
   const secs=Math.floor(G.frameCount/60);
@@ -8837,14 +8936,56 @@ function recordGameStats(score, secs, level, nearMiss){
   localStorage.setItem('drift_total_time',tt);
   const tn=parseInt(localStorage.getItem('drift_total_near')||'0')+(nearMiss||0);
   localStorage.setItem('drift_total_near',tn);
-  // Distance: circumference * rotations approximation
   const dist=parseFloat(localStorage.getItem('drift_distance')||'0')+(secs*0.001);
   localStorage.setItem('drift_distance',dist.toFixed(3));
   if(CH.mode==='daily'){
     const dc=parseInt(localStorage.getItem('drift_daily_count')||'0')+1;
     localStorage.setItem('drift_daily_count',dc);
   }
+  // ── Aggiorna progressi obiettivi stagionali ──
+  try{ updateSeasonProgress(games, tt, level, tn); }catch(e){}
   checkAchievements();
+}
+
+
+function updateSeasonProgress(totalGames, totalSecs, levelThisGame, totalNearMiss){
+  const m = getCurrentSeasonMonth();
+  const year = new Date().getFullYear();
+  const goals = getSeasonGoals(m, year);
+  const prefix = 'zivve_season_prog_';
+
+  // Aggiorna contatori mensili
+  const gamesMonth = parseInt(localStorage.getItem('zivve_games_month_total')||'0') + 1;
+  localStorage.setItem('zivve_games_month_total', gamesMonth);
+  const secsMonth = parseInt(localStorage.getItem('zivve_secs_month_total')||'0') + (G&&G.survivedSecs||0);
+  localStorage.setItem('zivve_secs_month_total', secsMonth);
+  const nmMonth = parseInt(localStorage.getItem('zivve_nm_month_total')||'0') + (G&&G.nearMissCount||0);
+  localStorage.setItem('zivve_nm_month_total', nmMonth);
+  const bossMonth = parseInt(localStorage.getItem('zivve_boss_month_total')||'0') + (G&&G.bossCleared||0);
+  localStorage.setItem('zivve_boss_month_total', bossMonth);
+
+  // Per ogni obiettivo del mese, aggiorna il progresso
+  goals.forEach(function(g){
+    const key = prefix + g.id;
+    let val = 0;
+    if(g.type==='games_total')    val = gamesMonth;
+    if(g.type==='survive_total')  val = secsMonth;
+    if(g.type==='nearmiss_total') val = nmMonth;
+    if(g.type==='boss_total')     val = bossMonth;
+    if(g.type==='level_max'){
+      const prev = parseInt(localStorage.getItem(key)||'0');
+      val = Math.max(prev, levelThisGame||0);
+    }
+    if(g.type==='score_single'){
+      const prev = parseInt(localStorage.getItem(key)||'0');
+      val = Math.max(prev, G&&G.score||0);
+    }
+    if(g.type==='pd_single'){
+      const prev = parseInt(localStorage.getItem(key)||'0');
+      val = Math.max(prev, parseInt(localStorage.getItem('zivve_pd_best_single')||'0'));
+    }
+    localStorage.setItem(key, Math.min(val, g.target));
+  });
 }
 
 // ══════════════════════════════════════
@@ -10418,20 +10559,62 @@ function startAutoReplay(){
 }
 
 
+
+// ── SISTEMA POTERI STAGIONALI ──
+function getActiveSeasonPower(){
+  const m = getCurrentSeasonMonth();
+  const year = new Date().getFullYear();
+  const key = 'zivve_season_orb_'+m+'_'+year;
+  if(localStorage.getItem(key)!=='1') return null;
+  return SEASON_ORBS.find(o=>o.month===m)||null;
+}
+
+function seasonHasPower(powerName){
+  const o = getActiveSeasonPower();
+  return o && o.power===powerName;
+}
+
+function applySeasonPowers(G){
+  const orb = getActiveSeasonPower();
+  if(!orb) return;
+  // extra_life — gestito in startGame
+  // first_shield — applica scudo iniziale
+  if(orb.power==='first_shield' && !G._firstShieldUsed){
+    G._firstShieldUsed = false; // si attiva al primo colpo
+    G._hasFirstShield = true;
+  }
+  // boss_time — gestito in spawnBoss
+  // slow_enemies — gestito nel loop nemici
+  // wide_pd — gestito in triggerPerfectDodge
+  // long_invincible — gestito in collisione
+}
+
 // ══ STAGIONI ══
 const SEASON_ORBS = [
-  {month:1,  name:"Ghiaccio Polare",  color:"#a8d8ff", glow:"rgba(168,216,255,.6)", desc:"Sfera invernale — disponibile a Gennaio"},
-  {month:2,  name:"Cuore Cremisi",    color:"#ff6688", glow:"rgba(255,102,136,.6)", desc:"Sfera di San Valentino — disponibile a Febbraio"},
-  {month:3,  name:"Rinascita Verde",  color:"#88dd88", glow:"rgba(136,221,136,.6)", desc:"Sfera primaverile — disponibile a Marzo"},
-  {month:4,  name:"Pioggia d'Oro",    color:"#ffd700", glow:"rgba(255,215,0,.6)",   desc:"Sfera di Aprile — disponibile ad Aprile"},
-  {month:5,  name:"Fiore di Maggio",  color:"#ffaacc", glow:"rgba(255,170,204,.6)", desc:"Sfera primaverile — disponibile a Maggio"},
-  {month:6,  name:"Solstizio",        color:"#ffcc44", glow:"rgba(255,204,68,.6)",  desc:"Sfera estiva — disponibile a Giugno"},
-  {month:7,  name:"Fuoco d'Estate",   color:"#ff6633", glow:"rgba(255,102,51,.6)",  desc:"Sfera estiva — disponibile a Luglio"},
-  {month:8,  name:"Tramonto Blu",     color:"#4488ff", glow:"rgba(68,136,255,.6)",  desc:"Sfera estiva — disponibile ad Agosto"},
-  {month:9,  name:"Foglia d'Ambra",   color:"#cc7722", glow:"rgba(204,119,34,.6)",  desc:"Sfera autunnale — disponibile a Settembre"},
-  {month:10, name:"Lanterna Nera",    color:"#ff4400", glow:"rgba(255,68,0,.6)",    desc:"Sfera di Halloween — disponibile a Ottobre"},
-  {month:11, name:"Nebbia d'Argento", color:"#cccccc", glow:"rgba(200,200,200,.6)", desc:"Sfera autunnale — disponibile a Novembre"},
-  {month:12, name:"Stella Glaciale",  color:"#aaddff", glow:"rgba(170,221,255,.6)", desc:"Sfera natalizia — disponibile a Dicembre"},
+  {month:1,  name:"Ghiaccio Polare",  color:"#a8d8ff", glow:"rgba(168,216,255,.6)",
+   power:"slow_enemies",    powerDesc:"I nemici si muovono il 10% piu' lentamente",       powerVal:0.10},
+  {month:2,  name:"Cuore Cremisi",    color:"#ff6688", glow:"rgba(255,102,136,.6)",
+   power:"extra_life",      powerDesc:"Inizi ogni partita con 4 vite invece di 3",        powerVal:1},
+  {month:3,  name:"Rinascita Verde",  color:"#88dd88", glow:"rgba(136,221,136,.6)",
+   power:"double_nearmiss", powerDesc:"I near miss valgono il doppio dei punti",          powerVal:2},
+  {month:4,  name:"Pioggia d'Oro",    color:"#ffd700", glow:"rgba(255,215,0,.6)",
+   power:"double_frags",    powerDesc:"I frammenti a fine partita sono raddoppiati",      powerVal:2},
+  {month:5,  name:"Fiore di Maggio",  color:"#ffaacc", glow:"rgba(255,170,204,.6)",
+   power:"first_shield",    powerDesc:"Il primo colpo in partita viene assorbito",        powerVal:1},
+  {month:6,  name:"Solstizio",        color:"#ffcc44", glow:"rgba(255,204,68,.6)",
+   power:"xp_boost",        powerDesc:"La barra XP si riempie il 25% piu' velocemente",  powerVal:1.25},
+  {month:7,  name:"Fuoco d'Estate",   color:"#ff6633", glow:"rgba(255,102,51,.6)",
+   power:"fast_combo",      powerDesc:"Il combo sale con 2 near miss invece di 3",        powerVal:2},
+  {month:8,  name:"Tramonto Blu",     color:"#4488ff", glow:"rgba(68,136,255,.6)",
+   power:"wide_pd",         powerDesc:"La finestra del Perfect Dodge e' piu' ampia",     powerVal:1.3},
+  {month:9,  name:"Foglia d'Ambra",   color:"#cc7722", glow:"rgba(204,119,34,.6)",
+   power:"boss_time",       powerDesc:"Il timer del boss e' esteso di 5 secondi",        powerVal:300},
+  {month:10, name:"Lanterna Nera",    color:"#ff4400", glow:"rgba(255,68,0,.6)",
+   power:"nm_bonus",        powerDesc:"Ogni near miss da' +50 punti extra",              powerVal:50},
+  {month:11, name:"Nebbia d'Argento", color:"#cccccc", glow:"rgba(200,200,200,.6)",
+   power:"long_invincible",  powerDesc:"Dopo un colpo sei invincibile 5s invece di 3s",  powerVal:300},
+  {month:12, name:"Stella Glaciale",  color:"#aaddff", glow:"rgba(170,221,255,.6)",
+   power:"score_bonus",     powerDesc:"Il punteggio finale e' moltiplicato per 1.10",    powerVal:1.10},
 ];
 
 function getCurrentSeasonMonth(){ return new Date().getMonth()+1; }
@@ -10451,6 +10634,54 @@ function grantSeasonOrb(month){
   localStorage.setItem(getSeasonOrbKey(month),'1');
 }
 
+
+// Pool di tutti gli obiettivi possibili
+const SEASON_GOAL_POOL = [
+  {id:'sg_games_10',   text:'Gioca 10 partite questo mese',            target:10,  type:'games_total',   icon:'🎮'},
+  {id:'sg_games_20',   text:'Gioca 20 partite questo mese',            target:20,  type:'games_total',   icon:'🎮'},
+  {id:'sg_games_30',   text:'Gioca 30 partite questo mese',            target:30,  type:'games_total',   icon:'🎮'},
+  {id:'sg_survive_2',  text:'Sopravvivi 2 minuti totali',              target:120, type:'survive_total', icon:'⏱'},
+  {id:'sg_survive_5',  text:'Sopravvivi 5 minuti totali',              target:300, type:'survive_total', icon:'⏱'},
+  {id:'sg_survive_10', text:'Sopravvivi 10 minuti totali',             target:600, type:'survive_total', icon:'⏱'},
+  {id:'sg_level_10',   text:'Raggiungi il livello 10 in una partita',  target:10,  type:'level_max',     icon:'⭐'},
+  {id:'sg_level_15',   text:'Raggiungi il livello 15 in una partita',  target:15,  type:'level_max',     icon:'⭐'},
+  {id:'sg_level_20',   text:'Raggiungi il livello 20 in una partita',  target:20,  type:'level_max',     icon:'⭐'},
+  {id:'sg_nm_20',      text:'Fai 20 near miss totali',                 target:20,  type:'nearmiss_total',icon:'⚡'},
+  {id:'sg_nm_50',      text:'Fai 50 near miss totali',                 target:50,  type:'nearmiss_total',icon:'⚡'},
+  {id:'sg_nm_100',     text:'Fai 100 near miss totali',                target:100, type:'nearmiss_total',icon:'⚡'},
+  {id:'sg_pd_1',       text:'Fai 1 Perfect Dodge',                     target:1,   type:'pd_single',     icon:'✨'},
+  {id:'sg_pd_3',       text:'3 Perfect Dodge in una partita',          target:3,   type:'pd_single',     icon:'✨'},
+  {id:'sg_pd_5',       text:'5 Perfect Dodge in una partita',          target:5,   type:'pd_single',     icon:'✨'},
+  {id:'sg_score_500',  text:'Segna 500 punti in una partita',          target:500, type:'score_single',  icon:'🏆'},
+  {id:'sg_score_1000', text:'Segna 1000 punti in una partita',         target:1000,type:'score_single',  icon:'🏆'},
+  {id:'sg_score_2000', text:'Segna 2000 punti in una partita',         target:2000,type:'score_single',  icon:'🏆'},
+  {id:'sg_boss_1',     text:'Sopravvivi a 1 boss',                     target:1,   type:'boss_total',    icon:'👾'},
+  {id:'sg_boss_3',     text:'Sopravvivi a 3 boss',                     target:3,   type:'boss_total',    icon:'👾'},
+];
+
+// Genera 5 obiettivi casuali ma deterministici per mese+anno
+function getSeasonGoals(month, year){
+  const seed = month * 1000 + year;
+  // PRNG semplice basato su seed
+  function seededRand(s){ let x=Math.sin(s)*10000; return x-Math.floor(x); }
+  
+  // Seleziona 5 obiettivi senza ripetere lo stesso tipo
+  const used_types = [];
+  const selected = [];
+  let i = 0;
+  while(selected.length < 5 && i < 200){
+    const idx = Math.floor(seededRand(seed + i*37 + 7) * SEASON_GOAL_POOL.length);
+    const goal = SEASON_GOAL_POOL[idx];
+    // Evita lo stesso tipo di obiettivo due volte
+    if(!used_types.includes(goal.type)){
+      used_types.push(goal.type);
+      selected.push(goal);
+    }
+    i++;
+  }
+  return selected;
+}
+
 function showSeasonScreen(){
   const m = getCurrentSeasonMonth();
   const orb = getCurrentSeasonOrb();
@@ -10458,11 +10689,8 @@ function showSeasonScreen(){
   const el = document.getElementById('seasonContent');
   if(!el){ show('seasonOverlay'); return; }
 
-  const goals = [
-    {id:'sg1', text:'Gioca 5 partite questo mese', target:5,  type:'games_total'},
-    {id:'sg2', text:'Raggiungi il livello 10',      target:10, type:'level_max'},
-    {id:'sg3', text:'Fai 20 near miss totali',      target:20, type:'nearmiss_total'},
-  ];
+  // Obiettivi casuali — cambiano ogni mese, deterministici per tutto il mese
+  const goals = getSeasonGoals(m, new Date().getFullYear());
 
   const monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
   const monthName = monthNames[m-1];
@@ -10471,14 +10699,14 @@ function showSeasonScreen(){
     const prog = parseInt(localStorage.getItem('zivve_season_prog_'+g.id)||'0');
     const pct = Math.min(100,Math.round(prog/g.target*100));
     const done = prog >= g.target;
-    return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba('+
-      (done?'74,240,208':'255,255,255')+','+(done?'.3':'.06')+');border-radius:8px;padding:12px 14px;margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:6px">'
-      +'<span style="font-size:10px;color:rgba(200,220,255,.7)">'+(i+1)+'. '+g.text+'</span>'
-      +'<span style="font-size:10px;color:'+(done?'#4af0d0':'rgba(200,220,255,.4)')+'">'+pct+'%</span>'
+    return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba('
+      +(done?'74,240,208':'255,255,255')+','+(done?'.3':'.06')+');border-radius:8px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<span style="font-size:10px;color:rgba(200,220,255,.7)">'+(g.icon?g.icon+' ':'')+g.text+'</span>'
+      +'<span style="font-size:10px;color:'+(done?'#4af0d0':'rgba(200,220,255,.4)')+'">'+prog+'/'+g.target+'</span>'
       +'</div>'
-      +'<div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px">'
-      +'<div style="height:100%;width:'+pct+'%;background:'+(done?'#4af0d0':'rgba(74,240,208,.4)')+';border-radius:2px"></div>'
+      +'<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px">'
+      +'<div style="height:100%;width:'+pct+'%;background:'+(done?'linear-gradient(90deg,#4af0d0,#88ffdd)':'rgba(74,240,208,.35)')+';border-radius:2px"></div>'
       +'</div></div>';
   }).join('');
 
@@ -10492,8 +10720,14 @@ function showSeasonScreen(){
     +'<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px">'
     +'<div style="width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,'+orb.color+',#003344);box-shadow:0 0 30px '+orb.glow+';margin-bottom:10px"></div>'
     +'<div style="font-size:13px;color:#fff;letter-spacing:.1em;font-weight:700;margin-bottom:4px">'+orb.name+'</div>'
-    +'<div style="font-size:9px;color:rgba(200,220,255,.4);text-align:center">'+orb.desc+'</div>'
-    +(owned?'<div style="margin-top:8px;font-size:10px;color:#4af0d0;letter-spacing:.15em">✓ SFERA SBLOCCATA</div>':'')
+    +'<div style="font-size:9px;color:rgba(200,220,255,.4);text-align:center;margin-bottom:8px">Disponibile solo questo mese</div>'
+    +(owned
+      ?'<div style="background:rgba(74,240,208,.08);border:1px solid rgba(74,240,208,.25);border-radius:8px;padding:10px 14px;text-align:center;max-width:260px">'
+       +'<div style="font-size:9px;color:#4af0d0;letter-spacing:.15em;margin-bottom:4px">✓ POTERE ATTIVO</div>'
+       +'<div style="font-size:11px;color:rgba(200,220,255,.8)">'+orb.powerDesc+'</div>'
+       +'</div>'
+      :'<div style="font-size:10px;color:rgba(200,220,255,.35);text-align:center;font-style:italic">Completa gli obiettivi per sbloccare il potere</div>'
+    )
     +'</div>'
     +'<div style="font-size:9px;color:rgba(200,220,255,.5);letter-spacing:.2em;margin-bottom:10px">OBIETTIVI DEL MESE</div>'
     +rows
@@ -10801,6 +11035,33 @@ function showStatsScreen(){
 }
 
 
+function claimBPReward(r, claimKey, parentDiv){
+  localStorage.setItem(claimKey, '1');
+  if(r.type==='frags'){
+    addFragments(r.value);
+    showMsg('💎 +'+r.value+' frammenti!','#ffd700');
+  } else if(r.type==='orb'){
+    selectOrbById(r.value);
+    localStorage.setItem('zivve_orb_owned_'+r.value,'1');
+    showMsg('⭐ Sfera BP sbloccata!','#ffd700');
+  } else if(r.type==='xp_mult'){
+    localStorage.setItem('zivve_bp_xp_mult', r.value);
+    showMsg('✨ XP x'+r.value+' attivato!','#4af0d0');
+  } else if(r.type==='bg_theme'){
+    localStorage.setItem('zivve_bp_bg_unlocked','1');
+    showMsg('🎨 Tema BP sbloccato!','#4af0d0');
+  } else if(r.type==='badge'){
+    localStorage.setItem('zivve_bp_badge','1');
+    showMsg('🏅 Badge BP sbloccato!','#ffd700');
+  } else if(r.type==='legendary'){
+    localStorage.setItem('zivve_orb_owned_bp_legendary','1');
+    localStorage.setItem('zivve_bp_elite_title','1');
+    showMsg('🌟 SFERA LEGGENDARIA + TITOLO BP ELITE!','#ffd700');
+    flashScreen('rgba(255,215,0,.3)');
+  }
+  // Ricarica la schermata
+  if(parentDiv){ parentDiv.remove(); showBattlePassScreen(); }
+}
 </script>
 </body>
 </html>
