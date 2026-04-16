@@ -49,7 +49,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #shareCanvas{display:none}
 
 /* ── UI ── */
-#ui{position:fixed;inset:0;pointer-events:none;z-index:10}
+#ui{position:fixed;inset:0;pointer-events:none;z-index:10;display:none}
 #scoreWrap{position:absolute;top:72px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
 #scoreLbl{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase}
 #scoreVal{font-family:'Syncopate',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
@@ -72,8 +72,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #msgText{font-family:'Syncopate',sans-serif;font-size:clamp(13px,4vw,22px);font-weight:900;letter-spacing:.1em;white-space:nowrap}
 #survivalBar{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
 #survivalFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:background .5s}
-#dangerRing{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;border-radius:50%;pointer-events:none;transition:all .3s;border:2px solid transparent}
-#dangerRing.active{border-color:rgba(255,34,68,.4);box-shadow:0 0 20px rgba(255,34,68,.3),inset 0 0 20px rgba(255,34,68,.1)}
 /* In-game controls bar */
 #gameControls{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:all;z-index:15}
 .ctrl-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0}
@@ -393,7 +391,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   </div>
   <div id="msgWrap"><div id="msgText"></div></div>
   <div id="survivalBar"><div id="survivalFill"></div></div>
-  <div id="dangerRing"></div>
   <button id="langBtn" onclick="show('langOverlay')">🌐 <span id="langCurrent">EN</span></button>
   <div class="ad-slot" data-i18n-ad>Advertisement</div>
 </div>
@@ -524,11 +521,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <!-- Stagioni -->
     <button class="menu-btn" onclick="showSeasonScreen()">
       <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span><span>Stagioni</span>
-    </button>
-
-    <!-- Badge & Achievement -->
-    <button class="menu-btn" onclick="showProfile();setTimeout(function(){switchProfileTab('ach');},200)">
-      <span class="micon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4af0d0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><span>Badge</span>
     </button>
 
     <!-- 10. Regolamento -->
@@ -686,7 +678,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 </div>
 
 <!-- PROFILE -->
-<div class="overlay hidden" id="profileOverlay" style="display:none">
+<div class="overlay hidden" id="profileOverlay" style="display:none;justify-content:flex-start;padding-top:24px">
 
   <!-- TABS -->
   <div style="display:flex;gap:0;width:100%;max-width:340px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:20px">
@@ -1135,7 +1127,19 @@ const ORB_CATALOG = [
   {id:'s_summer', cat:'seasonal',name:'☀️ Summer',  price:'€1.49', season:'summer',  draw:(c,x,y,r)=>drawOrbSeason(c,x,y,r,'summer'), power:'heatwave', powerDesc:'Punteggio +40% quando la velocità è al massimo'},
   {id:'s_autumn', cat:'seasonal',name:'🍂 Autumn',  price:'€1.49', season:'autumn',  draw:(c,x,y,r)=>drawOrbSeason(c,x,y,r,'autumn'), power:'harvest', powerDesc:'Area di raccolta power-up +60% — quasi automatico'},
   {id:'s_winter', cat:'seasonal',name:'❄️ Winter',  price:'€1.49', season:'winter',  draw:(c,x,y,r)=>drawOrbSeason(c,x,y,r,'winter'), power:'freeze_pulse', powerDesc:'Premi due volte veloce: congela tutti i nemici per 3s (1x ogni 45s)'},
-
+  // ── SFERE STAGIONALI MENSILI (sbloccabili con obiettivi) ──
+  {id:'season_01', cat:'season_monthly', month:1, name:'Ghiaccio Polare', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,1), power:'slow_enemies', powerDesc:'Nemici -10% velocita'},
+  {id:'season_02', cat:'season_monthly', month:2, name:'Cuore Cremisi', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,2), power:'extra_life', powerDesc:'Inizi con 4 vite invece di 3'},
+  {id:'season_03', cat:'season_monthly', month:3, name:'Rinascita Verde', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,3), power:'double_nearmiss', powerDesc:'Near miss valgono il doppio dei punti'},
+  {id:'season_04', cat:'season_monthly', month:4, name:"Pioggia d'Oro", price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,4), power:'double_frags', powerDesc:'Frammenti x2 a fine partita'},
+  {id:'season_05', cat:'season_monthly', month:5, name:'Fiore di Maggio', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,5), power:'first_shield', powerDesc:'Il primo colpo in partita viene assorbito'},
+  {id:'season_06', cat:'season_monthly', month:6, name:'Solstizio', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,6), power:'xp_boost', powerDesc:'XP +25% per tutto il mese'},
+  {id:'season_07', cat:'season_monthly', month:7, name:"Fuoco d'Estate", price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,7), power:'fast_combo', powerDesc:'Combo sale con 2 near miss invece di 3'},
+  {id:'season_08', cat:'season_monthly', month:8, name:'Tramonto Blu', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,8), power:'wide_pd', powerDesc:'Finestra Perfect Dodge piu ampia'},
+  {id:'season_09', cat:'season_monthly', month:9, name:"Foglia d'Ambra", price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,9), power:'boss_time', powerDesc:'Boss dura 5 secondi in piu'},
+  {id:'season_10', cat:'season_monthly', month:10, name:'Lanterna Nera', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,10), power:'nm_bonus', powerDesc:'+50 punti per ogni near miss'},
+  {id:'season_11', cat:'season_monthly', month:11, name:"Nebbia d'Argento", price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,11), power:'long_invincible', powerDesc:'Invincibilita 5s invece di 3s dopo un colpo'},
+  {id:'season_12', cat:'season_monthly', month:12, name:'Stella Glaciale', price:0, draw:(c,x,y,r)=>drawOrbSeasonMonthly(c,x,y,r,12), power:'score_bonus', powerDesc:'Punteggio finale +10%'},
   // ── FESTIVITÀ (disponibili solo nella finestra dell'evento) ──
   {id:'ev_natale',     cat:'festivity',name:'🎄 Christmas',  price:'€2.49', eventId:'christmas', draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'christmas'), power:'christmas_star', powerDesc:'Stella cadente ogni 20s: schivala per +300 pt oppure toccala per +1 vita'},
   {id:'ev_pasqua',     cat:'festivity',name:'🐣 Easter',     price:'€2.49', eventId:'easter',    draw:(c,x,y,r)=>drawOrbFestivity(c,x,y,r,'easter'), power:'easter_egg', powerDesc:'1 nemico su 5 è un uovo dorato — schivalo da vicino per +1 vita (max 5)'},
@@ -1171,6 +1175,7 @@ const CAT_LABELS = {
   glitter:  {label:'✴ Glitter',    color:'#ffccff'},
   nations:  {label:'🌍 Nazioni',   color:'#88ccff'},
   seasonal: {label:'🌿 Stagioni',  color:'#88dd88'},
+  season_monthly: {label:'🗓 Sfere del Mese', color:'#88dd88'},
   festivity:{label:'🎉 Festività', color:'#ff8866'},
   earned:   {label:'🏆 Guadagnate',color:'var(--gold)'},
   bp:       {label:'⭐ Battle Pass', color:'#ffd700'},
@@ -1293,7 +1298,7 @@ function getFestivityBadge(orb){
 
 function buildShop(){
   const el=document.getElementById('orbCategories');
-  const cats=['free','fluo','smile','gold','glitter','nations','seasonal','festivity','earned','bp','bp_legendary'];
+  const cats=['free','fluo','smile','gold','glitter','nations','seasonal','season_monthly','festivity','earned','bp','bp_legendary'];
   el.innerHTML=cats.map(cat=>{
     const orbs=ORB_CATALOG.filter(o=>o.cat===cat);
     if(!orbs.length)return '';
@@ -1301,7 +1306,9 @@ function buildShop(){
     // Check if any festivity orb in this category is currently active (event window open)
     const hasActiveEvent=cat==='festivity'&&orbs.some(o=>getFestivityWindow(o.eventId)&&!isOwned(o.id));
     const earnedDesc=cat==='earned'?`<div style="font-size:9px;color:var(--dim);letter-spacing:.08em;margin-bottom:6px;line-height:1.4">Sblocca giocando — il progresso si aggiorna automaticamente</div>`:
-      cat==='bp'?`<div style="font-size:9px;color:rgba(255,215,0,.6);letter-spacing:.08em;margin-bottom:6px;line-height:1.4">⭐ Sbloccate con il Battle Pass — una per mese, esclusiva</div>`:'';
+      cat==='bp'?`<div style="font-size:9px;color:rgba(255,215,0,.6);letter-spacing:.08em;margin-bottom:6px;line-height:1.4">⭐ Sbloccate con il Battle Pass — una per mese, esclusiva</div>`:
+      cat==='season_monthly'?`<div style="font-size:9px;color:rgba(136,221,136,.6);letter-spacing:.08em;margin-bottom:6px;line-height:1.4">🗓 Completa gli obiettivi mensili in Stagioni per sbloccarle</div>`:
+      '';
     return `<div class="${hasActiveEvent?'festivity-event-active':''}">
       <div class="orb-cat-title" style="color:${cl.color};${hasActiveEvent?'margin-top:18px':''}">${cl.label}</div>
       ${earnedDesc}
@@ -1322,6 +1329,16 @@ function buildShop(){
         let badge,cardClass,cardClickable=true;
         if(selected){ badge='<span class="orb-badge selected-b">✓</span>'; cardClass=' selected'; }
         else if(owned){ badge='<span class="orb-badge owned">'+T('owned')+'</span>'; cardClass=''; }
+        else if(orb.cat==='season_monthly'){
+          const sMonth=orb.month;
+          const sYear=new Date().getFullYear();
+          const curMonth=new Date().getMonth()+1;
+          const isOwned2=localStorage.getItem('zivve_season_orb_'+sMonth+'_'+sYear)==='1';
+          const isCurrent=sMonth===curMonth;
+          if(isOwned2){ badge='<span class="orb-badge owned">'+T('owned')+'</span>'; cardClass=''; }
+          else if(isCurrent){ badge='<span class="orb-badge" style="background:rgba(74,240,208,.15);color:#4af0d0;font-size:7px">🗓 MESE</span>'; cardClass=''; cardClickable=false; }
+          else { badge='<span class="orb-badge" style="background:rgba(255,255,255,.06);color:rgba(200,220,255,.3);font-size:6px">MESE '+sMonth+'</span>'; cardClass=' locked'; cardClickable=false; }
+        }
         else if(orb.cat==='bp'){
           const bpMonth=getCurrentSeasonMonth();
           const bpYear=new Date().getFullYear();
@@ -1506,6 +1523,183 @@ function drawOrbBP(ctx,x,y,r,month){
   ctx.beginPath(); ctx.arc(x-r*.28,y-r*.3,r*.18,0,Math.PI*2); ctx.fill();
 }
 
+
+
+function drawOrbSeasonMonthly(ctx, x, y, r, month){
+  const orb = typeof SEASON_ORBS !== 'undefined' ? SEASON_ORBS.find(o=>o.month===month) : null;
+  const col = orb ? orb.color : '#4af0d0';
+  const t = Date.now()/1000;
+
+  // Palette per ogni mese — ogni sfera ha carattere visivo unico
+  const palettes = {
+    1:  {c0:'#e8f4ff', c1:'#a8d8ff', c2:'#1a4466', pattern:'crystals'},   // Ghiaccio
+    2:  {c0:'#ffccdd', c1:'#ff6688', c2:'#660022', pattern:'hearts'},       // Cremisi
+    3:  {c0:'#ccffcc', c1:'#66dd66', c2:'#114411', pattern:'leaves'},       // Verde
+    4:  {c0:'#fff8aa', c1:'#ffd700', c2:'#664400', pattern:'coins'},        // Oro
+    5:  {c0:'#ffddee', c1:'#ffaacc', c2:'#551133', pattern:'petals'},       // Rosa
+    6:  {c0:'#ffffaa', c1:'#ffcc44', c2:'#553300', pattern:'rays'},         // Sole
+    7:  {c0:'#ffddaa', c1:'#ff6633', c2:'#441100', pattern:'flames'},       // Fuoco
+    8:  {c0:'#aaddff', c1:'#4488ff', c2:'#001155', pattern:'waves'},        // Blu
+    9:  {c0:'#ffddaa', c1:'#cc7722', c2:'#331100', pattern:'leaves_fall'},  // Ambra
+    10: {c0:'#ffaa88', c1:'#ff4400', c2:'#220000', pattern:'sparks'},       // Nera
+    11: {c0:'#dddddd', c1:'#aaaaaa', c2:'#222233', pattern:'fog'},          // Argento
+    12: {c0:'#ddeeff', c1:'#aaddff', c2:'#001133', pattern:'stars'},        // Glaciale
+  };
+  const p = palettes[month] || palettes[1];
+
+  // Alone esterno pulsante
+  const pulse = 0.7 + 0.3*Math.sin(t*1.8 + month*0.5);
+  const ag = ctx.createRadialGradient(x,y,r*0.4,x,y,r*2.1);
+  ag.addColorStop(0, col.replace(/^#(..)(..)(..)$/, (m,r2,g2,b2)=>`rgba(${parseInt(r2,16)},${parseInt(g2,16)},${parseInt(b2,16)},${0.22*pulse})`)||'rgba(74,240,208,0.18)');
+  ag.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=ag; ctx.beginPath(); ctx.arc(x,y,r*2.1,0,Math.PI*2); ctx.fill();
+
+  // Corpo sfera — gradiente radiale profondo
+  const g = ctx.createRadialGradient(x-r*.32,y-r*.35,r*.05,x,y,r);
+  g.addColorStop(0, p.c0);
+  g.addColorStop(0.35, p.c1);
+  g.addColorStop(0.75, p.c2);
+  g.addColorStop(1, '#000000');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+
+  // Pattern interno specifico per sfera
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.clip();
+
+  if(p.pattern==='crystals'){
+    // Ghiaccio: raggi cristallini
+    for(let i=0;i<6;i++){
+      const a=(Math.PI/3)*i + t*0.15;
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=r*.08;
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r); ctx.stroke();
+    }
+    // Cristalli alle punte
+    for(let i=0;i<6;i++){
+      const a=(Math.PI/3)*i + t*0.15;
+      const cx2=x+Math.cos(a)*r*.7, cy2=y+Math.sin(a)*r*.7;
+      ctx.fillStyle='rgba(255,255,255,0.5)';
+      ctx.beginPath(); ctx.arc(cx2,cy2,r*.07,0,Math.PI*2); ctx.fill();
+    }
+  } else if(p.pattern==='hearts'){
+    // Cremisi: piccoli cuori
+    ctx.font=(r*.35)+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.globalAlpha=0.5; ctx.fillText('♥',x,y+r*.1);
+    ctx.globalAlpha=0.25; ctx.font=(r*.2)+'px serif';
+    ctx.fillText('♥',x-r*.4,y-r*.3); ctx.fillText('♥',x+r*.35,y+r*.4);
+    ctx.globalAlpha=1;
+  } else if(p.pattern==='leaves' || p.pattern==='leaves_fall'){
+    // Verde/Ambra: foglie
+    const leafCol = p.pattern==='leaves_fall'?'rgba(255,180,50,0.4)':'rgba(80,200,80,0.4)';
+    for(let i=0;i<4;i++){
+      const a=(Math.PI*2/4)*i+0.5+t*0.1;
+      const lx=x+Math.cos(a)*r*.4, ly=y+Math.sin(a)*r*.4;
+      ctx.fillStyle=leafCol;
+      ctx.beginPath(); ctx.ellipse(lx,ly,r*.2,r*.1,a,0,Math.PI*2); ctx.fill();
+    }
+  } else if(p.pattern==='coins'){
+    // Oro: monete/cerchi concentrici
+    for(let i=1;i<=3;i++){
+      ctx.strokeStyle=`rgba(255,255,150,${0.15+i*0.08})`; ctx.lineWidth=r*.05;
+      ctx.beginPath(); ctx.arc(x,y,r*(0.3+i*0.18),0,Math.PI*2); ctx.stroke();
+    }
+    ctx.fillStyle='rgba(255,240,100,0.35)';
+    ctx.beginPath(); ctx.arc(x,y,r*.2,0,Math.PI*2); ctx.fill();
+  } else if(p.pattern==='petals'){
+    // Rosa: petali
+    for(let i=0;i<5;i++){
+      const a=(Math.PI*2/5)*i + t*0.12;
+      const px2=x+Math.cos(a)*r*.4, py2=y+Math.sin(a)*r*.4;
+      ctx.fillStyle='rgba(255,150,180,0.35)';
+      ctx.beginPath(); ctx.ellipse(px2,py2,r*.22,r*.12,a,0,Math.PI*2); ctx.fill();
+    }
+  } else if(p.pattern==='rays'){
+    // Sole: raggi
+    for(let i=0;i<8;i++){
+      const a=(Math.PI/4)*i + t*0.2;
+      ctx.fillStyle='rgba(255,230,80,0.2)';
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.arc(x,y,r,a-0.12,a+0.12);
+      ctx.closePath(); ctx.fill();
+    }
+  } else if(p.pattern==='flames'){
+    // Fuoco: fiamme ondulate
+    for(let i=0;i<3;i++){
+      const ox=(i-1)*r*.25;
+      ctx.fillStyle=`rgba(255,${120+i*40},0,0.3)`;
+      ctx.beginPath();
+      ctx.moveTo(x+ox,y+r*.5);
+      ctx.quadraticCurveTo(x+ox+r*.15*Math.sin(t+i),y, x+ox,y-r*.4);
+      ctx.quadraticCurveTo(x+ox-r*.15,y, x+ox,y+r*.5);
+      ctx.fill();
+    }
+  } else if(p.pattern==='waves'){
+    // Blu: onde
+    for(let i=0;i<3;i++){
+      ctx.strokeStyle=`rgba(150,200,255,${0.2+i*0.08})`; ctx.lineWidth=r*.08;
+      ctx.beginPath();
+      for(let xi=-r;xi<=r;xi+=2){
+        const yi=Math.sin((xi/r)*Math.PI*2 + t*1.5 + i)*r*.15 + (i-1)*r*.22;
+        xi===-r ? ctx.moveTo(x+xi,y+yi) : ctx.lineTo(x+xi,y+yi);
+      }
+      ctx.stroke();
+    }
+  } else if(p.pattern==='sparks'){
+    // Nera: scintille
+    for(let i=0;i<5;i++){
+      const a=(Math.PI*2/5)*i + t*0.3;
+      const sr=r*(0.3+0.3*Math.sin(t*2+i*1.3));
+      ctx.strokeStyle='rgba(255,120,50,0.4)'; ctx.lineWidth=r*.04;
+      ctx.beginPath();
+      ctx.moveTo(x+Math.cos(a)*sr*.3, y+Math.sin(a)*sr*.3);
+      ctx.lineTo(x+Math.cos(a)*sr, y+Math.sin(a)*sr);
+      ctx.stroke();
+    }
+  } else if(p.pattern==='fog'){
+    // Argento: nebbia
+    for(let i=0;i<3;i++){
+      const fg=ctx.createRadialGradient(x+(i-1)*r*.3,y+(i-1)*r*.2,0,x+(i-1)*r*.3,y+(i-1)*r*.2,r*.5);
+      fg.addColorStop(0,'rgba(220,220,230,0.25)'); fg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(x+(i-1)*r*.3,y+(i-1)*r*.2,r*.5,0,Math.PI*2); ctx.fill();
+    }
+  } else if(p.pattern==='stars'){
+    // Glaciale: stelline
+    for(let i=0;i<4;i++){
+      const a=(Math.PI*2/4)*i + t*0.08;
+      const sx=x+Math.cos(a)*r*.45, sy=y+Math.sin(a)*r*.45;
+      ctx.fillStyle='rgba(200,230,255,0.55)';
+      ctx.font=(r*.22)+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('✦',sx,sy);
+    }
+  }
+
+  ctx.restore();
+
+  // Bordo lucido
+  const border = ctx.createLinearGradient(x-r,y-r,x+r,y+r);
+  border.addColorStop(0,'rgba(255,255,255,0.5)');
+  border.addColorStop(0.5,'rgba(255,255,255,0.05)');
+  border.addColorStop(1,'rgba(0,0,0,0.3)');
+  ctx.strokeStyle=border; ctx.lineWidth=r*.06;
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.stroke();
+
+  // Specular principale
+  ctx.fillStyle='rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.arc(x-r*.27,y-r*.3,r*.17,0,Math.PI*2); ctx.fill();
+  // Specular secondario
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.beginPath(); ctx.arc(x+r*.22,y+r*.22,r*.1,0,Math.PI*2); ctx.fill();
+}
+
+function shadeColor(col, amt){
+  try{
+    const num=parseInt(col.replace('#',''),16);
+    const r=Math.min(255,Math.max(0,(num>>16)+amt));
+    const g=Math.min(255,Math.max(0,((num>>8)&0xff)+amt));
+    const b=Math.min(255,Math.max(0,(num&0xff)+amt));
+    return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }catch(e){return col;}
+}
 
 // ══════════════════════════════════════
 //  FESTIVITY ORB DRAW
@@ -3518,6 +3712,7 @@ function startGame(seed){
   // Avvia registrazione video
   setTimeout(startFullGameRecording, 200);
   document.getElementById('c').style.display='block';
+  document.getElementById('ui').style.display='block';
   setTimeout(startGameRecording,500); // avvia registrazione
   if(G.level===1) setTimeout(detectPerformance,1000);
 }
@@ -3731,6 +3926,7 @@ function showStart(){updateXPBar();try{if(window.updateDailyGoalWidget)updateDai
   const _fc=document.getElementById('fragsMenuCount');
   if(_fc){ const f=getFragments(); _fc.textContent=f>0?'💎'+f:''; }
   hideAll();
+  document.getElementById('ui').style.display='none';
   show('startOverlay');
   // Ferma registrazione PRIMA di nascondere il canvas
   stopFullGameRecording();
@@ -3768,6 +3964,8 @@ function triggerPerfectDodge(px,py){
   G.dir*=-1;
   // bp_impulso: scudo ogni 5 inversioni
   if(G&&G.running&&bpHasPower('bp_impulso')){G._bpImpulsoCount=(G._bpImpulsoCount||0)+1;if(G._bpImpulsoCount>=5){G._bpImpulsoCount=0;G.orbShieldFrames=120;showMsg('🔵 IMPULSO — Scudo!','#2266ff');}}if(G.adapt)G.adapt.framesSinceTap=0;
+  // bp_aurora: dopo Perfect Dodge → 1.5s invincibilità
+  if(G&&G.running&&bpHasPower('bp_aurora')){G.invincible=Math.max(G.invincible||0,90);flashScreen('rgba(200,240,255,.18)');}
   G.slowMo=90;
   G.perfectDodgeCount=(G.perfectDodgeCount||0)+1;
   // Moltiplicatore: x1 → x2 → x3 (cap — era x8, troppo exploit)
@@ -4647,7 +4845,7 @@ function getRaceMultiplier(){
 // ── MASTER RAF — un solo loop per tutto ──
 let _masterRaf=null;
 function masterLoop(){
-  if(G&&G.running){update();draw();}
+  if(G&&G.running&&!window._introActive){update();draw();}
   _masterRaf=requestAnimationFrame(masterLoop);
 }
 function loop(){} // alias vuoto — non più usato direttamente
@@ -4954,7 +5152,7 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
     G.adapt.nearMissAccum=(G.adapt.nearMissAccum||0)+nearCount;
     if(G.frameCount%180===0){if(G.adapt.nearMissAccum<3)G.speed=Math.min(G.speed*1.008,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL*1.3+1.5);else if(G.adapt.nearMissAccum>15)G.speed=Math.max(G.speed*.994,BASE_SPEED+(G.level-1)*SPEED_PER_LEVEL*.8);G.adapt.nearMissAccum=0;}
     const anyClose=G.enemies.some(e=>Math.hypot(px2-e.x,py2-e.y)<ORBIT_R*.3);
-    if(anyClose!==G.adapt.wasClose){G.adapt.wasClose=anyClose;const dr=document.getElementById('dangerRing');const sz=ORBIT_R*2.2;dr.style.width=sz+'px';dr.style.height=sz+'px';dr.style.marginLeft=(-sz/2)+'px';dr.style.marginTop=(-sz/2)+'px';dr.classList.toggle('active',anyClose);}
+    if(anyClose!==G.adapt.wasClose){G.adapt.wasClose=anyClose;}
   }
   tutUpdate();
   if(audioCtx)setAmbientTension(G.level);
@@ -5259,6 +5457,7 @@ function registerHit(px,py,e){
         requestAnimationFrame(deathAnim);
       } else {
         // MORTE DRAMMATICA: freeze 600ms + silenzio
+        const _dc=document.getElementById('c');if(_dc)_dc.style.display='none';
         stopGameMusic();stopZivveOST();
         G.running=false; // blocca il loop
         // Esplosione finale massiccia
@@ -6918,11 +7117,22 @@ function runIntro(){
 function hideIntro(){
   const el=document.getElementById('introOverlay');
   if(!el) return;
+  window._introActive=true;
+  // Nascondi subito il canvas di gioco (potrebbe essere rimasto visibile dopo deathAnim)
+  const _gc=document.getElementById('c');
+  if(_gc) _gc.style.display='none';
+  if(_gc) _gc.style.zIndex='-1';
   el.style.opacity='0';
   setTimeout(()=>{
     el.style.display='none';
+    window._introActive=false;
+    if(_gc) _gc.style.zIndex='';
     // Non sovrascrivere il gioco se è già in corso
     if(window._inGame) return;
+    // Overlay nero di transizione per evitare flash
+    const _cover=document.createElement('div');
+    _cover.style.cssText='position:fixed;inset:0;background:#000;z-index:499;pointer-events:none';
+    document.body.appendChild(_cover);
     // Mostra menu principale dopo l'intro
     show('startOverlay');
     if(!localStorage.getItem('drift_name_set')){
@@ -6930,6 +7140,12 @@ function hideIntro(){
     }
     try{startZivveMenuTheme();}catch(e){}
     updateXPBar();
+    // Rimuovi overlay nero dopo 2 frame
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      _cover.style.transition='opacity 0.2s';
+      _cover.style.opacity='0';
+      setTimeout(()=>_cover.remove(),250);
+    }));
   },1000);
   localStorage.setItem('zivve_intro_seen','1');
 }
@@ -7802,6 +8018,7 @@ async function endGame(){
   if(_raceMode) ghostSaveIfRecord();
   setTimeout(()=>{if(window._pendingAch&&window._pendingAch.length){const b=window._pendingAch.splice(0);b.forEach((a,i)=>setTimeout(()=>_displayAchToast(a),(i+1)*1500));}},500);
   document.getElementById('c').style.display='none';
+  document.getElementById('ui').style.display='none';
   trackEvent('game_end',{score:G.score,level:G.level,time:Math.floor(G.frameCount/60)});
   // score_bonus stagionale +10%
   if(seasonHasPower('score_bonus')) G.score=Math.floor(G.score*1.10);
@@ -7898,7 +8115,7 @@ async function endGame(){
   updateXPBar();
   // Aggiorna pulsante replay
   const _rbtn=document.getElementById('replayBtn');
-  if(_rbtn) _rbtn.style.opacity=hasFullReplay()?'1':'0.3';
+  if(_rbtn) _rbtn.style.opacity=(hasFullReplay()||(replayBuffer&&replayBuffer.length>0))?'1':'0.3';
   // Bounce back banner
   const _bbEl=document.getElementById('bounceBackBanner');
   if(_bbEl){
@@ -9042,6 +9259,9 @@ function switchProfileTab(tab){
   // Reset scroll all'inizio quando si cambia tab
   const ov = document.getElementById('profileOverlay');
   if(ov) ov.scrollTop = 0;
+  // Reset scroll
+  const _ov=document.getElementById('profileOverlay');
+  if(_ov) _ov.scrollTop=0;
   // Popola achievement quando si apre la tab
   if(tab==='ach') buildAchievementPanel();
 }
@@ -9422,7 +9642,8 @@ function recordReplayFrame(){
   replayBuffer.push({
     angle:G.angle,dir:G.dir,
     enemies:G.enemies.map(e=>({x:e.x,y:e.y,type:e.type.key,r:e.type.rMult,pp:e.pulsePhase,life:e.life})),
-    particles:G.particles.slice(-30).map(p=>({x:p.x,y:p.y,life:p.life,color:p.color,r:p.r})),
+    particles:G.particles.slice(-20).map(p=>({x:p.x,y:p.y,life:p.life,color:p.color,r:p.r})),
+    trails:G.trails.slice(-15).map(t=>({x:t.x,y:t.y})),
     score:G.score,level:G.level,lives:G.lives,
     orb:selectedOrbId,
     pu:G.activePowerup?G.activePowerup.key:null,
@@ -9599,66 +9820,202 @@ function showFullReplay(){
 }
 
 function showReplay(){
-  // Se il recorder è ancora attivo, aspetta
-  if(_fullRecActive){
-    showMsg('⏳ Elaborazione replay...','#4af0d0');
-    stopFullGameRecording();
-    setTimeout(showReplay,800);
+  // Usa sempre il replay canvas — il video MediaRecorder non funziona su mobile
+  if(!replayBuffer||!replayBuffer.length){
+    showMsg('Gioca una partita per vedere il replay!','#ff6633');
     return;
   }
-  // Usa il video reale se disponibile
-  if(hasFullReplay()){
-    showFullReplay();
-    return;
-  }
-  // Fallback al replay semplificato se nessun video disponibile
-  if(!replayBuffer.length){showMsg('Gioca una partita per vedere il replay!','#ff6633');return;}
   const rc=document.getElementById('replayCanvas');
   const rui=document.getElementById('replayUI');
-  rc.width=W;rc.height=H;rc.style.display='block';
+  if(!rc||!rui){showMsg('Replay non disponibile','#ff6633');return;}
+  clearTimeout(replayRaf);
+  const rW = (W&&W>0) ? W : window.innerWidth;
+  const rH = (H&&H>0) ? H : window.innerHeight;
+  rc.width=rW; rc.height=rH;
+  rc.style.display='block';
   rui.classList.add('show');
   replayCtx=rc.getContext('2d');
   playReplayFrames(0);
 }
 
 function playReplayFrames(i){
-  if(i>=replayBuffer.length){stopReplay();return;}
+  if(!replayBuffer||i>=replayBuffer.length){stopReplay();return;}
   const f=replayBuffer[i];
-  const ctx2=replayCtx;
-  const W2=replayCanvas.width,H2=replayCanvas.height;
-  const cx=W2/2,cy=H2/2,orb=Math.min(W2,H2)*.32;
-  // Draw background
-  ctx2.fillStyle='#03030a';ctx2.fillRect(0,0,W2,H2);
-  // Center dot
-  const cg=ctx2.createRadialGradient(cx,cy,0,cx,cy,16);
-  cg.addColorStop(0,'rgba(74,240,208,.7)');cg.addColorStop(1,'rgba(74,240,208,0)');
-  ctx2.fillStyle=cg;ctx2.beginPath();ctx2.arc(cx,cy,16,0,Math.PI*2);ctx2.fill();
-  // Player
-  const px=cx+Math.cos(f.angle)*orb,py=cy+Math.sin(f.angle)*orb,r=orb*.072;
-  const aura=ctx2.createRadialGradient(px,py,0,px,py,r*4);
-  aura.addColorStop(0,'rgba(74,240,208,.3)');aura.addColorStop(1,'rgba(74,240,208,0)');
-  ctx2.fillStyle=aura;ctx2.beginPath();ctx2.arc(px,py,r*4,0,Math.PI*2);ctx2.fill();
-  getOrb(f.orb||'cyan').draw(ctx2,px,py,r);
-  // Enemies
-  for(const e of f.enemies){
-    const er=orb*e.r*(1+.1*Math.sin(e.life*.17+e.pp));
-    const eg=ctx2.createRadialGradient(e.x,e.y,0,e.x,e.y,er*4);
-    eg.addColorStop(0,'rgba(255,34,68,.4)');eg.addColorStop(1,'rgba(255,0,0,0)');
-    ctx2.fillStyle=eg;ctx2.beginPath();ctx2.arc(e.x,e.y,er*4,0,Math.PI*2);ctx2.fill();
-    ctx2.fillStyle='#ff3355';ctx2.beginPath();ctx2.arc(e.x,e.y,er,0,Math.PI*2);ctx2.fill();
+  const rc2=document.getElementById('replayCanvas');
+  if(!rc2){stopReplay();return;}
+  const ctx2=rc2.getContext('2d');
+  const W2=rc2.width, H2=rc2.height;
+  const CX2=W2/2, CY2=H2/2;
+  const ORBT=Math.min(W2,H2)*.32;
+  const t=Date.now()/1000;
+
+  // ═══════════════════════════════════════════
+  // SFONDO — identico a drawBg()
+  // ═══════════════════════════════════════════
+  const hue=(f.level>0?(30*(f.level-1))%360:200);
+  const sat=f.level?Math.min(60,20+(f.level*3)):20;
+  const bg=ctx2.createRadialGradient(CX2,CY2,0,CX2,CY2,Math.max(W2,H2)*.85);
+  bg.addColorStop(0,`hsla(${hue},${sat}%,8%,1)`);
+  bg.addColorStop(.5,`hsla(${(hue+30)%360},${sat*.6}%,4%,1)`);
+  bg.addColorStop(1,'rgba(1,1,4,1)');
+  ctx2.fillStyle=bg; ctx2.fillRect(0,0,W2,H2);
+  // Nebulose
+  [[CX2*.6,CY2*.7],[CX2*1.4,CY2*1.3],[CX2,CY2*.4]].forEach(([nx,ny],ii)=>{
+    const drift=Math.sin(t*.08+ii*2.1)*40;
+    const ng=ctx2.createRadialGradient(nx+drift,ny,0,nx+drift,ny,Math.min(W2,H2)*.45);
+    ng.addColorStop(0,`hsla(${(hue+ii*40)%360},50%,15%,0.16)`);
+    ng.addColorStop(1,'rgba(0,0,0,0)');
+    ctx2.fillStyle=ng; ctx2.fillRect(0,0,W2,H2);
+  });
+  // Stelle (usa getStars condivise)
+  ctx2.save();
+  for(const s of getStars()){
+    ctx2.globalAlpha=s.a*(.6+.4*Math.sin(t*1.4+s.tw));
+    ctx2.fillStyle='#fff';
+    ctx2.beginPath(); ctx2.arc(s.x%W2,s.y%H2,s.r,0,Math.PI*2); ctx2.fill();
   }
-  // Score HUD
-  ctx2.fillStyle='rgba(200,220,255,.6)';ctx2.font='12px Orbitron,monospace';ctx2.textAlign='left';
-  ctx2.fillText(`SCORE ${f.score}  LVL ${f.level}`,12,20);
+  ctx2.globalAlpha=1; ctx2.restore();
+  // Vignette
+  const vig=ctx2.createRadialGradient(CX2,CY2,ORBT*.3,CX2,CY2,Math.max(W2,H2)*.72);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,.55)');
+  ctx2.fillStyle=vig; ctx2.fillRect(0,0,W2,H2);
+
+  // ═══════════════════════════════════════════
+  // TRAIL — identico a drawTrail()
+  // ═══════════════════════════════════════════
+  if(f.trails&&f.trails.length){
+    const r0=ORBT*.072;
+    f.trails.forEach((tr,ii)=>{
+      const ratio=(ii+1)/f.trails.length;
+      ctx2.save(); ctx2.globalAlpha=ratio*.32;
+      ctx2.fillStyle='#4af0d0';
+      ctx2.beginPath(); ctx2.arc(tr.x,tr.y,r0*ratio*.88,0,Math.PI*2); ctx2.fill();
+      ctx2.restore();
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // NEMICI — identico a drawEnemies()
+  // ═══════════════════════════════════════════
+  const ET_MAP={};
+  if(typeof ENEMY_TYPES!=='undefined') ENEMY_TYPES.forEach(t2=>ET_MAP[t2.key]=t2);
+  for(const e of f.enemies){
+    const et=ET_MAP[e.type]||ET_MAP['normal'];
+    if(!et) continue;
+    const er=ORBT*e.r*(1+.11*Math.sin(e.life*.17+e.pp));
+    const alpha=e.life<20?e.life/20:1;
+    const finalAlpha=e.type==='ghost'?alpha*(0.15+0.15*Math.sin(e.life*.08+e.pp)):alpha;
+    ctx2.save(); ctx2.globalAlpha=finalAlpha;
+    const h=ctx2.createRadialGradient(e.x,e.y,0,e.x,e.y,er*et.haloR);
+    h.addColorStop(0,et.haloCols[0]); h.addColorStop(.5,et.haloCols[1]); h.addColorStop(1,et.haloCols[2]);
+    ctx2.fillStyle=h; ctx2.beginPath(); ctx2.arc(e.x,e.y,er*et.haloR,0,Math.PI*2); ctx2.fill();
+    const ec=ctx2.createRadialGradient(e.x-er*.3,e.y-er*.35,0,e.x,e.y,er);
+    ec.addColorStop(0,et.color0); ec.addColorStop(.3,et.color1); ec.addColorStop(1,et.color2);
+    ctx2.fillStyle=ec; ctx2.beginPath(); ctx2.arc(e.x,e.y,er,0,Math.PI*2); ctx2.fill();
+    ctx2.fillStyle='rgba(255,220,210,.5)';
+    ctx2.beginPath(); ctx2.arc(e.x-er*.28,e.y-er*.3,er*.24,0,Math.PI*2); ctx2.fill();
+    // Scia fast
+    if(e.type==='fast'&&e.life>3){
+      ctx2.globalAlpha=finalAlpha*.3; ctx2.fillStyle=et.color1;
+      ctx2.beginPath(); ctx2.arc(e.x-2,e.y-2,er*.6,0,Math.PI*2); ctx2.fill();
+      ctx2.beginPath(); ctx2.arc(e.x-4,e.y-4,er*.3,0,Math.PI*2); ctx2.fill();
+    }
+    ctx2.restore();
+  }
+
+  // ═══════════════════════════════════════════
+  // PARTICELLE
+  // ═══════════════════════════════════════════
+  if(f.particles&&f.particles.length){
+    for(const p of f.particles){
+      ctx2.save();
+      ctx2.globalAlpha=Math.max(0,p.life/30);
+      ctx2.fillStyle=p.color||'#4af0d0';
+      ctx2.beginPath(); ctx2.arc(p.x,p.y,Math.max(.5,p.r||2),0,Math.PI*2); ctx2.fill();
+      ctx2.restore();
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // SFERA GIOCATORE — identico a drawPlayer()
+  // ═══════════════════════════════════════════
+  const px=CX2+Math.cos(f.angle)*ORBT, py=CY2+Math.sin(f.angle)*ORBT;
+  const r=ORBT*.072;
+  const aura=ctx2.createRadialGradient(px,py,0,px,py,r*4.5);
+  aura.addColorStop(0,'rgba(74,240,208,.25)'); aura.addColorStop(1,'rgba(74,240,208,0)');
+  ctx2.save(); ctx2.fillStyle=aura; ctx2.beginPath(); ctx2.arc(px,py,r*4.5,0,Math.PI*2); ctx2.fill();
+  ctx2.strokeStyle='rgba(74,240,208,.3)'; ctx2.lineWidth=1;
+  ctx2.beginPath(); ctx2.arc(px,py,r*1.65,0,Math.PI*2); ctx2.stroke(); ctx2.restore();
+  try{ getOrb(f.orb||'cyan').draw(ctx2,px,py,r); } catch(err){
+    const og=ctx2.createRadialGradient(px-r*.3,py-r*.3,0,px,py,r);
+    og.addColorStop(0,'#e8f4ff'); og.addColorStop(.5,'#4af0d0'); og.addColorStop(1,'#006655');
+    ctx2.fillStyle=og; ctx2.beginPath(); ctx2.arc(px,py,r,0,Math.PI*2); ctx2.fill();
+  }
+
+  // ═══════════════════════════════════════════
+  // CENTRO — identico a drawCenter()
+  // ═══════════════════════════════════════════
+  const beat=.5+.5*Math.pow(Math.abs(Math.sin(t*Math.PI*2)),8);
+  const pp=1+beat*.22;
+  const col=f.lives===1?'255,34,68':f.lives===2?'255,136,0':'74,240,208';
+  const field=ctx2.createRadialGradient(CX2,CY2,0,CX2,CY2,38*pp);
+  field.addColorStop(0,`rgba(${col},.07)`); field.addColorStop(1,'rgba(0,0,0,0)');
+  ctx2.fillStyle=field; ctx2.beginPath(); ctx2.arc(CX2,CY2,38*pp,0,Math.PI*2); ctx2.fill();
+  const cg=ctx2.createRadialGradient(CX2,CY2,0,CX2,CY2,16*pp);
+  cg.addColorStop(0,`rgba(${col},.75)`); cg.addColorStop(.6,`rgba(${col},.2)`); cg.addColorStop(1,`rgba(${col},0)`);
+  ctx2.fillStyle=cg; ctx2.beginPath(); ctx2.arc(CX2,CY2,16*pp,0,Math.PI*2); ctx2.fill();
+  ctx2.fillStyle='rgba(220,245,255,.95)'; ctx2.beginPath(); ctx2.arc(CX2,CY2,2.5,0,Math.PI*2); ctx2.fill();
+  // Orbita tratteggiata
+  ctx2.save();
+  ctx2.strokeStyle=`rgba(${col},${.05+beat*.04})`; ctx2.lineWidth=1;
+  ctx2.setLineDash([4,16]); ctx2.lineDashOffset=-t*18;
+  ctx2.beginPath(); ctx2.arc(CX2,CY2,ORBT,0,Math.PI*2); ctx2.stroke();
+  ctx2.setLineDash([]); ctx2.restore();
+
+  // ═══════════════════════════════════════════
+  // HUD — identico al gioco
+  // ═══════════════════════════════════════════
+  // Score
+  ctx2.fillStyle='rgba(200,220,255,.45)';
+  ctx2.font='9px Rajdhani,sans-serif'; ctx2.textAlign='left';
+  ctx2.fillText('SCORE',14,18);
+  ctx2.fillStyle='rgba(255,255,255,.95)';
+  ctx2.font='bold 18px Orbitron,monospace';
+  ctx2.fillText(f.score,14,36);
+  // Level
+  ctx2.fillStyle='rgba(200,220,255,.45)';
+  ctx2.font='9px Rajdhani,sans-serif'; ctx2.textAlign='right';
+  ctx2.fillText('LEVEL',W2-14,18);
+  ctx2.fillStyle='rgba(255,255,255,.95)';
+  ctx2.font='bold 18px Orbitron,monospace';
+  ctx2.fillText(f.level,W2-14,36);
+  // Vite (cuori)
+  const hS=10;
+  for(let li=0;li<f.lives;li++){
+    const hx=W2-14-(li*22), hy=48;
+    ctx2.save();
+    ctx2.shadowColor='#ff2244'; ctx2.shadowBlur=8;
+    ctx2.fillStyle='#ff2244';
+    ctx2.translate(hx,hy); ctx2.rotate(-Math.PI/4);
+    ctx2.beginPath();
+    ctx2.arc(-hS*.4,0,hS*.45,Math.PI,0,false);
+    ctx2.arc(hS*.4,0,hS*.45,Math.PI,0,false);
+    ctx2.lineTo(0,hS*.9); ctx2.closePath(); ctx2.fill();
+    ctx2.shadowBlur=0; ctx2.restore();
+  }
   // REPLAY watermark
-  ctx2.fillStyle='rgba(74,240,208,.3)';ctx2.font='bold 11px Orbitron,monospace';ctx2.textAlign='right';
-  ctx2.fillText('DRIFT REPLAY',W2-12,20);
-  // Progress bar
+  ctx2.fillStyle='rgba(74,240,208,.18)';
+  ctx2.font='8px Orbitron,monospace'; ctx2.textAlign='right';
+  ctx2.fillText('◈ ZIVVE REPLAY',W2-10,H2-8);
+  // Barra progresso
   const prog=i/replayBuffer.length;
-  ctx2.fillStyle='rgba(255,255,255,.08)';ctx2.fillRect(0,H2-3,W2,3);
-  ctx2.fillStyle='#4af0d0';ctx2.fillRect(0,H2-3,W2*prog,3);
-  replayRaf=setTimeout(()=>playReplayFrames(i+1),16);
+  ctx2.fillStyle='rgba(255,255,255,.06)'; ctx2.fillRect(0,H2-2,W2,2);
+  ctx2.fillStyle=`rgba(${col},0.7)`; ctx2.fillRect(0,H2-2,W2*prog,2);
+
+  replayRaf=setTimeout(()=>playReplayFrames(i+1), 50);
 }
+
+let _replayStars=null;
 
 function stopReplay(){
   clearTimeout(replayRaf);
@@ -10873,9 +11230,12 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
   if(!_seen || _isTst){
     // Mostra intro — poi menu principale
-    _introPlayed=false; // reset per garantire che parta sempre
+    _introPlayed=false;
+    window._introActive=true;
+    // Nascondi canvas di gioco durante l'intro
+    const _gc=document.getElementById('c');
+    if(_gc) _gc.style.display='none';
     show('introOverlay');
-    // Attendi un frame per assicurare che il canvas sia nel DOM e visibile
     requestAnimationFrame(()=>requestAnimationFrame(()=>runIntro()));
   } else {
     // Direttamente al menu
