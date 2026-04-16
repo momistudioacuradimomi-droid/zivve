@@ -3774,7 +3774,7 @@ function reverseDir(){
   const px=CX+Math.cos(G.angle)*ORBIT_R,py=CY+Math.sin(G.angle)*ORBIT_R;
   // Perfect Dodge: inversione entro 18 frame da near-miss
   const lastNM=G._lastNearMissFrame||0;
-  if((G.frameCount-lastNM)<=18&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
+  if((G.frameCount-lastNM)<=25&&lastNM>0){G._lastNearMissFrame=0;triggerPerfectDodge(px,py);return;}
   const _tapDir=G._penaltyInvert>0?1:-1; // invertito se penalità attiva
   G.dir*=_tapDir;if(G.adapt)G.adapt.framesSinceTap=0;
   if(G.orbPower==='tango'&&G.orbPowerData) G.orbPowerData.tangoCount=(G.orbPowerData.tangoCount||0)+1;
@@ -4936,11 +4936,11 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
       const hitR2=ORBIT_R*.13*getHitboxMult()*(e.type.key==='heavy'?1.35:e.type.key==='fast'?.8:1);
 
       // Reset _nm se il nemico è uscito dalla zona O se sono passati 120 frame (cooldown 2s)
-      if(e._nm&&(d>hitR2*1.6||(G.frameCount-(e._nmFrame||0))>120)){
+      if(e._nm&&(d>hitR2*2.2||(G.frameCount-(e._nmFrame||0))>90)){
         e._nm=false; e._nmFrame=0;
       }
 
-      if(d>hitR2&&d<hitR2*1.6*getNMZoneMult()&&!e._nm){
+      if(d>hitR2&&d<hitR2*2.2*getNMZoneMult()&&!e._nm){
         e._nm=true;
         e._nmFrame=G.frameCount; // timestamp per il cooldown
         _hadNMThisFrame=true;
@@ -4966,6 +4966,10 @@ G.maxEnemies=Math.min(_isBreath?Math.max(1,_baseMax-2):_isPeak?2:_baseMax,10);
         if(G.nearMissStreak>=(seasonHasPower('fast_combo')?2:3)){if(bpHasPower('bp_tempesta')){G.score+=200;showMsg('⛈️ TEMPESTA +200!','#5588ff');}showMsg('🔥 NEAR MISS x'+G.nearMissStreak,'#ffee44');if(G.nearMissStreak%3===0)G.scoreBonus=(G.scoreBonus||0)+G.nearMissStreak*2;}
         const angle2=Math.atan2(py2-e.y,px2-e.x);
         sndNearMiss(600+Math.cos(angle2)*200+(G.nearMissStreak||1)*40);
+      }
+      // Mantieni finestra PD aperta finché il nemico è in zona near miss
+      if(e._nm && d>hitR2 && d<hitR2*2.2*getNMZoneMult()){
+        G._lastNearMissFrame=G.frameCount;
       }
     }
     // Reset streak se nessun NM negli ultimi 3 secondi
@@ -11324,11 +11328,6 @@ function showDailyGoalDetail(){
   document.body.appendChild(div);
 }
 
-function addFragments(n){
-  const cur = parseInt(localStorage.getItem('drift_fragments')||'0');
-  localStorage.setItem('drift_fragments', cur+n);
-}
-
 function getLoreMenu(){
   const arr = ZIVVE_LORE.menu;
   return arr[Math.floor(Date.now()/86400000)%arr.length];
@@ -11369,8 +11368,8 @@ function enterWeeklyTournament(){
   }
   const week = Math.floor(Date.now()/(7*24*60*60*1000));
   localStorage.setItem('zivve_weekly_entered_'+week,'1');
-  const cur = parseInt(localStorage.getItem('drift_fragments')||'0');
-  localStorage.setItem('drift_fragments', Math.max(0,cur-WEEKLY_ENTRY_COST));
+  const cur = parseInt(localStorage.getItem(FRAG_KEY)||'0');
+  localStorage.setItem(FRAG_KEY, Math.max(0,cur-WEEKLY_ENTRY_COST));
   return true;
 }
 
