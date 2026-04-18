@@ -318,8 +318,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .account-tag.selected{background:rgba(74,240,208,.15);border-color:rgba(74,240,208,.4);color:var(--accent)}
 .account-section{width:100%;max-width:340px;margin-bottom:16px}
 .account-section-title{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
-.account-color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;touch-action:manipulation;flex-shrink:0}
-.account-color-dot.active{border-color:var(--white);transform:scale(1.15)}
+.account-color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;touch-action:manipulation;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.account-color-dot.active{border-color:var(--white);transform:scale(1.2);box-shadow:0 0 12px currentColor}
 .account-stat-mini{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 8px;min-width:72px}
 .account-stat-mini .val{font-family:'Syncopate',sans-serif;font-size:18px;font-weight:900;color:var(--white);line-height:1}
 .account-stat-mini .lbl{font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
@@ -4155,7 +4155,9 @@ function openStripeCheckout(orbId, orbName, price){
   });
   // Apri Stripe in una nuova tab
   const checkoutUrl = link + '?' + params.toString();
-  window.open(checkoutUrl, '_blank');
+  const stripeWin = window.open(checkoutUrl, '_blank');
+  window._stripeWindowOpened = !!stripeWin;
+  window._stripeOpenedAt = Date.now();
   // Mostra modal "In attesa del pagamento"
   showPaymentWaitModal(orbId, orbName);
 }
@@ -4189,9 +4191,20 @@ function showPaymentWaitModal(orbId, orbName){
 }
 
 function checkPaymentReturn(orbId, orbName){
-  // In produzione: verifica via Supabase/webhook
-  // In demo: sblocca direttamente
+  // Verifica che il pagamento Stripe sia stato aperto e completato
+  // Se _stripeWindowOpened è false, l'utente non ha mai aperto Stripe
+  if(!window._stripeWindowOpened){
+    showMsg('❌ Completa prima il pagamento su Stripe','#ff4488');
+    return;
+  }
+  // Verifica che sia passato abbastanza tempo (min 20 secondi) dall'apertura di Stripe
+  const elapsed = Date.now() - (window._stripeOpenedAt||0);
+  if(elapsed < 20000){
+    showMsg('⏳ Attendi il completamento del pagamento...','#ff8800');
+    return;
+  }
   document.getElementById('paymentWait')?.remove();
+  window._stripeWindowOpened = false;
   if(!ownedOrbs.includes(orbId)){
     ownedOrbs.push(orbId);
     localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
@@ -9168,7 +9181,8 @@ function buildColorPicker(selected){
   el.innerHTML = ACCOUNT_COLORS.map(col=>
     `<div class="account-color-dot ${col===selected?'active':''}"
        style="background:${col};box-shadow:${col===selected?'0 0 10px '+col:'none'}"
-       onclick="selectAccountColor('${col}')"></div>`
+       onclick="selectAccountColor('${col}')"
+       ontouchstart="selectAccountColor('${col}');event.preventDefault()"></div>`
   ).join('');
 }
 
