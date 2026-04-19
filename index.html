@@ -4181,6 +4181,11 @@ async function openStripeCheckout(orbId, orbName, price){
     showMsg('Imposta prima il tuo nome nel profilo!','#ff4488');
     return;
   }
+  // Apri subito la tab — deve essere un gesto diretto dell'utente
+  const stripeWin = window.open('about:blank','_blank');
+  window._stripeWindowOpened = !!stripeWin;
+  window._stripeOpenedAt = Date.now();
+  showPaymentWaitModal(orbId, orbName);
   showMsg('⏳ Preparazione pagamento...','#4af0d0');
   try{
     const resp = await fetch(FIREBASE_FUNCTIONS_URL+'/createCheckoutSession',{
@@ -4197,12 +4202,12 @@ async function openStripeCheckout(orbId, orbName, price){
     const json = await resp.json();
     const url = json.url;
     if(!url) throw new Error('URL non ricevuto: '+JSON.stringify(json));
-    const stripeWin = window.open(url,'_blank');
-    window._stripeWindowOpened = !!stripeWin;
-    window._stripeOpenedAt = Date.now();
-    showPaymentWaitModal(orbId, orbName);
+    // Carica l'URL nella tab già aperta
+    if(stripeWin) stripeWin.location.href = url;
+    else window.open(url,'_blank');
   }catch(e){
     console.error('Checkout error:',e);
+    if(stripeWin) stripeWin.close();
     showMsg('❌ Errore apertura pagamento, riprova','#ff4488');
   }
 }
