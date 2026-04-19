@@ -4187,18 +4187,16 @@ async function openStripeCheckout(orbId, orbName, price){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        data:{
-          priceId: priceId,
-          orbId: orbId,
-          playerName: playerName,
-          successUrl: window.location.href.split('?')[0]+'?payment=success',
-          cancelUrl: window.location.href.split('?')[0]+'?payment=cancel',
-        }
+        priceId: priceId,
+        orbId: orbId,
+        playerName: playerName,
+        successUrl: window.location.href.split('?')[0]+'?payment=success',
+        cancelUrl: window.location.href.split('?')[0]+'?payment=cancel',
       })
     });
     const json = await resp.json();
-    const url = json.result?.url || (json.url);
-    if(!url) throw new Error('URL non ricevuto');
+    const url = json.url;
+    if(!url) throw new Error('URL non ricevuto: '+JSON.stringify(json));
     const stripeWin = window.open(url,'_blank');
     window._stripeWindowOpened = !!stripeWin;
     window._stripeOpenedAt = Date.now();
