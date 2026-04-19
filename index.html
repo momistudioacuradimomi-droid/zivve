@@ -4181,12 +4181,29 @@ async function openStripeCheckout(orbId, orbName, price){
     showMsg('Imposta prima il tuo nome nel profilo!','#ff4488');
     return;
   }
-  // Apri subito la tab — deve essere un gesto diretto dell'utente
-  const stripeWin = window.open('about:blank','_blank');
-  window._stripeWindowOpened = !!stripeWin;
-  window._stripeOpenedAt = Date.now();
-  showPaymentWaitModal(orbId, orbName);
-  showMsg('⏳ Preparazione pagamento...','#4af0d0');
+
+  // Mostra dialog di preparazione con pulsante che apre Stripe
+  const dlg = document.createElement('div');
+  dlg.id = '_stripePrep';
+  dlg.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,.97);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Syncopate,sans-serif;padding:24px';
+  dlg.innerHTML = '<div style="font-size:32px">💳</div>'
+    +'<div style="font-size:13px;color:#4af0d0;letter-spacing:.2em">'+orbName+'</div>'
+    +'<div style="font-size:11px;color:rgba(200,220,255,.6);letter-spacing:.1em">'+price+'</div>'
+    +'<div id="_stripeStatus" style="font-size:10px;color:rgba(200,220,255,.4);letter-spacing:.1em">⏳ Preparazione...</div>';
+
+  const btnPay = document.createElement('button');
+  btnPay.id = '_stripeBtnPay';
+  btnPay.style.cssText = 'display:none;background:linear-gradient(135deg,#4af0d0,#2266ff);color:#000;border:none;border-radius:8px;padding:14px 32px;font-family:Syncopate,sans-serif;font-size:12px;font-weight:700;letter-spacing:.2em;cursor:pointer';
+  btnPay.textContent = '→ VAI AL PAGAMENTO';
+  dlg.appendChild(btnPay);
+
+  const btnCancel = document.createElement('button');
+  btnCancel.style.cssText = 'background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.1em';
+  btnCancel.textContent = '← ANNULLA';
+  btnCancel.onclick = ()=>dlg.remove();
+  dlg.appendChild(btnCancel);
+  document.body.appendChild(dlg);
+
   try{
     const resp = await fetch(FIREBASE_FUNCTIONS_URL+'/createCheckoutSession',{
       method:'POST',
@@ -4201,14 +4218,23 @@ async function openStripeCheckout(orbId, orbName, price){
     });
     const json = await resp.json();
     const url = json.url;
-    if(!url) throw new Error('URL non ricevuto: '+JSON.stringify(json));
-    // Carica l'URL nella tab già aperta
-    if(stripeWin) stripeWin.location.href = url;
-    else window.open(url,'_blank');
+    if(!url) throw new Error('URL non ricevuto');
+
+    // URL pronto — mostra pulsante
+    const statusEl = document.getElementById('_stripeStatus');
+    if(statusEl) statusEl.textContent = '✓ Pagamento pronto';
+    btnPay.style.display = 'block';
+    btnPay.onclick = ()=>{
+      dlg.remove();
+      const stripeWin = window.open(url,'_blank');
+      window._stripeWindowOpened = true;
+      window._stripeOpenedAt = Date.now();
+      showPaymentWaitModal(orbId, orbName);
+    };
   }catch(e){
     console.error('Checkout error:',e);
-    if(stripeWin) stripeWin.close();
-    showMsg('❌ Errore apertura pagamento, riprova','#ff4488');
+    const statusEl = document.getElementById('_stripeStatus');
+    if(statusEl) statusEl.textContent = '❌ Errore: '+e.message;
   }
 }
 
