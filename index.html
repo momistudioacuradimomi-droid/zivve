@@ -4152,58 +4152,61 @@ async function sharePerfectDodgeVideo(count, bonus){
 
 
 // ══════════════════════════════════════════════════════════════
-//  STRIPE PAGAMENTI
-//  Usa Stripe Payment Links — zero backend, zero server
-//  Sostituisci i link con i tuoi da dashboard.stripe.com
+//  STRIPE PAGAMENTI — Checkout Session via Firebase Function
 // ══════════════════════════════════════════════════════════════
 
-// ══════════════════════════════════════════════════════════════
-//  STRIPE — 4 link per fascia di prezzo
-//  Sostituisci i 4 link con quelli reali da stripe.com
-// ══════════════════════════════════════════════════════════════
-
-// STEP 1: Crea questi 4 Payment Links su stripe.com
-// STEP 2: Sostituisci i valori qui sotto
-const STRIPE_PRICE_LINKS = {
-  '€0.99': 'https://buy.stripe.com/test_eVq7sL6q6aXB4KGcMk7kc00',
-  '€1.49': 'https://buy.stripe.com/bJe4gz9Ci6Hlb94cMk7kc01',
-  '€1.99': 'https://buy.stripe.com/4gM9AT3dU2r5elg6nW7kc02',
-  '€2.49': 'https://buy.stripe.com/3cIbJ1eWC2r5fpk5jS7kc04',
-  '€2.99': 'https://buy.stripe.com/8x29ATbKqfdR90WdQo7kc03'
+// Mappa prezzo → Price ID Stripe
+const STRIPE_PRICE_IDS = {
+  '€0.99': 'price_1TEHohDh1RULWGESiDexgWF2',
+  '€1.49': 'price_1TEHqYDh1RULWGESdBVp9wvl',
+  '€1.99': 'price_1TEHruDh1RULWGESaWOpJ6yc',
+  '€2.49': 'price_1TEHvVDh1RULWGESISnpkSAa',
+  '€2.99': 'price_1TEHtBDh1RULWGESTNrejJG7',
 };
+
+const FIREBASE_FUNCTIONS_URL = 'https://us-central1-zivve-game.cloudfunctions.net';
 
 // Mappa automatica orb → link corretto per prezzo (popolata al primo uso)
 const STRIPE_LINKS = {};
+const STRIPE_PRICE_LINKS = STRIPE_PRICE_IDS; // alias per compatibilità
+const STRIPE_CONFIGURED = true;
 
-const STRIPE_CONFIGURED=Object.values(STRIPE_PRICE_LINKS).every(l=>!l.includes('INSERISCI'));
-
-function openStripeCheckout(orbId, orbName, price){
-  // Popola STRIPE_LINKS al momento dell'uso (ORB_CATALOG è già definito)
-  if(Object.keys(STRIPE_LINKS).length===0&&typeof ORB_CATALOG!=='undefined'){
-    ORB_CATALOG.forEach(orb=>{
-      if(orb.price&&orb.price!==0&&typeof orb.price==='string'){
-        STRIPE_LINKS[orb.id]=STRIPE_PRICE_LINKS[orb.price]||'';
-      }
-    });
-  }
-  const link = STRIPE_LINKS[orbId];
-  if(!link||link.includes('SOSTITUISCI')){
-    // DEMO: simula acquisto
+async function openStripeCheckout(orbId, orbName, price){
+  const priceId = STRIPE_PRICE_IDS[price];
+  if(!priceId){
     showStripeDemo(orbId, orbName, price);
     return;
   }
-  // Aggiungi parametri per riconoscere l'utente e la sfera al ritorno
-  const params = new URLSearchParams({
-    client_reference_id: (playerName||'ZIVVER') + '|' + orbId,
-    prefilled_email: '',
-  });
-  // Apri Stripe in una nuova tab
-  const checkoutUrl = link + '?' + params.toString();
-  const stripeWin = window.open(checkoutUrl, '_blank');
-  window._stripeWindowOpened = !!stripeWin;
-  window._stripeOpenedAt = Date.now();
-  // Mostra modal "In attesa del pagamento"
-  showPaymentWaitModal(orbId, orbName);
+  if(!playerName||playerName==='ZIVVER'){
+    showMsg('Imposta prima il tuo nome nel profilo!','#ff4488');
+    return;
+  }
+  showMsg('⏳ Preparazione pagamento...','#4af0d0');
+  try{
+    const resp = await fetch(FIREBASE_FUNCTIONS_URL+'/createCheckoutSession',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        data:{
+          priceId: priceId,
+          orbId: orbId,
+          playerName: playerName,
+          successUrl: window.location.href.split('?')[0]+'?payment=success',
+          cancelUrl: window.location.href.split('?')[0]+'?payment=cancel',
+        }
+      })
+    });
+    const json = await resp.json();
+    const url = json.result?.url || (json.url);
+    if(!url) throw new Error('URL non ricevuto');
+    const stripeWin = window.open(url,'_blank');
+    window._stripeWindowOpened = !!stripeWin;
+    window._stripeOpenedAt = Date.now();
+    showPaymentWaitModal(orbId, orbName);
+  }catch(e){
+    console.error('Checkout error:',e);
+    showMsg('❌ Errore apertura pagamento, riprova','#ff4488');
+  }
 }
 
 function showStripeDemo(orbId, orbName, price){
