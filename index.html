@@ -3628,7 +3628,9 @@ function showBattlePassScreen(){
     buyBtn.textContent = 'ACQUISTA — €2.99/mese';
     buyBtn.onclick = function(){
       if(typeof BATTLE_PASS_PRICE!=='undefined'){
-        const w = window.open(BATTLE_PASS_PRICE,'_blank');
+        const bpRef = (playerName||'ZIVVER') + '|bp';
+        const bpParams = new URLSearchParams({ client_reference_id: bpRef });
+        const w = window.open(BATTLE_PASS_PRICE + '?' + bpParams.toString(), '_blank');
         window._bpStripeOpened = !!w;
         window._bpStripeOpenedAt = Date.now();
         // Mostra pulsante conferma dopo 5s
@@ -3642,7 +3644,7 @@ function showBattlePassScreen(){
     const confirmBtn = document.createElement('button');
     confirmBtn.style.cssText = 'width:100%;max-width:320px;padding:12px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);color:#ffd700;border-radius:8px;font-family:Syncopate,sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;cursor:pointer;margin-top:8px;display:none';
     confirmBtn.textContent = '✓ HO COMPLETATO IL PAGAMENTO';
-    confirmBtn.onclick = function(){
+    confirmBtn.onclick = async function(){
       if(!window._bpStripeOpened){
         showMsg('❌ Completa prima il pagamento su Stripe','#ff4488');
         return;
@@ -3652,9 +3654,22 @@ function showBattlePassScreen(){
         showMsg('⏳ Attendi il completamento del pagamento...','#ff8800');
         return;
       }
-      window._bpStripeOpened = false;
-      activateBattlePass();
-      div.remove();
+      showMsg('🔄 Verifica pagamento...','#4af0d0');
+      try {
+        const safe = encodeURIComponent((playerName||'').toUpperCase()).replace(/%/g,'_');
+        const month = getBPMonth();
+        const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/bp/'+month+'.json?_='+Date.now());
+        const data = res.ok ? await res.json() : null;
+        if(data && data.activated === true){
+          window._bpStripeOpened = false;
+          activateBattlePass();
+          div.remove();
+        } else {
+          showMsg('⏳ Pagamento non ancora confermato, riprova tra qualche secondo','#ff8800');
+        }
+      } catch(e) {
+        showMsg('❌ Errore verifica, riprova','#ff4488');
+      }
     };
     div.appendChild(confirmBtn);
   }
@@ -4177,9 +4192,9 @@ function openStripeCheckout(orbId, orbName, price){
     showStripeDemo(orbId, orbName, price);
     return;
   }
-  // Aggiungi parametri per riconoscere l'utente al ritorno
+  // Aggiungi parametri per riconoscere l'utente e la sfera al ritorno
   const params = new URLSearchParams({
-    client_reference_id: playerName||'ZIVVER',
+    client_reference_id: (playerName||'ZIVVER') + '|' + orbId,
     prefilled_email: '',
   });
   // Apri Stripe in una nuova tab
@@ -4219,28 +4234,38 @@ function showPaymentWaitModal(orbId, orbName){
   document.body.appendChild(d);
 }
 
-function checkPaymentReturn(orbId, orbName){
-  // Verifica che il pagamento Stripe sia stato aperto e completato
-  // Se _stripeWindowOpened è false, l'utente non ha mai aperto Stripe
+async function checkPaymentReturn(orbId, orbName){
   if(!window._stripeWindowOpened){
     showMsg('❌ Completa prima il pagamento su Stripe','#ff4488');
     return;
   }
-  // Verifica che sia passato abbastanza tempo (min 20 secondi) dall'apertura di Stripe
   const elapsed = Date.now() - (window._stripeOpenedAt||0);
   if(elapsed < 20000){
     showMsg('⏳ Attendi il completamento del pagamento...','#ff8800');
     return;
   }
-  document.getElementById('paymentWait')?.remove();
-  window._stripeWindowOpened = false;
-  if(!ownedOrbs.includes(orbId)){
-    ownedOrbs.push(orbId);
-    localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
-    showMsg(`🎉 ${orbName} sbloccata!`,'#ffe566');
-    buildShop();
-    checkAchievements();
-    syncInventoryToFirebase(playerName);
+  showMsg('🔄 Verifica pagamento...','#4af0d0');
+  try {
+    // Verifica su Firebase DB (scritto dal webhook Stripe)
+    const safe = encodeURIComponent((playerName||'').toUpperCase()).replace(/%/g,'_');
+    const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/orbs/'+orbId+'.json?_='+Date.now());
+    const data = res.ok ? await res.json() : null;
+    if(data && data.unlocked === true){
+      document.getElementById('paymentWait')?.remove();
+      window._stripeWindowOpened = false;
+      if(!ownedOrbs.includes(orbId)){
+        ownedOrbs.push(orbId);
+        localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
+        showMsg('🎉 '+orbName+' sbloccata!','#ffe566');
+        buildShop();
+        checkAchievements();
+        syncInventoryToFirebase(playerName);
+      }
+    } else {
+      showMsg('⏳ Pagamento non ancora confermato, riprova tra qualche secondo','#ff8800');
+    }
+  } catch(e) {
+    showMsg('❌ Errore verifica, riprova','#ff4488');
   }
 }
 
