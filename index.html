@@ -17,6 +17,38 @@
 <meta property="og:title" content="ZIVVE">
 <meta property="og:description" content="Il gioco più semplice che non riesci a smettere di giocare.">
 <script>
+// ── CHECK PAGAMENTO STRIPE — eseguito prima di tutto ──
+(function(){
+  if(window.location.search.indexOf('payment=success') === -1) return;
+  // Rimuovi il parametro subito
+  window.history.replaceState({}, '', window.location.pathname);
+  // Leggi i dati necessari dal localStorage
+  const pName = localStorage.getItem('drift_name')||'';
+  if(!pName || pName === 'ZIVVER') return;
+  const safe = encodeURIComponent(pName.toUpperCase()).replace(/%/g,'_');
+  const dbUrl = 'https://zivve-game-default-rtdb.europe-west1.firebasedatabase.app';
+  // Fetch sincrono-like con async IIFE prima del DOM
+  fetch(dbUrl+'/payments/'+safe+'/orbs.json?_='+Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(!data || typeof data !== 'object') return;
+      const saved = JSON.parse(localStorage.getItem('drift_owned')||'["cyan","blue","white"]');
+      let changed = false;
+      Object.keys(data).forEach(function(orbId){
+        if(data[orbId].unlocked === true && !saved.includes(orbId)){
+          saved.push(orbId);
+          changed = true;
+        }
+      });
+      if(changed){
+        localStorage.setItem('drift_owned', JSON.stringify(saved));
+        // Segna che c'è una nuova sfera da mostrare
+        localStorage.setItem('drift_payment_new_orb', '1');
+      }
+    })
+    .catch(function(e){ console.log('payment sync error:', e); });
+})();
+
 // Lingua: italiano di default, rispetta la scelta dell'utente
 if(!localStorage.getItem('drift_lang')){
   localStorage.setItem('drift_lang','it');
@@ -11140,41 +11172,10 @@ setTimeout(showWeeklyRewardBanner, 1200);
   setTimeout(testerUnlockAll, 300);
   updateLiveCounter();
 
-  // Controlla se si torna da un pagamento Stripe completato
-  const _urlParams = new URLSearchParams(window.location.search);
-  if(_urlParams.get('payment')==='success'){
-    window.history.replaceState({}, '', window.location.pathname);
-    setTimeout(async function(){
-      try{
-        const _pName = localStorage.getItem('drift_name')||'';
-        if(!_pName||_pName==='ZIVVER') return;
-        const safe = encodeURIComponent(_pName.toUpperCase()).replace(/%/g,'_');
-        const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/orbs.json?_='+Date.now());
-        const data = res.ok ? await res.json() : null;
-        if(data && typeof data==='object'){
-          const _saved = JSON.parse(localStorage.getItem('drift_owned')||'["cyan","blue","white"]');
-          let newOrbs = [];
-          Object.keys(data).forEach(function(orbId){
-            if(data[orbId].unlocked===true && !_saved.includes(orbId)){
-              const orbDef = typeof getOrb==='function' ? getOrb(orbId) : null;
-              if(orbDef || orbId){
-                _saved.push(orbId);
-                newOrbs.push(orbDef ? (orbDef.name||orbId) : orbId);
-              }
-            }
-          });
-          if(newOrbs.length>0){
-            localStorage.setItem('drift_owned', JSON.stringify(_saved));
-            ownedOrbs = _saved;
-            if(typeof syncInventoryToFirebase==='function') syncInventoryToFirebase(_pName);
-            if(typeof buildShop==='function') buildShop();
-            setTimeout(function(){
-              showMsg('🎉 '+newOrbs.join(', ')+' sbloccata!','#ffe566');
-            }, 500);
-          }
-        }
-      }catch(e){ console.log('payment check error:',e); }
-    }, 2000);
+  // Notifica nuova sfera dopo pagamento
+  if(localStorage.getItem('drift_payment_new_orb')==='1'){
+    localStorage.removeItem('drift_payment_new_orb');
+    setTimeout(function(){ showMsg('🎉 Sfera sbloccata! Aprila nel negozio.','#ffe566'); }, 1500);
   }
 
   function go(){
