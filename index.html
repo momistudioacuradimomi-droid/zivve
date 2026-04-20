@@ -3626,52 +3626,32 @@ function showBattlePassScreen(){
     const buyBtn = document.createElement('button');
     buyBtn.style.cssText = 'width:100%;max-width:320px;padding:14px;background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;border:none;border-radius:12px;font-family:Syncopate,sans-serif;font-size:13px;font-weight:700;letter-spacing:.2em;cursor:pointer;margin-top:16px;box-shadow:0 0 20px rgba(255,215,0,.3)';
     buyBtn.textContent = 'ACQUISTA — €2.99/mese';
-    buyBtn.onclick = function(){
-      if(typeof BATTLE_PASS_PRICE!=='undefined'){
-        const bpRef = (playerName||'ZIVVER') + '|bp';
-        const bpParams = new URLSearchParams({ client_reference_id: bpRef });
-        const w = window.open(BATTLE_PASS_PRICE + '?' + bpParams.toString(), '_blank');
-        window._bpStripeOpened = !!w;
-        window._bpStripeOpenedAt = Date.now();
-        // Mostra pulsante conferma dopo 5s
-        setTimeout(()=>{
-          if(document.body.contains(confirmBtn)) confirmBtn.style.display='block';
-        }, 5000);
+    buyBtn.onclick = async function(){
+      buyBtn.disabled = true;
+      buyBtn.textContent = '⏳ Preparazione...';
+      try{
+        const resp = await fetch(FIREBASE_FUNCTIONS_URL+'/createCheckoutSession',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            priceId: BATTLE_PASS_PRICE_ID,
+            orbId: 'bp',
+            playerName: playerName||'ZIVVER',
+            successUrl: 'https://momistudioacuradimomi-droid.github.io/zivve/payment-success.html',
+            cancelUrl: 'https://momistudioacuradimomi-droid.github.io/zivve/',
+          })
+        });
+        const json = await resp.json();
+        if(!json.url) throw new Error('URL non ricevuto');
+        localStorage.setItem('drift_stripe_pending', JSON.stringify({orbId:'bp', orbName:'Battle Pass'}));
+        window.location.href = json.url;
+      }catch(e){
+        buyBtn.disabled = false;
+        buyBtn.textContent = 'ACQUISTA — €2.99/mese';
+        showMsg('❌ Errore, riprova','#ff4488');
       }
     };
     div.appendChild(buyBtn);
-    // Pulsante conferma pagamento BP (nascosto finché non si apre Stripe)
-    const confirmBtn = document.createElement('button');
-    confirmBtn.style.cssText = 'width:100%;max-width:320px;padding:12px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);color:#ffd700;border-radius:8px;font-family:Syncopate,sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;cursor:pointer;margin-top:8px;display:none';
-    confirmBtn.textContent = '✓ HO COMPLETATO IL PAGAMENTO';
-    confirmBtn.onclick = async function(){
-      if(!window._bpStripeOpened){
-        showMsg('❌ Completa prima il pagamento su Stripe','#ff4488');
-        return;
-      }
-      const elapsed = Date.now() - (window._bpStripeOpenedAt||0);
-      if(elapsed < 20000){
-        showMsg('⏳ Attendi il completamento del pagamento...','#ff8800');
-        return;
-      }
-      showMsg('🔄 Verifica pagamento...','#4af0d0');
-      try {
-        const safe = encodeURIComponent((playerName||'').toUpperCase()).replace(/%/g,'_');
-        const month = getBPMonth();
-        const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/bp/'+month+'.json?_='+Date.now());
-        const data = res.ok ? await res.json() : null;
-        if(data && data.activated === true){
-          window._bpStripeOpened = false;
-          activateBattlePass();
-          div.remove();
-        } else {
-          showMsg('⏳ Pagamento non ancora confermato, riprova tra qualche secondo','#ff8800');
-        }
-      } catch(e) {
-        showMsg('❌ Errore verifica, riprova','#ff4488');
-      }
-    };
-    div.appendChild(confirmBtn);
   }
   const closeBtn = document.createElement('button');
   closeBtn.style.cssText = 'background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);padding:10px 24px;border-radius:6px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.2em;margin-top:16px';
@@ -4157,7 +4137,7 @@ async function sharePerfectDodgeVideo(count, bonus){
 
 // Mappa prezzo → Price ID Stripe
 const STRIPE_PRICE_IDS = {
-  '€0.99': 'price_1TO3TtDh1RULWGESoLWvHsyP', // TEST — ripristina price_1TEHohDh1RULWGESiDexgWF2 in produzione
+  '€0.99': 'price_1TEHohDh1RULWGESiDexgWF2',
   '€1.49': 'price_1TEHqYDh1RULWGESdBVp9wvl',
   '€1.99': 'price_1TEHruDh1RULWGESaWOpJ6yc',
   '€2.49': 'price_1TEHvVDh1RULWGESISnpkSAa',
@@ -6826,7 +6806,7 @@ function getChallengeTarget(){
 // ══════════════════════════════════════════════════════════════
 //  BATTLE PASS MENSILE
 // ══════════════════════════════════════════════════════════════
-const BATTLE_PASS_PRICE='https://buy.stripe.com/eVq7sL6q6aXB4KGcMk7kc00'; // €0.99 placeholder
+const BATTLE_PASS_PRICE_ID='price_1TOQQHDh1RULWGES3bvrRmaB'; // BP €2.99/mese
 function getBPMonth(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
 function hasBattlePass(){ return localStorage.getItem('zivve_bp_'+getBPMonth())==='1'; }
 function activateBattlePass(){
