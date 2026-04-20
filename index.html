@@ -4212,7 +4212,7 @@ async function openStripeCheckout(orbId, orbName, price){
         priceId: priceId,
         orbId: orbId,
         playerName: playerName,
-        successUrl: 'https://momistudioacuradimomi-droid.github.io/zivve/payment-success.html',
+        successUrl: window.location.href.split('?')[0],
         cancelUrl: window.location.href.split('?')[0],
       })
     });
@@ -4267,24 +4267,19 @@ function showPaymentWaitModal(orbId, orbName){
 }
 
 async function checkPaymentReturn(orbId, orbName){
-  if(!window._stripeWindowOpened){
-    showMsg('❌ Completa prima il pagamento su Stripe','#ff4488');
-    return;
-  }
-  const elapsed = Date.now() - (window._stripeOpenedAt||0);
-  if(elapsed < 20000){
-    showMsg('⏳ Attendi il completamento del pagamento...','#ff8800');
-    return;
-  }
   showMsg('🔄 Verifica pagamento...','#4af0d0');
-  try {
-    // Verifica su Firebase DB (scritto dal webhook Stripe)
+  try{
     const safe = encodeURIComponent((playerName||'').toUpperCase()).replace(/%/g,'_');
-    const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/orbs/'+orbId+'.json?_='+Date.now());
-    const data = res.ok ? await res.json() : null;
-    if(data && data.unlocked === true){
+    // Prova fino a 5 volte con 2 secondi di attesa — il webhook potrebbe arrivare con ritardo
+    let data = null;
+    for(let i=0; i<5; i++){
+      const res = await fetch(FIREBASE_URL+'/payments/'+safe+'/orbs/'+orbId+'.json?_='+Date.now());
+      data = res.ok ? await res.json() : null;
+      if(data && data.unlocked===true) break;
+      if(i<4) await new Promise(r=>setTimeout(r,2000));
+    }
+    if(data && data.unlocked===true){
       document.getElementById('paymentWait')?.remove();
-      window._stripeWindowOpened = false;
       if(!ownedOrbs.includes(orbId)){
         ownedOrbs.push(orbId);
         localStorage.setItem('drift_owned',JSON.stringify(ownedOrbs));
@@ -4296,7 +4291,7 @@ async function checkPaymentReturn(orbId, orbName){
     } else {
       showMsg('⏳ Pagamento non ancora confermato, riprova tra qualche secondo','#ff8800');
     }
-  } catch(e) {
+  }catch(e){
     showMsg('❌ Errore verifica, riprova','#ff4488');
   }
 }
