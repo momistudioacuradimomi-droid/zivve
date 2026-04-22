@@ -9577,14 +9577,25 @@ const REPLAY_MAX=30*60; // 30 seconds at 60fps
 
 function recordReplayFrame(){
   if(!G.running)return;
-  // Lightweight snapshot
   replayBuffer.push({
-    angle:G.angle,dir:G.dir,
-    enemies:G.enemies.map(e=>({x:e.x,y:e.y,type:e.type.key,r:e.type.rMult,pp:e.pulsePhase,life:e.life})),
-    particles:G.particles.slice(-30).map(p=>({x:p.x,y:p.y,life:p.life,color:p.color,r:p.r})),
-    score:G.score,level:G.level,lives:G.lives,
+    angle:G.angle, dir:G.dir,
+    enemies:G.enemies.map(e=>({
+      x:e.x, y:e.y,
+      key:e.type.key, rMult:e.type.rMult,
+      color0:e.type.color0, color1:e.type.color1,
+      haloCols:e.type.haloCols, haloR:e.type.haloR,
+      pp:e.pulsePhase, life:e.life,
+      isPowerup:e.type.isPowerup,
+      _isBossShot:e._isBossShot,
+    })),
+    particles:G.particles.slice(-40).map(p=>({x:p.x,y:p.y,life:p.life,maxLife:p.life,color:p.color,r:p.r,vx:p.vx,vy:p.vy})),
+    rings:G.rings.map(r=>({x:r.x,y:r.y,radius:r.r,alpha:r.alpha,color:r.color})),
+    trails:(G.trails||[]).slice(),
+    score:G.score, level:G.level, lives:G.lives,
     orb:selectedOrbId,
-    pu:G.activePowerup?G.activePowerup.key:null,
+    bgTheme:getCurrentBgTheme().id,
+    shieldActive:G.shieldActive,
+    invincible:G.invincible||0,
   });
   if(replayBuffer.length>REPLAY_MAX) replayBuffer.shift();
 }
@@ -9779,39 +9790,137 @@ function playReplayFrames(i){
   if(i>=replayBuffer.length){stopReplay();return;}
   const f=replayBuffer[i];
   const ctx2=replayCtx;
-  const W2=replayCanvas.width,H2=replayCanvas.height;
-  const cx=W2/2,cy=H2/2,orb=Math.min(W2,H2)*.32;
-  // Draw background
-  ctx2.fillStyle='#03030a';ctx2.fillRect(0,0,W2,H2);
-  // Center dot
-  const cg=ctx2.createRadialGradient(cx,cy,0,cx,cy,16);
-  cg.addColorStop(0,'rgba(74,240,208,.7)');cg.addColorStop(1,'rgba(74,240,208,0)');
-  ctx2.fillStyle=cg;ctx2.beginPath();ctx2.arc(cx,cy,16,0,Math.PI*2);ctx2.fill();
-  // Player
-  const px=cx+Math.cos(f.angle)*orb,py=cy+Math.sin(f.angle)*orb,r=orb*.072;
-  const aura=ctx2.createRadialGradient(px,py,0,px,py,r*4);
-  aura.addColorStop(0,'rgba(74,240,208,.3)');aura.addColorStop(1,'rgba(74,240,208,0)');
-  ctx2.fillStyle=aura;ctx2.beginPath();ctx2.arc(px,py,r*4,0,Math.PI*2);ctx2.fill();
-  getOrb(f.orb||'cyan').draw(ctx2,px,py,r);
-  // Enemies
-  for(const e of f.enemies){
-    const er=orb*e.r*(1+.1*Math.sin(e.life*.17+e.pp));
-    const eg=ctx2.createRadialGradient(e.x,e.y,0,e.x,e.y,er*4);
-    eg.addColorStop(0,'rgba(255,34,68,.4)');eg.addColorStop(1,'rgba(255,0,0,0)');
-    ctx2.fillStyle=eg;ctx2.beginPath();ctx2.arc(e.x,e.y,er*4,0,Math.PI*2);ctx2.fill();
-    ctx2.fillStyle='#ff3355';ctx2.beginPath();ctx2.arc(e.x,e.y,er,0,Math.PI*2);ctx2.fill();
+  const W2=replayCanvas.width, H2=replayCanvas.height;
+  const cx=W2/2, cy=H2/2;
+  const orb=Math.min(W2,H2)*.32;
+  const t=Date.now()/1000;
+
+  // ── Sfondo fedele al tema ──
+  const theme = BG_THEMES.find(th=>th.id===f.bgTheme)||BG_THEMES[0];
+  if(theme.id==='bp_cosmic'){
+    // sfondo semplificato per bp_cosmic
+    ctx2.fillStyle='#02010f'; ctx2.fillRect(0,0,W2,H2);
+  } else {
+    function hexToRgba2(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return 'rgba('+r+','+g+','+b+','+a+')';}
+    const hue=f.level?(30*(f.level-1))%360:200;
+    const sat=f.level?Math.min(60,20+(f.level*3)):20;
+    let c0,c1;
+    if(theme.id==='default'){c0=`hsla(${hue},${sat}%,8%,1)`;c1=`hsla(${(hue+30)%360},${sat*.6}%,4%,1)`;}
+    else{c0=theme.colors[0].startsWith('#')?hexToRgba2(theme.colors[0],1):theme.colors[0];c1=theme.colors[1].startsWith('#')?hexToRgba2(theme.colors[1],1):theme.colors[1];}
+    const g2=ctx2.createRadialGradient(cx,cy,0,cx,cy,Math.max(W2,H2)*.85);
+    g2.addColorStop(0,c0); g2.addColorStop(.5,c1); g2.addColorStop(1,'rgba(1,1,4,1)');
+    ctx2.fillStyle=g2; ctx2.fillRect(0,0,W2,H2);
   }
-  // Score HUD
-  ctx2.fillStyle='rgba(200,220,255,.6)';ctx2.font='12px Orbitron,monospace';ctx2.textAlign='left';
-  ctx2.fillText(`SCORE ${f.score}  LVL ${f.level}`,12,20);
-  // REPLAY watermark
-  ctx2.fillStyle='rgba(74,240,208,.3)';ctx2.font='bold 11px Orbitron,monospace';ctx2.textAlign='right';
-  ctx2.fillText('DRIFT REPLAY',W2-12,20);
-  // Progress bar
+
+  // ── Stelle ──
+  ctx2.save();
+  for(const s of getStars()){
+    ctx2.globalAlpha=s.a*(.6+.4*Math.sin(t*1.4+s.tw));
+    ctx2.fillStyle='#fff';
+    ctx2.beginPath();ctx2.arc(s.x%W2,s.y%H2,s.r,0,Math.PI*2);ctx2.fill();
+  }
+  ctx2.globalAlpha=1; ctx2.restore();
+
+  // ── Orbita ──
+  ctx2.save();
+  ctx2.strokeStyle='rgba(74,240,208,.08)'; ctx2.lineWidth=1;
+  ctx2.setLineDash([4,8]); ctx2.beginPath();
+  ctx2.arc(cx,cy,orb,0,Math.PI*2); ctx2.stroke();
+  ctx2.setLineDash([]); ctx2.restore();
+
+  // ── Centro ──
+  const cg=ctx2.createRadialGradient(cx,cy,0,cx,cy,18);
+  cg.addColorStop(0,'rgba(74,240,208,.8)'); cg.addColorStop(1,'rgba(74,240,208,0)');
+  ctx2.fillStyle=cg; ctx2.beginPath(); ctx2.arc(cx,cy,18,0,Math.PI*2); ctx2.fill();
+
+  // ── Scia ──
+  if(f.trails&&f.trails.length>1){
+    ctx2.save();
+    for(let ti=1;ti<f.trails.length;ti++){
+      const alpha=(ti/f.trails.length)*.35;
+      ctx2.globalAlpha=alpha;
+      ctx2.strokeStyle='#4af0d0'; ctx2.lineWidth=2;
+      ctx2.beginPath();
+      ctx2.moveTo(f.trails[ti-1].x,f.trails[ti-1].y);
+      ctx2.lineTo(f.trails[ti].x,f.trails[ti].y);
+      ctx2.stroke();
+    }
+    ctx2.globalAlpha=1; ctx2.restore();
+  }
+
+  // ── Nemici ──
+  for(const e of f.enemies){
+    if(e.isPowerup) continue;
+    const er=orb*e.rMult*(1+.1*Math.sin(e.life*.17+e.pp));
+    // Alone
+    const haloR2=er*(e.haloR||3.5);
+    const hcols=e.haloCols||['rgba(255,34,68,.4)','rgba(200,0,0,.15)','rgba(0,0,0,0)'];
+    const eg=ctx2.createRadialGradient(e.x,e.y,0,e.x,e.y,haloR2);
+    eg.addColorStop(0,hcols[0]); eg.addColorStop(.5,hcols[1]); eg.addColorStop(1,hcols[2]);
+    ctx2.fillStyle=eg; ctx2.beginPath(); ctx2.arc(e.x,e.y,haloR2,0,Math.PI*2); ctx2.fill();
+    // Corpo
+    const bodyG=ctx2.createRadialGradient(e.x-er*.3,e.y-er*.3,0,e.x,e.y,er);
+    bodyG.addColorStop(0,e.color0||'#ff6677'); bodyG.addColorStop(1,e.color1||'#cc0022');
+    ctx2.fillStyle=bodyG; ctx2.beginPath(); ctx2.arc(e.x,e.y,er,0,Math.PI*2); ctx2.fill();
+  }
+
+  // ── Particelle ──
+  ctx2.save();
+  for(const p of f.particles){
+    const alpha=Math.max(0,p.life/(p.maxLife||30));
+    ctx2.globalAlpha=alpha*.8;
+    ctx2.fillStyle=p.color||'#4af0d0';
+    ctx2.beginPath(); ctx2.arc(p.x,p.y,p.r||2,0,Math.PI*2); ctx2.fill();
+  }
+  ctx2.globalAlpha=1; ctx2.restore();
+
+  // ── Rings ──
+  ctx2.save();
+  for(const r of (f.rings||[])){
+    ctx2.globalAlpha=r.alpha*.6;
+    ctx2.strokeStyle=r.color||'#4af0d0'; ctx2.lineWidth=1.5;
+    ctx2.beginPath(); ctx2.arc(r.x,r.y,r.radius,0,Math.PI*2); ctx2.stroke();
+  }
+  ctx2.globalAlpha=1; ctx2.restore();
+
+  // ── Sfera giocatore ──
+  const px=cx+Math.cos(f.angle)*orb, py=cy+Math.sin(f.angle)*orb;
+  const pr=orb*.072;
+  // Alone giocatore
+  if(f.invincible>0){
+    const sa=ctx2.createRadialGradient(px,py,0,px,py,pr*4);
+    sa.addColorStop(0,'rgba(74,240,208,.4)'); sa.addColorStop(1,'rgba(74,240,208,0)');
+    ctx2.fillStyle=sa; ctx2.beginPath(); ctx2.arc(px,py,pr*4,0,Math.PI*2); ctx2.fill();
+  }
+  // Disegna sfera
+  const orbDef=getOrb(f.orb||'cyan');
+  if(orbDef&&orbDef.draw) orbDef.draw(ctx2,px,py,pr);
+  else{
+    const pg=ctx2.createRadialGradient(px-pr*.3,py-pr*.3,0,px,py,pr);
+    pg.addColorStop(0,'#7ef8e8'); pg.addColorStop(1,'#4af0d0');
+    ctx2.fillStyle=pg; ctx2.beginPath(); ctx2.arc(px,py,pr,0,Math.PI*2); ctx2.fill();
+  }
+
+  // ── HUD ──
+  ctx2.fillStyle='rgba(200,220,255,.7)';
+  ctx2.font='bold 12px Orbitron,monospace'; ctx2.textAlign='left';
+  ctx2.fillText('SCORE '+f.score,12,22);
+  ctx2.fillText('LVL '+f.level,12,38);
+  // Vite
+  for(let li=0;li<f.lives;li++){
+    ctx2.fillStyle='#ff4488'; ctx2.font='14px serif';
+    ctx2.fillText('♥',W2-24-li*18,22);
+  }
+  // Watermark
+  ctx2.fillStyle='rgba(74,240,208,.25)'; ctx2.font='bold 10px Orbitron,monospace'; ctx2.textAlign='right';
+  ctx2.fillText('ZIVVE REPLAY',W2-12,H2-8);
+
+  // ── Progress bar ──
   const prog=i/replayBuffer.length;
-  ctx2.fillStyle='rgba(255,255,255,.08)';ctx2.fillRect(0,H2-3,W2,3);
-  ctx2.fillStyle='#4af0d0';ctx2.fillRect(0,H2-3,W2*prog,3);
-  replayRaf=setTimeout(()=>playReplayFrames(i+1),16);
+  ctx2.fillStyle='rgba(255,255,255,.06)'; ctx2.fillRect(0,H2-3,W2,3);
+  ctx2.fillStyle='#4af0d0'; ctx2.fillRect(0,H2-3,W2*prog,3);
+
+  replayRaf=setTimeout(()=>playReplayFrames(i+1),50);
 }
 
 function stopReplay(){
