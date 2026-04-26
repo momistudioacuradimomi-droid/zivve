@@ -5,40 +5,255 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — ZIVVE</title>
 <style>
-body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#333;line-height:1.6}
-h1{color:#03030a}h2{color:#333;margin-top:30px}
+:root{
+  --bg:#0a0a14;--text:#e8ecff;--accent:#4af0d0;--dim:rgba(232,236,255,.55);--border:rgba(74,240,208,.18);
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;max-width:780px;margin:0 auto;padding:40px 24px;color:var(--text);background:var(--bg);line-height:1.7;font-size:15px}
+h1{color:var(--accent);font-size:26px;letter-spacing:.04em;margin:0 0 8px;font-weight:600}
+h2{color:var(--accent);font-size:17px;margin-top:36px;margin-bottom:12px;letter-spacing:.02em;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px}
+h3{color:var(--text);font-size:14px;margin-top:20px;margin-bottom:6px;letter-spacing:.02em;font-weight:600}
+p,li{color:var(--text)}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--border)}
+a:hover{border-bottom-color:var(--accent)}
+.meta{color:var(--dim);font-size:13px;margin-bottom:32px}
+.lang-switch{display:flex;gap:12px;margin-bottom:32px}
+.lang-switch a{padding:6px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;letter-spacing:.08em}
+ul{padding-left:22px}
+li{margin-bottom:6px}
+.box{background:rgba(74,240,208,.05);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin:18px 0}
+.box-title{color:var(--accent);font-weight:600;font-size:13px;letter-spacing:.06em;margin-bottom:8px}
+.footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center}
+hr{border:none;border-top:1px solid var(--border);margin:60px 0 40px}
 </style>
 </head>
 <body>
+
+<div class="lang-switch">
+  <a href="#it">🇮🇹 Italiano</a>
+  <a href="#en">🇬🇧 English</a>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!--                         ITALIANO                              -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="it">
+
 <h1>Privacy Policy — ZIVVE</h1>
-<p><strong>Ultimo aggiornamento:</strong> 24 Marzo 2026</p>
-<p>ZIVVE è sviluppato da <strong>Momi Digital Labs — A project of Momi Studio — Step by Step</strong>.</p>
+<p class="meta"><strong>Ultimo aggiornamento:</strong> 26 Aprile 2026 · <strong>Versione:</strong> 2.0</p>
 
-<h2>1. Dati raccolti</h2>
-<p>ZIVVE non raccoglie dati personali degli utenti. Il gioco salva localmente sul dispositivo:</p>
+<div class="box">
+<div class="box-title">SINTESI</div>
+<p style="margin:0">ZIVVE rispetta la tua privacy. Non raccogliamo dati personali identificativi, non utilizziamo pubblicità, non tracciamo i tuoi comportamenti né condividiamo i tuoi dati con terze parti per finalità di marketing. I progressi di gioco rimangono sul tuo dispositivo. Se partecipi alla classifica mondiale, condividiamo soltanto il nickname che scegli e il tuo punteggio.</p>
+</div>
+
+<h2>1. Chi siamo</h2>
+<p>ZIVVE è sviluppato e pubblicato da <strong>Momi Digital Labs</strong>, un progetto di Momi Studio — Step by Step (a cura di Momi), con sede in Italia.</p>
+<p>Per qualsiasi domanda sulla presente Privacy Policy o per esercitare i tuoi diritti, puoi contattarci all'indirizzo: <strong><a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a></strong></p>
+
+<h2>2. Dati che raccogliamo</h2>
+
+<h3>2.1 Dati salvati localmente sul tuo dispositivo</h3>
+<p>ZIVVE salva i seguenti dati tramite il <em>localStorage</em> del browser o del WebView dell'app, esclusivamente sul tuo dispositivo:</p>
 <ul>
-<li>Punteggi e progressi di gioco</li>
-<li>Nome giocatore scelto dall'utente</li>
-<li>Preferenze di gioco</li>
+<li>Punteggi, record e progressi di gioco</li>
+<li>Nickname scelto da te per la classifica</li>
+<li>Sfere, badge e contenuti sbloccati</li>
+<li>Preferenze (lingua, audio, vibrazione)</li>
+<li>Statistiche di gioco anonime (numero partite, streak giornalieri)</li>
 </ul>
-<p>Questi dati rimangono sul dispositivo dell'utente e non vengono trasmessi a server esterni, ad eccezione dei punteggi della classifica mondiale (nome giocatore e punteggio) salvati su Supabase.</p>
+<p>Questi dati <strong>non vengono trasmessi ad alcun server</strong>. Sono accessibili solo dal tuo dispositivo e vengono cancellati se disinstalli l'app o cancelli i dati del browser.</p>
 
-<h2>2. Acquisti in-app</h2>
-<p>I pagamenti in-app sono gestiti da <strong>Stripe</strong>. ZIVVE non raccoglie né conserva dati di pagamento. Per la privacy policy di Stripe: <a href="https://stripe.com/privacy">stripe.com/privacy</a></p>
+<h3>2.2 Dati condivisi per la classifica mondiale</h3>
+<p>Quando ottieni un punteggio nella modalità "Classifica" e scegli di pubblicarlo, condividiamo con il nostro database <strong>Firebase Realtime Database</strong> (server in <strong>Europa, Belgio – europe-west1</strong>) i seguenti dati:</p>
+<ul>
+<li>Il <strong>nickname</strong> che hai scelto (puoi inserire qualsiasi stringa, anche fittizia)</li>
+<li>Il <strong>punteggio</strong> ottenuto</li>
+<li>Il <strong>paese</strong> rilevato dal tuo IP (vedi sezione 2.3)</li>
+<li>L'ID della <strong>sfera</strong> utilizzata</li>
+</ul>
+<p>Non raccogliamo né conserviamo il tuo nome reale, indirizzo email, numero di telefono, dispositivo, account o qualsiasi altro identificatore personale.</p>
 
-<h2>3. Dati di gioco</h2>
-<p>I punteggi della classifica (nome giocatore e punteggio) vengono salvati su database Supabase per la funzione classifica mondiale. Non vengono raccolti dati personali identificativi.</p>
+<h3>2.3 Rilevamento del paese</h3>
+<p>Per consentire la classifica nazionale, ZIVVE effettua una singola chiamata HTTP a <a href="https://ipapi.co/" target="_blank">ipapi.co</a> al primo avvio del gioco, allo scopo di rilevare il <strong>nome del paese</strong> associato al tuo IP. Non viene salvato l'IP, né alcuna informazione di geolocalizzazione precisa. Solo il nome del paese (es. "Italy") viene memorizzato nel localStorage e successivamente associato al tuo punteggio se decidi di pubblicarlo.</p>
+<p>Se preferisci non condividere il paese, puoi disattivare la connessione di rete prima del primo avvio del gioco; in tal caso il paese non verrà rilevato.</p>
 
-<h2>4. Pubblicità</h2>
-<p>ZIVVE non contiene pubblicità di terze parti.</p>
+<h2>3. Cosa NON facciamo</h2>
+<p>Per chiarezza, ZIVVE <strong>non</strong>:</p>
+<ul>
+<li>raccoglie dati personali identificativi (nome reale, email, telefono, indirizzo)</li>
+<li>utilizza pubblicità di terze parti, banner, video o reward ads</li>
+<li>traccia i tuoi comportamenti con strumenti di analytics (es. Google Analytics, Firebase Analytics, Mixpanel)</li>
+<li>utilizza l'<strong>IDFA</strong> (Identifier for Advertisers) di Apple né altri identificatori pubblicitari</li>
+<li>vende, affitta o condivide i tuoi dati con terze parti per finalità di marketing</li>
+<li>accede a foto, contatti, microfono, fotocamera, posizione GPS, calendario o altri dati sensibili del dispositivo</li>
+<li>invia notifiche push o email promozionali</li>
+</ul>
 
-<h2>5. Minori</h2>
-<p>ZIVVE non raccoglie consapevolmente dati da minori di 13 anni.</p>
+<h2>4. App Tracking Transparency (iOS)</h2>
+<p>In conformità con le linee guida Apple App Tracking Transparency, dichiariamo che <strong>ZIVVE non traccia gli utenti</strong> ai fini definiti da Apple. Non utilizziamo l'IDFA né altri strumenti di tracciamento cross-app. Per questo motivo, l'app <strong>non mostra il prompt di richiesta tracking</strong> (App Tracking Transparency dialog).</p>
 
-<h2>6. Contatti</h2>
-<p>Per qualsiasi domanda sulla privacy: <strong>momistudio@email.com</strong></p>
+<h2>5. Acquisti in-app</h2>
+<p>Nella versione corrente di ZIVVE per iOS (versione 1.0), <strong>tutti gli acquisti in-app sono disabilitati</strong>. Il gioco è gratuito e completamente giocabile senza alcun pagamento. Le sfere base sono disponibili a tutti gli utenti.</p>
+<p>Nelle versioni future di ZIVVE per iOS, eventuali acquisti in-app saranno gestiti esclusivamente tramite il <strong>sistema In-App Purchase di Apple</strong>, conformemente alle linee guida dell'App Store. In tal caso, non raccoglieremo né tratteremo dati di pagamento: tutto sarà gestito da Apple secondo la sua privacy policy (<a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a>).</p>
 
-<h2>7. Modifiche</h2>
-<p>Questa privacy policy può essere aggiornata periodicamente. Le modifiche saranno pubblicate su questa pagina.</p>
+<h2>6. Conservazione dei dati</h2>
+<ul>
+<li><strong>Dati locali (localStorage):</strong> conservati sul tuo dispositivo finché non disinstalli l'app o cancelli i dati del browser. Non c'è scadenza imposta da noi.</li>
+<li><strong>Punteggi nella classifica (Firebase):</strong> conservati a tempo indeterminato per consentire la consultazione storica della classifica. Possono essere rimossi su tua richiesta scritta inviata all'indirizzo email indicato nella sezione 1.</li>
+</ul>
+
+<h2>7. I tuoi diritti (GDPR)</h2>
+<p>Se sei residente nello Spazio Economico Europeo (UE/SEE), il Regolamento Generale sulla Protezione dei Dati (GDPR — Regolamento UE 2016/679) ti riconosce i seguenti diritti:</p>
+<ul>
+<li><strong>Diritto di accesso:</strong> sapere quali dati abbiamo associato al tuo nickname</li>
+<li><strong>Diritto di rettifica:</strong> chiedere la correzione di dati inesatti</li>
+<li><strong>Diritto alla cancellazione (oblio):</strong> chiedere la rimozione del tuo punteggio dalla classifica</li>
+<li><strong>Diritto di opposizione:</strong> opporti al trattamento dei tuoi dati</li>
+<li><strong>Diritto alla portabilità:</strong> ricevere i tuoi dati in formato strutturato</li>
+<li><strong>Diritto di reclamo:</strong> presentare un reclamo all'Autorità Garante per la Protezione dei Dati Personali (<a href="https://www.garanteprivacy.it/">garanteprivacy.it</a>)</li>
+</ul>
+<p>Per esercitare uno qualsiasi di questi diritti, scrivi a <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a> indicando il nickname con cui hai giocato. Risponderemo entro 30 giorni.</p>
+
+<h2>8. Minori</h2>
+<p>ZIVVE è un gioco arcade adatto a tutti, classificato <strong>4+</strong> sull'App Store. Tuttavia, in conformità con il <strong>COPPA (USA)</strong> e con il <strong>GDPR (UE)</strong>:</p>
+<ul>
+<li>Non raccogliamo consapevolmente dati personali identificativi da minori di <strong>13 anni (USA)</strong> o <strong>16 anni (UE, salvo diverse soglie nazionali)</strong>.</li>
+<li>Poiché ZIVVE non richiede registrazione né dati personali, l'utilizzo da parte di minori non comporta raccolta di dati identificativi.</li>
+<li>Ricordiamo che il nickname pubblicato in classifica è visibile a tutti i giocatori. Si raccomanda ai genitori di supervisionare i bambini affinché non inseriscano nomi reali, indirizzi o informazioni personali come nickname.</li>
+</ul>
+<p>Se sei un genitore o tutore e ritieni che tuo figlio abbia condiviso dati attraverso ZIVVE, contattaci immediatamente all'indirizzo <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a> per la rimozione.</p>
+
+<h2>9. Trasferimenti internazionali</h2>
+<p>I dati della classifica sono ospitati su <strong>Firebase Realtime Database</strong> di Google, con server localizzati in <strong>Belgio (europe-west1)</strong>, all'interno dello Spazio Economico Europeo. Non avvengono trasferimenti di dati personali al di fuori dell'UE/SEE.</p>
+<p>Il servizio di rilevamento paese (ipapi.co) può comportare il trattamento del tuo IP da parte del fornitore. Per dettagli vedi <a href="https://ipapi.co/privacy/" target="_blank">ipapi.co/privacy</a>.</p>
+
+<h2>10. Sicurezza</h2>
+<p>Adottiamo misure tecniche e organizzative ragionevoli per proteggere i dati: comunicazioni cifrate via HTTPS, regole di sicurezza Firebase configurate per limitare l'accesso al solo necessario, nessuna conservazione di credenziali utente in quanto ZIVVE non richiede registrazione.</p>
+
+<h2>11. Modifiche alla Privacy Policy</h2>
+<p>Possiamo aggiornare questa Privacy Policy per riflettere modifiche tecniche, legali o nelle pratiche del gioco. La versione aggiornata sarà sempre disponibile a questo URL, con la data di ultimo aggiornamento in cima al documento. Ti incoraggiamo a consultarla periodicamente.</p>
+
+<h2>12. Contatti</h2>
+<p><strong>Titolare del trattamento:</strong> Momi Digital Labs — Momi Studio — Step by Step<br>
+<strong>Email:</strong> <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a><br>
+<strong>Giurisdizione:</strong> Italia</p>
+
+</section>
+
+<hr>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!--                         ENGLISH                               -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="en">
+
+<h1>Privacy Policy — ZIVVE</h1>
+<p class="meta"><strong>Last updated:</strong> April 26, 2026 · <strong>Version:</strong> 2.0</p>
+
+<div class="box">
+<div class="box-title">SUMMARY</div>
+<p style="margin:0">ZIVVE respects your privacy. We do not collect personally identifiable information, do not display advertising, do not track your behavior, and do not share your data with third parties for marketing purposes. Your game progress stays on your device. If you participate in the global leaderboard, we only share the nickname you choose and your score.</p>
+</div>
+
+<h2>1. Who we are</h2>
+<p>ZIVVE is developed and published by <strong>Momi Digital Labs</strong>, a project of Momi Studio — Step by Step (a cura di Momi), based in Italy.</p>
+<p>For any questions about this Privacy Policy or to exercise your rights, please contact us at: <strong><a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a></strong></p>
+
+<h2>2. Data we collect</h2>
+
+<h3>2.1 Data stored locally on your device</h3>
+<p>ZIVVE saves the following data using your browser's or app's <em>localStorage</em>, exclusively on your device:</p>
+<ul>
+<li>Game scores, records, and progress</li>
+<li>Nickname you choose for the leaderboard</li>
+<li>Orbs, badges, and unlocked content</li>
+<li>Preferences (language, audio, vibration)</li>
+<li>Anonymous gameplay statistics (game count, daily streaks)</li>
+</ul>
+<p>This data is <strong>not transmitted to any server</strong>. It is accessible only from your device and is deleted if you uninstall the app or clear your browser data.</p>
+
+<h3>2.2 Data shared for the global leaderboard</h3>
+<p>When you achieve a score in "Leaderboard" mode and choose to publish it, we share the following data with our <strong>Firebase Realtime Database</strong> (servers located in <strong>Europe, Belgium – europe-west1</strong>):</p>
+<ul>
+<li>The <strong>nickname</strong> you chose (any string is allowed, including fictional names)</li>
+<li>The <strong>score</strong> achieved</li>
+<li>The <strong>country</strong> detected from your IP (see section 2.3)</li>
+<li>The ID of the <strong>orb</strong> used</li>
+</ul>
+<p>We do not collect or store your real name, email address, phone number, device, account, or any other personal identifier.</p>
+
+<h3>2.3 Country detection</h3>
+<p>To enable the national leaderboard, ZIVVE makes a single HTTP request to <a href="https://ipapi.co/" target="_blank">ipapi.co</a> on first launch, in order to detect the <strong>country name</strong> associated with your IP. The IP itself is not stored, nor any precise geolocation data. Only the country name (e.g. "Italy") is saved in localStorage and subsequently linked to your score if you decide to publish it.</p>
+<p>If you prefer not to share your country, you can disable network connectivity before the first launch of the game; in that case the country will not be detected.</p>
+
+<h2>3. What we do NOT do</h2>
+<p>For clarity, ZIVVE does <strong>not</strong>:</p>
+<ul>
+<li>collect personally identifiable information (real name, email, phone, address)</li>
+<li>display third-party advertising, banners, video ads, or reward ads</li>
+<li>track your behavior with analytics tools (e.g. Google Analytics, Firebase Analytics, Mixpanel)</li>
+<li>use Apple's <strong>IDFA</strong> (Identifier for Advertisers) or any other advertising identifier</li>
+<li>sell, rent, or share your data with third parties for marketing purposes</li>
+<li>access photos, contacts, microphone, camera, GPS location, calendar, or other sensitive device data</li>
+<li>send push notifications or promotional emails</li>
+</ul>
+
+<h2>4. App Tracking Transparency (iOS)</h2>
+<p>In compliance with Apple's App Tracking Transparency guidelines, we declare that <strong>ZIVVE does not track users</strong> as defined by Apple. We do not use IDFA or any other cross-app tracking tool. For this reason, the app <strong>does not display the App Tracking Transparency prompt</strong>.</p>
+
+<h2>5. In-app purchases</h2>
+<p>In the current version of ZIVVE for iOS (version 1.0), <strong>all in-app purchases are disabled</strong>. The game is free and fully playable without any payment. Base orbs are available to all users.</p>
+<p>In future versions of ZIVVE for iOS, any in-app purchases will be exclusively managed through Apple's <strong>In-App Purchase system</strong>, in compliance with App Store guidelines. In that case, we will not collect or process payment data: everything will be handled by Apple under their privacy policy (<a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a>).</p>
+
+<h2>6. Data retention</h2>
+<ul>
+<li><strong>Local data (localStorage):</strong> kept on your device until you uninstall the app or clear your browser data. No retention period is imposed by us.</li>
+<li><strong>Leaderboard scores (Firebase):</strong> retained indefinitely to allow historical leaderboard browsing. They can be removed upon written request sent to the email address listed in section 1.</li>
+</ul>
+
+<h2>7. Your rights (GDPR)</h2>
+<p>If you are a resident of the European Economic Area (EU/EEA), the General Data Protection Regulation (GDPR — EU Regulation 2016/679) grants you the following rights:</p>
+<ul>
+<li><strong>Right of access:</strong> know what data we have linked to your nickname</li>
+<li><strong>Right of rectification:</strong> request correction of inaccurate data</li>
+<li><strong>Right to erasure (right to be forgotten):</strong> request removal of your score from the leaderboard</li>
+<li><strong>Right to object:</strong> object to the processing of your data</li>
+<li><strong>Right to data portability:</strong> receive your data in a structured format</li>
+<li><strong>Right to lodge a complaint:</strong> file a complaint with the Italian Data Protection Authority (<a href="https://www.garanteprivacy.it/">garanteprivacy.it</a>)</li>
+</ul>
+<p>To exercise any of these rights, please write to <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a> indicating the nickname you used. We will respond within 30 days.</p>
+
+<h2>8. Minors</h2>
+<p>ZIVVE is an arcade game suitable for all ages, rated <strong>4+</strong> on the App Store. However, in compliance with <strong>COPPA (USA)</strong> and <strong>GDPR (EU)</strong>:</p>
+<ul>
+<li>We do not knowingly collect personally identifiable information from children under <strong>13 years (USA)</strong> or <strong>16 years (EU, subject to national thresholds)</strong>.</li>
+<li>Since ZIVVE does not require registration or personal data, use by minors does not result in collection of identifying data.</li>
+<li>Please note that the nickname published on the leaderboard is visible to all players. We recommend that parents supervise their children to ensure they do not enter real names, addresses, or personal information as nicknames.</li>
+</ul>
+<p>If you are a parent or guardian and believe your child has shared data through ZIVVE, please contact us immediately at <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a> for removal.</p>
+
+<h2>9. International transfers</h2>
+<p>Leaderboard data is hosted on Google's <strong>Firebase Realtime Database</strong>, with servers located in <strong>Belgium (europe-west1)</strong>, within the European Economic Area. No personal data is transferred outside the EU/EEA.</p>
+<p>The country detection service (ipapi.co) may involve processing of your IP by the provider. For details see <a href="https://ipapi.co/privacy/" target="_blank">ipapi.co/privacy</a>.</p>
+
+<h2>10. Security</h2>
+<p>We adopt reasonable technical and organizational measures to protect data: encrypted communications via HTTPS, Firebase security rules configured to limit access to what is strictly necessary, no storage of user credentials as ZIVVE does not require registration.</p>
+
+<h2>11. Changes to this Privacy Policy</h2>
+<p>We may update this Privacy Policy to reflect technical, legal, or game practice changes. The updated version will always be available at this URL, with the last update date at the top of the document. We encourage you to review it periodically.</p>
+
+<h2>12. Contact</h2>
+<p><strong>Data Controller:</strong> Momi Digital Labs — Momi Studio — Step by Step<br>
+<strong>Email:</strong> <a href="mailto:momistudioacuradimomi@gmail.com">momistudioacuradimomi@gmail.com</a><br>
+<strong>Jurisdiction:</strong> Italy</p>
+
+</section>
+
+<div class="footer">
+ZIVVE — Orbita. Schiva. Sopravvivi.<br>
+© 2026 Momi Digital Labs · A project of Momi Studio — Step by Step
+</div>
+
 </body>
 </html>
