@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.momistudio.zivvegame",
+    "sha256_cert_fingerprints": [
+      "D5:E7:3C:AC:55:BA:A2:37:29:ED:FC:A1:D1:42:42:84:05:9A:37:7C:A0:AE:52:30:01:58:96:37:C8:E5:70:A8"
+    ]
+  }
+}]
