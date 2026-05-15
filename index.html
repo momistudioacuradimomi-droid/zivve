@@ -11175,6 +11175,15 @@ const KING_PENALTIES = [
   {id:'target',    icon:'👑',  name:'Bersaglio',    desc:'Tutti i nemici ti inseguono direttamente'},
 ];
 
+// ── KING_REWARDS — premi che il re può assegnare agli altri giocatori ──
+const KING_REWARDS = [
+  {id:'shield_gift', icon:'🛡️', name:'Scudo Regalo',    desc:'Attiva uno scudo immediato sul giocatore'},
+  {id:'life_gift',   icon:'❤️',  name:'+1 Vita',         desc:'Dona una vita extra al giocatore'},
+  {id:'slow_gift',   icon:'⏱️',  name:'Slow Mo',         desc:'Attiva slow motion per 5 secondi'},
+  {id:'score_gift',  icon:'⭐',  name:'+200 Punti',      desc:'Aggiunge 200 punti istantanei'},
+  {id:'shield_lock', icon:'🔒',  name:'Scudo Eterno 30s',desc:'Scudo invincibile per 30 secondi'},
+];
+
 // ── Gestione torneo su Firebase ──
 function getTourneyWeekKey(){
   const d=new Date();
@@ -12162,11 +12171,11 @@ async function sbBroadcast(room, payload){
 }
 
 // ── Supabase table helpers for rooms ──
-async function sbRoomCreate(room){ if(!USE_LB) return; try{ await sbFetch('drift_rooms',{method:'POST',body:JSON.stringify(room)}); }catch(e){} }
-async function sbRoomGet(code){ if(!USE_LB) return null; try{ const d=await sbFetch(`drift_rooms?code=eq.${code}`); return Array.isArray(d)&&d[0]?d[0]:null; }catch(e){return null;} }
-async function sbRoomUpdate(code,data){ if(!USE_LB) return; try{ await sbFetch(`drift_rooms?code=eq.${code}`,{method:'PATCH',body:JSON.stringify(data)}); }catch(e){} }
-async function sbRoomPlayerUpsert(code,player){ if(!USE_LB) return; try{ const key=`drift_room_players?room_code=eq.${code}&name=eq.${player.name}`; const d=await sbFetch(key); if(Array.isArray(d)&&d[0]) await sbFetch(key,{method:'PATCH',body:JSON.stringify(player)}); else await sbFetch('drift_room_players',{method:'POST',body:JSON.stringify({...player,room_code:code})}); }catch(e){} }
-async function sbRoomPlayers(code){ if(!USE_LB) return []; try{ const d=await sbFetch(`drift_room_players?room_code=eq.${code}&order=score.desc`); return Array.isArray(d)?d:[]; }catch(e){return [];} }
+async function sbRoomCreate(room){ if(!USE_LB) return; try{ await fbSet('/rooms/'+room.code, room); }catch(e){} }
+async function sbRoomGet(code){ if(!USE_LB) return null; try{ const d=await fbGet('/rooms/'+code); return d||null; }catch(e){return null;} }
+async function sbRoomUpdate(code,data){ if(!USE_LB) return; try{ const ex=await fbGet('/rooms/'+code)||{}; await fbSet('/rooms/'+code,{...ex,...data}); }catch(e){} }
+async function sbRoomPlayerUpsert(code,player){ if(!USE_LB) return; try{ await fbSet('/rooms/'+code+'/players/'+encodeURIComponent(player.name), player); }catch(e){} }
+async function sbRoomPlayers(code){ if(!USE_LB) return []; try{ const d=await fbGet('/rooms/'+code+'/players'); return d?Object.values(d).sort((a,b)=>b.score-a.score):[]; }catch(e){return [];} }
 
 // ── State ──
 /* CH moved up */
@@ -15331,7 +15340,7 @@ function getActiveBPOrb(){
   if(!owned) return null;
   // Deve essere la sfera selezionata attualmente
   if(selectedOrbId !== bpId) return null;
-  return ORBS.find(o=>o.id===bpId)||null;
+  return (typeof ORB_CATALOG!=='undefined'?ORB_CATALOG:[]).find(o=>o.id===bpId)||null;
 }
 
 function bpHasPower(powerName){
