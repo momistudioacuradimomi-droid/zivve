@@ -8918,6 +8918,7 @@ if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G
     }
   }
   for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.vx*=.98;p.life--;if(p.life<=0)G.particles.splice(i,1);}
+  if(G.particles.length>_maxParticles) G.particles.splice(0,G.particles.length-_maxParticles);
   for(let i=G.rings.length-1;i>=0;i--){const r=G.rings[i];r.r+=r.grow||6;r.alpha-=.028;if(r.alpha<=0)G.rings.splice(i,1);}
   for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=(s.grow||9);s.alpha-=.025;if(s.alpha<=0)G.shockwaves.splice(i,1);}
   if(G.shaking>0)G.shaking--;
@@ -9704,9 +9705,9 @@ function drawEnemies(){
     ctx.restore();
   }
 }
-function drawParticles(){for(const p of G.particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle=p.color;ctx.shadowBlur=6;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}}
-function drawRings(){for(const r of G.rings){ctx.save();ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
-function drawShockwaves(){for(const s of G.shockwaves){ctx.save();ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.shadowBlur=12;ctx.shadowColor=col;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
+function drawParticles(){const _parts=G.particles.slice(-_maxParticles);ctx.save();for(const p of _parts){const _a=Math.max(0,p.life/60);if(_a<=0)continue;ctx.globalAlpha=_a;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.restore();}
+function drawRings(){if(!G.rings.length)return;ctx.save();for(const r of G.rings){ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
+function drawShockwaves(){if(!G.shockwaves.length)return;ctx.save();for(const s of G.shockwaves){ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
 
 // ══════════════════════════════════════
 //  POWERUP HUD
