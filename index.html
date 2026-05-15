@@ -10904,9 +10904,19 @@ function runIntro(){
 function hideIntro(){
   const el=document.getElementById('introOverlay');
   if(!el) return;
+  // Nasconde i layer del menu durante il fade per evitare flash
+  ['zvNewUniverse','zvNewStars','zvNextGenFX','zvNewPulse','zvNewGlass'].forEach(id=>{
+    const e=document.getElementById(id);
+    if(e) e.style.setProperty('opacity','0','important');
+  });
   el.style.opacity='0';
   setTimeout(()=>{
     el.style.display='none';
+    // Ripristina i layer del menu
+    ['zvNewUniverse','zvNewStars','zvNextGenFX','zvNewPulse','zvNewGlass'].forEach(id=>{
+      const e=document.getElementById(id);
+      if(e) e.style.removeProperty('opacity');
+    });
     // Non sovrascrivere il gioco se è già in corso
     if(window._inGame) return;
     // Mostra menu principale dopo l'intro
