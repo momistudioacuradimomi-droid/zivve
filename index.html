@@ -4063,8 +4063,8 @@ button[onclick*="startGame"]{
 
 <!-- CONFIRM STOP -->
 <div class="overlay hidden" id="stopOverlay" style="display:none">
-  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px" data-i18n="stopConfirm">Stop this game?</div>
-  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px" data-i18n="progressLost">Progress will be lost</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px;text-align:center;width:100%;max-width:320px" data-i18n="stopConfirm">Stop this game?</div>
+  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px;text-align:center;width:100%;max-width:320px" data-i18n="progressLost">Progress will be lost</div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.4)" onclick="forceStop()" data-i18n="yes">YES, STOP</button>
   <button class="btn-outline" onclick="hide('stopOverlay');resumeGame()" data-i18n="cancel">Cancel</button>
 </div>
