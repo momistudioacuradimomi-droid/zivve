@@ -6612,7 +6612,7 @@ function showStatsScreen(){
     'cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.24em;margin-top:22px;'+
     'box-shadow:0 14px 42px rgba(0,0,0,.34),inset 0 0 22px rgba(255,255,255,.04)';
   clos.textContent='CHIUDI';
-  clos.onclick=function(){div.remove();};
+  clos.onclick=function(){div.style.transition='opacity 120ms ease';div.style.opacity='0';setTimeout(function(){div.remove();},130);};;
   div.appendChild(clos);
 
   document.body.appendChild(div);
@@ -10311,7 +10311,11 @@ function showUpgradeScreen(){
     'background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.16);'+
     'color:rgba(255,255,255,.64);padding:12px 28px;border-radius:999px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.24em;margin-top:4px;'+
     'box-shadow:0 14px 42px rgba(0,0,0,.34),inset 0 0 22px rgba(255,255,255,.04)';
-  close.onclick=function(){div.remove();};
+  close.onclick=function(){
+    div.style.transition='opacity 120ms ease';
+    div.style.opacity='0';
+    setTimeout(function(){div.remove();},130);
+  };
   wrap.appendChild(close);
 
   div.appendChild(wrap);
@@ -15790,7 +15794,7 @@ function showWeeklyTournament(){
   const close = document.createElement('button');
   close.style.cssText='background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);padding:10px 24px;border-radius:6px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.2em';
   close.textContent='← CHIUDI';
-  close.onclick=function(){div.remove();};
+  close.onclick=function(){div.style.transition='opacity 120ms ease';div.style.opacity='0';setTimeout(function(){div.remove();},130);};;
   div.appendChild(close);
   document.body.appendChild(div);
 }
@@ -15844,7 +15848,7 @@ function showNotificationSettings(){
   const close = document.createElement('button');
   close.style.cssText='background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.35);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:Syncopate,sans-serif;font-size:10px;letter-spacing:.2em;margin-top:20px';
   close.textContent='← CHIUDI';
-  close.onclick=function(){div.remove();};
+  close.onclick=function(){div.style.transition='opacity 120ms ease';div.style.opacity='0';setTimeout(function(){div.remove();},130);};;
   div.appendChild(close);
   document.body.appendChild(div);
 }
