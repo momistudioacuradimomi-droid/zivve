@@ -15859,28 +15859,44 @@ function runMDLIntro(cb){
   if(!ov||!img){if(cb)cb();return;}
   var FADE_IN=1200, HOLD=3000, FADE_OUT=1200;
   var TOTAL=FADE_IN+HOLD+FADE_OUT;
-  img.style.transition='opacity '+FADE_IN+'ms ease';
-  var tag=document.getElementById('mdlTagline');
-  if(tag) tag.style.transition='opacity '+FADE_IN+'ms ease';
-  img.style.opacity='0';
-  if(tag) tag.style.opacity='0';
+  // Reset completo stato overlay
+  ov.style.transition='none';
+  ov.style.opacity='1';
   ov.style.background='#000';
   ov.style.display='flex';
   ov.style.visibility='visible';
-  ov.style.opacity='1';
+  // Logo parte invisibile
+  img.style.transition='none';
+  img.style.opacity='0';
+  var tag=document.getElementById('mdlTagline');
+  if(tag){tag.style.transition='none';tag.style.opacity='0';}
   var done=false;
-  function finish(){if(done)return;done=true;ov.style.display='none';ov.style.visibility='hidden';if(cb)cb();}
-  setTimeout(function(){
+  var t1,t2,t3;
+  function finish(){
+    if(done)return;done=true;
+    clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);
+    ov.style.transition='none';
+    ov.style.opacity='0';
+    ov.style.display='none';
+    ov.style.visibility='hidden';
+    if(cb)cb();
+  }
+  // Fade in logo
+  t1=setTimeout(function(){
+    img.style.transition='opacity '+FADE_IN+'ms ease';
+    if(tag) tag.style.transition='opacity '+FADE_IN+'ms ease';
     img.style.opacity='1';
     if(tag) tag.style.opacity='0.85';
   },80);
-  setTimeout(function(){
+  // Fade out logo
+  t2=setTimeout(function(){
     img.style.transition='opacity '+FADE_OUT+'ms ease';
     if(tag) tag.style.transition='opacity '+FADE_OUT+'ms ease';
     img.style.opacity='0';
     if(tag) tag.style.opacity='0';
   },FADE_IN+HOLD);
-  setTimeout(finish,TOTAL+100);
+  // Fine — sicurezza assoluta che cb venga chiamato
+  t3=setTimeout(finish, TOTAL+200);
 }
 
 
