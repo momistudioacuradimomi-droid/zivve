@@ -2522,12 +2522,15 @@ html,body{
 
 #zvNewUniverse{
   z-index:0;
+  opacity:0;
+  transition:opacity 500ms ease;
 }
 
 #zvNewStars{
   z-index:1;
-  opacity:.65;
+  opacity:0;
   mix-blend-mode:screen;
+  transition:opacity 500ms ease;
 }
 
 #zvNewPulse{
@@ -7691,7 +7694,13 @@ function startRaceModeGame(){
   showMsg('🏁 MODALITÀ CORSA — Scegli un bonus ogni 30s!','#4af0d0');
 }
 
-function showStart(){updateXPBar();try{if(window.updateDailyGoalWidget)updateDailyGoalWidget();}catch(e){} try{getKingRivalryText();}catch(e){}
+function showStart(){
+  // Mostra canvas di sfondo con dissolvenza
+  ['zvNewUniverse','zvNewStars'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.opacity=id==='zvNewStars'?'.65':'1';
+  });
+  updateXPBar();try{if(window.updateDailyGoalWidget)updateDailyGoalWidget();}catch(e){} try{getKingRivalryText();}catch(e){}
   // Aggiorna counter frammenti
   const _fc=document.getElementById('fragsMenuCount');
   if(_fc){ const f=getFragments(); _fc.textContent=f>0?'💎'+f:''; }
