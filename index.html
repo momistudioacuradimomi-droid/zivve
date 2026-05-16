@@ -10925,6 +10925,11 @@ function hideIntro(){
     el.style.display='none';
     // Non sovrascrivere il gioco se è già in corso
     if(window._inGame) return;
+    // Nascondi canvas di sfondo durante la transizione
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){el.style.opacity='0';el.style.transition='opacity 400ms ease';}
+    });
     // Mostra menu principale con dissolvenza
     const _so=document.getElementById('startOverlay');
     if(_so){
@@ -10932,9 +10937,14 @@ function hideIntro(){
       _so.style.display='flex';
       _so.classList.remove('hidden');
       setTimeout(function(){
-        _so.style.transition='opacity 300ms ease';
+        _so.style.transition='opacity 400ms ease';
         _so.style.opacity='1';
-      },50);
+        // Ripristina canvas di sfondo insieme al menu
+        ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
+          var el=document.getElementById(id);
+          if(el) el.style.opacity='';
+        });
+      },80);
     }
     if(!localStorage.getItem('drift_name_set')){
       setTimeout(()=>show('nameOverlay'),300);
