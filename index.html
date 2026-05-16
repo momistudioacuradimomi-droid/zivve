@@ -10925,8 +10925,17 @@ function hideIntro(){
     el.style.display='none';
     // Non sovrascrivere il gioco se è già in corso
     if(window._inGame) return;
-    // Mostra menu principale dopo l'intro
-    show('startOverlay');
+    // Mostra menu principale con dissolvenza
+    const _so=document.getElementById('startOverlay');
+    if(_so){
+      _so.style.opacity='0';
+      _so.style.display='flex';
+      _so.classList.remove('hidden');
+      setTimeout(function(){
+        _so.style.transition='opacity 300ms ease';
+        _so.style.opacity='1';
+      },50);
+    }
     if(!localStorage.getItem('drift_name_set')){
       setTimeout(()=>show('nameOverlay'),300);
     }
