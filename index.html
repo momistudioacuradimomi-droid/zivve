@@ -14966,19 +14966,12 @@ function toggleSecondaryMenu(){
 }
 
 function startOnboarding(){
-  if(window.__log) window.__log('startOnboarding called');
-  hideAll();
-  const ov = document.getElementById('onboardingOverlay');
-  if(window.__log) window.__log('onboardingOverlay='+(ov?'found':'NOT FOUND'),'#f80');
-  if(!ov){ if(window.__log) window.__log('no overlay - going to startOverlay','#f80'); show('startOverlay'); return; }
-  ov.style.display = 'flex';
-  ov.style.flexDirection = 'column';
-  _obStep = 1;
-  _obTapCount = 0;
-  _obEnemyDodged = false;
-  showOnboardStep(1);
-  _obRunCanvas();
-  if(window.__log) window.__log('onboarding started');
+  // Onboarding bypassato su mobile per crash canvas — va direttamente al menu
+  localStorage.setItem('drift_onboarding_done','1');
+  show('startOverlay');
+  if(!localStorage.getItem('drift_name_set')){
+    setTimeout(()=>show('nameOverlay'),300);
+  }
 }
 
 let _obStep = 1;
