@@ -14966,9 +14966,11 @@ function toggleSecondaryMenu(){
 }
 
 function startOnboarding(){
+  if(window.__log) window.__log('startOnboarding called');
   hideAll();
   const ov = document.getElementById('onboardingOverlay');
-  if(!ov) return;
+  if(window.__log) window.__log('onboardingOverlay='+(ov?'found':'NOT FOUND'),'#f80');
+  if(!ov){ if(window.__log) window.__log('no overlay - going to startOverlay','#f80'); show('startOverlay'); return; }
   ov.style.display = 'flex';
   ov.style.flexDirection = 'column';
   _obStep = 1;
@@ -14976,6 +14978,7 @@ function startOnboarding(){
   _obEnemyDodged = false;
   showOnboardStep(1);
   _obRunCanvas();
+  if(window.__log) window.__log('onboarding started');
 }
 
 let _obStep = 1;
