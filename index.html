@@ -18070,12 +18070,17 @@ function runMDLIntro(cb){
   const ctx = canvas.getContext('2d');
   const sctx = starsCanvas.getContext('2d');
 
+  // Mobile: DPR cappato a 1, throttle 30fps
+  const _isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||innerWidth<600;
+  const _fpsInterval=_isMob?34:0;
+  let _lastFrame=0;
+
   let W=0,H=0,D=1,T=0;
   let stars=[],rings=[],dust=[],particles=[],comets=[];
   let lastScore=0,lastLevel=1,lastClip=0;
 
   function resize(){
-    D=Math.min(window.devicePixelRatio||1,2);
+    D=_isMob?1:Math.min(window.devicePixelRatio||1,2);
     W=innerWidth; H=innerHeight;
     [canvas,starsCanvas].forEach(c=>{
       c.width=W*D;
@@ -18092,7 +18097,8 @@ function runMDLIntro(cb){
     stars=[]; rings=[]; dust=[]; particles=[]; comets=[];
     const max=Math.max(W,H);
 
-    for(let i=0;i<320;i++){
+    const _maxStars=_isMob?80:320;
+    for(let i=0;i<_maxStars;i++){
       const a=Math.random()*Math.PI*2;
       const dist=Math.pow(Math.random(),.48)*max*.78;
       stars.push({
@@ -18106,7 +18112,8 @@ function runMDLIntro(cb){
       });
     }
 
-    for(let i=0;i<56;i++){
+    const _maxDust=_isMob?12:56;
+    for(let i=0;i<_maxDust;i++){
       dust.push({
         x:Math.random()*W,
         y:Math.random()*H,
@@ -18127,7 +18134,8 @@ function runMDLIntro(cb){
       });
     }
 
-    for(let i=0;i<14;i++){
+    const _maxComets=_isMob?4:14;
+    for(let i=0;i<_maxComets;i++){
       comets.push({
         a:Math.random()*Math.PI*2,
         d:Math.min(W,H)*(.22+Math.random()*.39),
@@ -18469,6 +18477,9 @@ function runMDLIntro(cb){
   },{passive:true});
 
   function frame(now){
+    // Throttle 30fps su mobile
+    if(_fpsInterval>0 && now-_lastFrame<_fpsInterval){requestAnimationFrame(frame);return;}
+    _lastFrame=now||0;
     T=now||0;
     hookShowMsg();
     const state=readState();
