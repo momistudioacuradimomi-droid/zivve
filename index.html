@@ -3813,6 +3813,31 @@ button[onclick*="startGame"]{
 
 </head>
 <body>
+<div id="__debug" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:11px;padding:8px;max-height:40vh;overflow-y:auto;display:block"></div>
+<script>
+(function(){
+  var d=document.getElementById('__debug');
+  function log(msg,col){
+    var line=document.createElement('div');
+    line.style.color=col||'#0f0';
+    line.textContent=new Date().toISOString().substr(11,8)+' '+msg;
+    d.appendChild(line);
+    d.scrollTop=d.scrollHeight;
+  }
+  window.__log=log;
+  window.onerror=function(msg,src,line,col,err){
+    log('ERROR: '+msg+' (line:'+line+')', '#f00');
+    return false;
+  };
+  window.addEventListener('unhandledrejection',function(e){
+    log('PROMISE: '+(e.reason&&e.reason.message||e.reason),'#f80');
+  });
+  log('Page loaded','#0f0');
+  document.addEventListener('DOMContentLoaded',function(){log('DOM ready','#0f0');});
+  window.addEventListener('load',function(){log('Window load','#0f0');});
+})();
+</script>
+
 
 <canvas id="zvNextGenFX" aria-hidden="true"></canvas>
 <div id="zvNextGenBadge">NEXT GEN ORB ENGINE · VERTICAL SLICE</div>
