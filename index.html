@@ -3847,6 +3847,18 @@ button[onclick*="startGame"]{
   canvas { transform: translateZ(0); will-change: transform; }
 }
 </style>
+<style id="mobile-blend">
+@media (max-width: 768px) {
+  /* Rimuove mix-blend-mode che causa sfarfallio su mobile */
+  #zvNewStars, #zvNewPulse, #zvNewGlass, #zvNextGenFX {
+    mix-blend-mode: normal !important;
+  }
+  /* Rimuove filter blur pesante */
+  #zvNewPulse {
+    filter: none !important;
+  }
+}
+</style>
 </head>
 <body>
 <script>
