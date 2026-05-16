@@ -3813,7 +3813,7 @@ button[onclick*="startGame"]{
 
 </head>
 <body>
-<div id="__debug" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:11px;padding:8px;max-height:40vh;overflow-y:auto;display:block"></div>
+<!--DEBUG--><div id="__debug" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:11px;padding:8px;max-height:40vh;overflow-y:auto;display:block"></div>
 <script>
 (function(){
   var d=document.getElementById('__debug');
@@ -15239,7 +15239,10 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
 // ── INIT FLOW: decide cosa mostrare ──
 (function initFlow(){
+  if(window.__log) window.__log('initFlow started');
+  if(window.__log) window.__log('hideAll called');
   hideAll();
+  if(window.__log) window.__log('checkIncomingChallenge');
   checkIncomingChallenge();
   checkReferral();
   setTimeout(testerUnlockAll, 300);
@@ -15252,6 +15255,7 @@ setTimeout(showWeeklyRewardBanner, 1200);
   }
 
   function go(){
+    if(window.__log) window.__log('go() called');
     if(!localStorage.getItem('drift_onboarding_done')){
       setTimeout(startOnboarding, 300);
       return;
@@ -15262,8 +15266,10 @@ setTimeout(showWeeklyRewardBanner, 1200);
     if(!_seen || _isTst){
       _introPlayed=false;
       show('introOverlay');
+      if(window.__log) window.__log('calling runIntro');
       requestAnimationFrame(()=>requestAnimationFrame(()=>runIntro()));
     } else {
+      if(window.__log) window.__log('showing startOverlay');
       show('startOverlay');
       if(!localStorage.getItem('drift_name_set')){
         setTimeout(()=>show('nameOverlay'), 500);
@@ -15271,7 +15277,8 @@ setTimeout(showWeeklyRewardBanner, 1200);
     }
   }
 
-  try{ runMDLIntro(go); } catch(e){ go(); }
+  if(window.__log) window.__log('calling runMDLIntro');
+  try{ runMDLIntro(go); } catch(e){ if(window.__log) window.__log('MDL error: '+e.message,'#f00'); go(); }
 })();
 
 // ══ NUOVE FUNZIONALITÀ ══
