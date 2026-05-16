@@ -119,7 +119,6 @@ function shareChallengeLink(){
     ic.style.setProperty('transition','opacity 1.6s ease','important');
     resetTexts();
 
-    const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
     const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
@@ -132,7 +131,6 @@ function shareChallengeLink(){
     const W=()=>ic.width, H=()=>ic.height;
     ctx.fillStyle='#000'; ctx.fillRect(0,0,W(),H());
 
-    // Micro-pioggia di sfondo (sostituisce pallini statici)
     const stars=Array.from({length:90},()=>({
       x:Math.random()*W(), y:Math.random()*H(),
       len:(Math.random()*18+6)*dpr,
@@ -141,7 +139,6 @@ function shareChallengeLink(){
       w:(Math.random()*.6+0.3)*dpr,
       hue:Math.random()<.15?'violet':'white'
     }));
-    // Stelle cadenti grandi (invariate)
     const falls=Array.from({length:36},()=>({x:Math.random()*W(), y:Math.random()*H()-H(), len:(Math.random()*140+90)*dpr, vy:(Math.random()*3.2+2.2)*dpr, hue:Math.random()<.24?'violet':'cyan', a:Math.random()*.5+.35, w:(Math.random()*1.4+.55)*dpr}));
     const sparks=Array.from({length:70},()=>({x:Math.random()*W(), y:Math.random()*H(), vx:(Math.random()-.5)*.12*dpr, vy:(Math.random()-.5)*.10*dpr, a:Math.random()*.45+.08}));
 
@@ -171,7 +168,6 @@ function shareChallengeLink(){
         ng.addColorStop(0,i%2?'rgba(160,70,255,.075)':'rgba(0,185,255,.07)'); ng.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=ng; ctx.fillRect(0,0,w,h);
       }
       ctx.restore();
-      // Micro-pioggia di sfondo
       ctx.save();
       for(const s of stars){
         const col=s.hue==='violet'?'200,140,255':'210,245,255';
@@ -179,7 +175,6 @@ function shareChallengeLink(){
         ctx.strokeStyle='rgba('+col+',1)';
         ctx.lineWidth=s.w;
         ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x,s.y+s.len); ctx.stroke();
-        // Puntino luminoso in testa
         ctx.globalAlpha=fade*s.a*0.9;
         ctx.fillStyle='rgba('+col+',1)';
         ctx.beginPath(); ctx.arc(s.x,s.y,Math.max(0.01,s.w*1.2),0,Math.PI*2); ctx.fill();
@@ -189,7 +184,7 @@ function shareChallengeLink(){
       ctx.restore();
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
       ctx.save(); ctx.globalCompositeOperation='lighter';
-      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,3.2*dpr,0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -3836,6 +3831,22 @@ button[onclick*="startGame"]{
 #introOverlay:not(.zivve-intro-live) #introLine3{opacity:0!important;color:rgba(255,255,255,0)!important;text-shadow:none!important;}
 </style>
 
+<style id="mobile-perf">
+@media (max-width: 768px) {
+  /* Elimina glow colorati sui bottoni — principale causa lag */
+  .menu-btn, .ctrl-btn, .orb-card, .stat-row, .lb-row,
+  .bp-card, .season-card, .badge-card, .cult-badge {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* Ferma animazioni decorative non essenziali */
+  .rec-badge { animation: none !important; }
+  /* GPU layer per canvas */
+  canvas { transform: translateZ(0); will-change: transform; }
+}
+</style>
 </head>
 <body>
 <script>
@@ -3850,7 +3861,6 @@ button[onclick*="startGame"]{
 })();
 </script>
 
-<!--DEBUG-->
 
 <canvas id="zvNextGenFX" aria-hidden="true"></canvas>
 <div id="zvNextGenBadge">NEXT GEN ORB ENGINE · VERTICAL SLICE</div>
@@ -14979,12 +14989,16 @@ function toggleSecondaryMenu(){
 }
 
 function startOnboarding(){
-  // Onboarding bypassato su mobile per crash canvas — va direttamente al menu
-  localStorage.setItem('drift_onboarding_done','1');
-  show('startOverlay');
-  if(!localStorage.getItem('drift_name_set')){
-    setTimeout(()=>show('nameOverlay'),300);
-  }
+  hideAll();
+  const ov = document.getElementById('onboardingOverlay');
+  if(!ov) return;
+  ov.style.display = 'flex';
+  ov.style.flexDirection = 'column';
+  _obStep = 1;
+  _obTapCount = 0;
+  _obEnemyDodged = false;
+  showOnboardStep(1);
+  _obRunCanvas();
 }
 
 let _obStep = 1;
@@ -15248,7 +15262,6 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
 // ── INIT FLOW: decide cosa mostrare ──
 (function initFlow(){
-
   hideAll();
   checkIncomingChallenge();
   checkReferral();
@@ -15262,7 +15275,6 @@ setTimeout(showWeeklyRewardBanner, 1200);
   }
 
   function go(){
-    // Forza onboarding completato per evitare blocco su mobile
     if(!localStorage.getItem('drift_onboarding_done')){
       localStorage.setItem('drift_onboarding_done','1');
     }
@@ -15280,6 +15292,7 @@ setTimeout(showWeeklyRewardBanner, 1200);
       }
     }
   }
+
   try{ runMDLIntro(go); } catch(e){ go(); }
 })();
 
@@ -15863,7 +15876,6 @@ function runMDLIntro(cb){
   var img=document.getElementById('mdlLogoImg');
   if(!ov||!img){if(cb)cb();return;}
   var tag=document.getElementById('mdlTagline');
-  // Setup iniziale
   ov.style.background='#000';
   ov.style.display='flex';
   ov.style.opacity='1';
@@ -15872,13 +15884,11 @@ function runMDLIntro(cb){
   if(tag){tag.style.opacity='0';}
   var done=false;
   var t1=setTimeout(function(){
-    // Fade in con CSS transition — tempo reale, non frame
     img.style.transition='opacity 1000ms ease';
     if(tag) tag.style.transition='opacity 1000ms ease';
     img.style.opacity='1';
     if(tag) tag.style.opacity='0.85';
     var t2=setTimeout(function(){
-      // Fade out
       img.style.transition='opacity 1000ms ease';
       if(tag) tag.style.transition='opacity 1000ms ease';
       img.style.opacity='0';
@@ -15890,7 +15900,6 @@ function runMDLIntro(cb){
       },1100);
     },3000);
   },200);
-  // Sicurezza: se tutto va storto, chiama cb dopo 6s
   setTimeout(function(){if(!done){done=true;ov.style.display='none';if(cb)cb();}},6000);
 }
 
@@ -15975,7 +15984,6 @@ function runMDLIntro(cb){
     ic.style.setProperty('transition','opacity 1.6s ease','important');
     resetTexts();
 
-    const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
     const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
@@ -15988,7 +15996,6 @@ function runMDLIntro(cb){
     const W=()=>ic.width, H=()=>ic.height;
     ctx.fillStyle='#000'; ctx.fillRect(0,0,W(),H());
 
-    // Micro-pioggia di sfondo (sostituisce pallini statici)
     const stars=Array.from({length:90},()=>({
       x:Math.random()*W(), y:Math.random()*H(),
       len:(Math.random()*18+6)*dpr,
@@ -15997,7 +16004,6 @@ function runMDLIntro(cb){
       w:(Math.random()*.6+0.3)*dpr,
       hue:Math.random()<.15?'violet':'white'
     }));
-    // Stelle cadenti grandi (invariate)
     const falls=Array.from({length:36},()=>({x:Math.random()*W(), y:Math.random()*H()-H(), len:(Math.random()*140+90)*dpr, vy:(Math.random()*3.2+2.2)*dpr, hue:Math.random()<.24?'violet':'cyan', a:Math.random()*.5+.35, w:(Math.random()*1.4+.55)*dpr}));
     const sparks=Array.from({length:70},()=>({x:Math.random()*W(), y:Math.random()*H(), vx:(Math.random()-.5)*.12*dpr, vy:(Math.random()-.5)*.10*dpr, a:Math.random()*.45+.08}));
 
@@ -16027,7 +16033,6 @@ function runMDLIntro(cb){
         ng.addColorStop(0,i%2?'rgba(160,70,255,.075)':'rgba(0,185,255,.07)'); ng.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=ng; ctx.fillRect(0,0,w,h);
       }
       ctx.restore();
-      // Micro-pioggia di sfondo
       ctx.save();
       for(const s of stars){
         const col=s.hue==='violet'?'200,140,255':'210,245,255';
@@ -16035,7 +16040,6 @@ function runMDLIntro(cb){
         ctx.strokeStyle='rgba('+col+',1)';
         ctx.lineWidth=s.w;
         ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x,s.y+s.len); ctx.stroke();
-        // Puntino luminoso in testa
         ctx.globalAlpha=fade*s.a*0.9;
         ctx.fillStyle='rgba('+col+',1)';
         ctx.beginPath(); ctx.arc(s.x,s.y,Math.max(0.01,s.w*1.2),0,Math.PI*2); ctx.fill();
@@ -16045,7 +16049,7 @@ function runMDLIntro(cb){
       ctx.restore();
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
       ctx.save(); ctx.globalCompositeOperation='lighter';
-      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,3.2*dpr,0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -20420,7 +20424,6 @@ function runMDLIntro(cb){
     ic.style.setProperty('transition','opacity 1.6s ease','important');
     resetTexts();
 
-    const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
     const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
@@ -20433,7 +20436,6 @@ function runMDLIntro(cb){
     const W=()=>ic.width, H=()=>ic.height;
     ctx.fillStyle='#000'; ctx.fillRect(0,0,W(),H());
 
-    // Micro-pioggia di sfondo (sostituisce pallini statici)
     const stars=Array.from({length:90},()=>({
       x:Math.random()*W(), y:Math.random()*H(),
       len:(Math.random()*18+6)*dpr,
@@ -20442,7 +20444,6 @@ function runMDLIntro(cb){
       w:(Math.random()*.6+0.3)*dpr,
       hue:Math.random()<.15?'violet':'white'
     }));
-    // Stelle cadenti grandi (invariate)
     const falls=Array.from({length:36},()=>({x:Math.random()*W(), y:Math.random()*H()-H(), len:(Math.random()*140+90)*dpr, vy:(Math.random()*3.2+2.2)*dpr, hue:Math.random()<.24?'violet':'cyan', a:Math.random()*.5+.35, w:(Math.random()*1.4+.55)*dpr}));
     const sparks=Array.from({length:70},()=>({x:Math.random()*W(), y:Math.random()*H(), vx:(Math.random()-.5)*.12*dpr, vy:(Math.random()-.5)*.10*dpr, a:Math.random()*.45+.08}));
 
@@ -20472,7 +20473,6 @@ function runMDLIntro(cb){
         ng.addColorStop(0,i%2?'rgba(160,70,255,.075)':'rgba(0,185,255,.07)'); ng.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=ng; ctx.fillRect(0,0,w,h);
       }
       ctx.restore();
-      // Micro-pioggia di sfondo
       ctx.save();
       for(const s of stars){
         const col=s.hue==='violet'?'200,140,255':'210,245,255';
@@ -20480,7 +20480,6 @@ function runMDLIntro(cb){
         ctx.strokeStyle='rgba('+col+',1)';
         ctx.lineWidth=s.w;
         ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x,s.y+s.len); ctx.stroke();
-        // Puntino luminoso in testa
         ctx.globalAlpha=fade*s.a*0.9;
         ctx.fillStyle='rgba('+col+',1)';
         ctx.beginPath(); ctx.arc(s.x,s.y,Math.max(0.01,s.w*1.2),0,Math.PI*2); ctx.fill();
@@ -20490,7 +20489,7 @@ function runMDLIntro(cb){
       ctx.restore();
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
       ctx.save(); ctx.globalCompositeOperation='lighter';
-      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,3.2*dpr,0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
