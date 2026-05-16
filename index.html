@@ -15275,7 +15275,7 @@ setTimeout(showWeeklyRewardBanner, 1200);
     }
   }
 
-  go();
+  try{ runMDLIntro(go); } catch(e){ go(); }
 })();
 
 // ══ NUOVE FUNZIONALITÀ ══
@@ -15857,46 +15857,30 @@ function runMDLIntro(cb){
   var ov=document.getElementById('mdlOverlay');
   var img=document.getElementById('mdlLogoImg');
   if(!ov||!img){if(cb)cb();return;}
-  var FADE_IN=1200, HOLD=3000, FADE_OUT=1200;
-  var TOTAL=FADE_IN+HOLD+FADE_OUT;
-  // Reset completo stato overlay
-  ov.style.transition='none';
-  ov.style.opacity='1';
-  ov.style.background='#000';
+  img.style.opacity='0';
   ov.style.display='flex';
   ov.style.visibility='visible';
-  // Logo parte invisibile
-  img.style.transition='none';
-  img.style.opacity='0';
-  var tag=document.getElementById('mdlTagline');
-  if(tag){tag.style.transition='none';tag.style.opacity='0';}
+  ov.style.opacity='1';
   var done=false;
-  var t1,t2,t3;
-  function finish(){
-    if(done)return;done=true;
-    clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);
-    ov.style.transition='none';
-    ov.style.opacity='0';
-    ov.style.display='none';
-    ov.style.visibility='hidden';
-    if(cb)cb();
+  function finish(){if(done)return;done=true;ov.style.display='none';ov.style.visibility='hidden';if(cb)cb();}
+  setTimeout(finish,5500);
+  var f=0,raf;
+  function tick(){
+    f++;
+    var b;
+    if(f<=20){b=0;}
+    else if(f<=80){b=(f-20)/60;}
+    else if(f<=200){b=1;}
+    else if(f<=280){b=(280-f)/80;}
+    else{cancelAnimationFrame(raf);finish();return;}
+    b=Math.max(0,Math.min(1,b));
+    img.style.opacity=b;
+    var tag=document.getElementById('mdlTagline');
+    if(tag)tag.style.opacity=Math.max(0,Math.min(1,b*0.85));
+    ov.style.background='#000';
+    raf=requestAnimationFrame(tick);
   }
-  // Fade in logo
-  t1=setTimeout(function(){
-    img.style.transition='opacity '+FADE_IN+'ms ease';
-    if(tag) tag.style.transition='opacity '+FADE_IN+'ms ease';
-    img.style.opacity='1';
-    if(tag) tag.style.opacity='0.85';
-  },80);
-  // Fade out logo
-  t2=setTimeout(function(){
-    img.style.transition='opacity '+FADE_OUT+'ms ease';
-    if(tag) tag.style.transition='opacity '+FADE_OUT+'ms ease';
-    img.style.opacity='0';
-    if(tag) tag.style.opacity='0';
-  },FADE_IN+HOLD);
-  // Fine — sicurezza assoluta che cb venga chiamato
-  t3=setTimeout(finish, TOTAL+200);
+  raf=requestAnimationFrame(tick);
 }
 
 
