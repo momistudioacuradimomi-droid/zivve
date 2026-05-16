@@ -120,7 +120,7 @@ function shareChallengeLink(){
     resetTexts();
 
     const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
-    const dpr=isMob?1:Math.min(window.devicePixelRatio||1,2);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
       ic.width=Math.floor(w*dpr); ic.height=Math.floor(h*dpr);
@@ -166,29 +166,8 @@ function shareChallengeLink(){
       ctx.restore();
       for(const s of stars){ const tw=.7+.3*Math.sin(t*1.7+s.tw); ctx.globalAlpha=fade*s.a*tw; ctx.fillStyle='rgba(210,245,255,1)'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*dpr,0,Math.PI*2); ctx.fill(); s.y+=s.vy*dpr*.15; if(s.y>h){s.y=0; s.x=Math.random()*w;} }
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
-      ctx.save();
-      if(!isMob) ctx.globalCompositeOperation='lighter';
-      for(const f of falls){
-        const col=f.hue==='violet'?'160,90,255':'74,240,255';
-        const alpha=fade*f.a;
-        if(isMob){
-          // Mobile: linea solida senza gradiente (nessun oggetto creato)
-          ctx.globalAlpha=alpha;
-          ctx.strokeStyle=f.colSolid+alpha+')';
-          ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len*.6); ctx.lineTo(f.x,f.y); ctx.stroke();
-        } else {
-          // Desktop: gradiente pieno
-          const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08);
-          grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(alpha*.42)+')'); grad.addColorStop(1,'rgba('+col+','+alpha+')');
-          ctx.strokeStyle=grad; ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke();
-        }
-        ctx.globalAlpha=alpha;
-        ctx.fillStyle='rgba('+col+',.95)';
-        ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill();
-        f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;}
-      }
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -15975,7 +15954,7 @@ function runMDLIntro(cb){
     resetTexts();
 
     const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
-    const dpr=isMob?1:Math.min(window.devicePixelRatio||1,2);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
       ic.width=Math.floor(w*dpr); ic.height=Math.floor(h*dpr);
@@ -16021,29 +16000,8 @@ function runMDLIntro(cb){
       ctx.restore();
       for(const s of stars){ const tw=.7+.3*Math.sin(t*1.7+s.tw); ctx.globalAlpha=fade*s.a*tw; ctx.fillStyle='rgba(210,245,255,1)'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*dpr,0,Math.PI*2); ctx.fill(); s.y+=s.vy*dpr*.15; if(s.y>h){s.y=0; s.x=Math.random()*w;} }
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
-      ctx.save();
-      if(!isMob) ctx.globalCompositeOperation='lighter';
-      for(const f of falls){
-        const col=f.hue==='violet'?'160,90,255':'74,240,255';
-        const alpha=fade*f.a;
-        if(isMob){
-          // Mobile: linea solida senza gradiente (nessun oggetto creato)
-          ctx.globalAlpha=alpha;
-          ctx.strokeStyle=f.colSolid+alpha+')';
-          ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len*.6); ctx.lineTo(f.x,f.y); ctx.stroke();
-        } else {
-          // Desktop: gradiente pieno
-          const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08);
-          grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(alpha*.42)+')'); grad.addColorStop(1,'rgba('+col+','+alpha+')');
-          ctx.strokeStyle=grad; ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke();
-        }
-        ctx.globalAlpha=alpha;
-        ctx.fillStyle='rgba('+col+',.95)';
-        ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill();
-        f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;}
-      }
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -20419,7 +20377,7 @@ function runMDLIntro(cb){
     resetTexts();
 
     const isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||window.innerWidth<600;
-    const dpr=isMob?1:Math.min(window.devicePixelRatio||1,2);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
     function resize(){
       const w=window.innerWidth||375, h=window.innerHeight||667;
       ic.width=Math.floor(w*dpr); ic.height=Math.floor(h*dpr);
@@ -20465,29 +20423,8 @@ function runMDLIntro(cb){
       ctx.restore();
       for(const s of stars){ const tw=.7+.3*Math.sin(t*1.7+s.tw); ctx.globalAlpha=fade*s.a*tw; ctx.fillStyle='rgba(210,245,255,1)'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*dpr,0,Math.PI*2); ctx.fill(); s.y+=s.vy*dpr*.15; if(s.y>h){s.y=0; s.x=Math.random()*w;} }
       for(const sp of sparks){ ctx.globalAlpha=fade*sp.a; ctx.fillStyle='rgba(74,240,255,.55)'; ctx.fillRect(sp.x,sp.y,1*dpr,1*dpr); sp.x+=sp.vx; sp.y+=sp.vy; if(sp.x<0)sp.x=w; if(sp.x>w)sp.x=0; if(sp.y<0)sp.y=h; if(sp.y>h)sp.y=0; }
-      ctx.save();
-      if(!isMob) ctx.globalCompositeOperation='lighter';
-      for(const f of falls){
-        const col=f.hue==='violet'?'160,90,255':'74,240,255';
-        const alpha=fade*f.a;
-        if(isMob){
-          // Mobile: linea solida senza gradiente (nessun oggetto creato)
-          ctx.globalAlpha=alpha;
-          ctx.strokeStyle=f.colSolid+alpha+')';
-          ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len*.6); ctx.lineTo(f.x,f.y); ctx.stroke();
-        } else {
-          // Desktop: gradiente pieno
-          const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08);
-          grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(alpha*.42)+')'); grad.addColorStop(1,'rgba('+col+','+alpha+')');
-          ctx.strokeStyle=grad; ctx.lineWidth=f.w;
-          ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke();
-        }
-        ctx.globalAlpha=alpha;
-        ctx.fillStyle='rgba('+col+',.95)';
-        ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill();
-        f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;}
-      }
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(const f of falls){ const col=f.hue==='violet'?'160,90,255':'74,240,255'; const grad=ctx.createLinearGradient(f.x,f.y-f.len,f.x,f.y+f.len*.08); grad.addColorStop(0,'rgba('+col+',0)'); grad.addColorStop(.65,'rgba('+col+','+(fade*f.a*.42)+')'); grad.addColorStop(1,'rgba('+col+','+(fade*f.a)+')'); ctx.strokeStyle=grad; ctx.lineWidth=f.w; ctx.beginPath(); ctx.moveTo(f.x,f.y-f.len); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.globalAlpha=fade*f.a; ctx.fillStyle='rgba('+col+',.95)'; ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(0.01,3.2*dpr),0,Math.PI*2); ctx.fill(); f.y+=f.vy; if(f.y-f.len>h){f.y=-Math.random()*h*.55; f.x=Math.random()*w;} }
       ctx.restore(); ctx.globalAlpha=fade;
       const cx=w*.5, cy=h*.50, R=Math.min(w*.46,h*.29); circleHUD(t,cx,cy,R,amp);
       ctx.save(); ctx.globalCompositeOperation='lighter';
