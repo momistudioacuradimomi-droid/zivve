@@ -3813,6 +3813,18 @@ button[onclick*="startGame"]{
 
 </head>
 <body>
+<script>
+(function(){
+  document.addEventListener('touchmove', function(e){
+    if(e.target.closest('.overlay')||e.target.closest('.orb-categories')||e.target.closest('#shopContent')||e.target.closest('#leaderboardList')||e.target.closest('#bpContent')){return;}
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length>1) e.preventDefault();
+  }, {passive:false});
+})();
+</script>
+
 <!--DEBUG-->
 
 <canvas id="zvNextGenFX" aria-hidden="true"></canvas>
