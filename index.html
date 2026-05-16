@@ -15252,9 +15252,9 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
   function go(){
     if(window.__log) window.__log('go() called');
+    // Forza onboarding completato per evitare blocco su mobile
     if(!localStorage.getItem('drift_onboarding_done')){
-      setTimeout(startOnboarding, 300);
-      return;
+      localStorage.setItem('drift_onboarding_done','1');
     }
     const _seen = localStorage.getItem('zivve_intro_seen')==='1';
     const _name = localStorage.getItem('drift_name')||'';
