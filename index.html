@@ -3813,31 +3813,7 @@ button[onclick*="startGame"]{
 
 </head>
 <body>
-<!--DEBUG--><div id="__debug" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:11px;padding:8px;max-height:40vh;overflow-y:auto;display:block"></div>
-<script>
-(function(){
-  var d=document.getElementById('__debug');
-  function log(msg,col){
-    var line=document.createElement('div');
-    line.style.color=col||'#0f0';
-    line.textContent=new Date().toISOString().substr(11,8)+' '+msg;
-    d.appendChild(line);
-    d.scrollTop=d.scrollHeight;
-  }
-  window.__log=log;
-  window.onerror=function(msg,src,line,col,err){
-    log('ERROR: '+msg+' (line:'+line+')', '#f00');
-    return false;
-  };
-  window.addEventListener('unhandledrejection',function(e){
-    log('PROMISE: '+(e.reason&&e.reason.message||e.reason),'#f80');
-  });
-  log('Page loaded','#0f0');
-  document.addEventListener('DOMContentLoaded',function(){log('DOM ready','#0f0');});
-  window.addEventListener('load',function(){log('Window load','#0f0');});
-})();
-</script>
-
+<!--DEBUG-->
 
 <canvas id="zvNextGenFX" aria-hidden="true"></canvas>
 <div id="zvNextGenBadge">NEXT GEN ORB ENGINE · VERTICAL SLICE</div>
@@ -15235,10 +15211,8 @@ setTimeout(showWeeklyRewardBanner, 1200);
 
 // ── INIT FLOW: decide cosa mostrare ──
 (function initFlow(){
-  if(window.__log) window.__log('initFlow started');
-  if(window.__log) window.__log('hideAll called');
+
   hideAll();
-  if(window.__log) window.__log('checkIncomingChallenge');
   checkIncomingChallenge();
   checkReferral();
   setTimeout(testerUnlockAll, 300);
@@ -15251,7 +15225,6 @@ setTimeout(showWeeklyRewardBanner, 1200);
   }
 
   function go(){
-    if(window.__log) window.__log('go() called');
     // Forza onboarding completato per evitare blocco su mobile
     if(!localStorage.getItem('drift_onboarding_done')){
       localStorage.setItem('drift_onboarding_done','1');
@@ -15262,19 +15235,15 @@ setTimeout(showWeeklyRewardBanner, 1200);
     if(!_seen || _isTst){
       _introPlayed=false;
       show('introOverlay');
-      if(window.__log) window.__log('calling runIntro');
       requestAnimationFrame(()=>requestAnimationFrame(()=>runIntro()));
     } else {
-      if(window.__log) window.__log('showing startOverlay');
       show('startOverlay');
       if(!localStorage.getItem('drift_name_set')){
         setTimeout(()=>show('nameOverlay'), 500);
       }
     }
   }
-
-  if(window.__log) window.__log('calling runMDLIntro');
-  try{ runMDLIntro(go); } catch(e){ if(window.__log) window.__log('MDL error: '+e.message,'#f00'); go(); }
+  try{ runMDLIntro(go); } catch(e){
 })();
 
 // ══ NUOVE FUNZIONALITÀ ══
