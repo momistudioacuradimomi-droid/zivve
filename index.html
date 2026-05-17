@@ -3885,20 +3885,36 @@ button[onclick*="startGame"]{
   .champion-crown { animation: none !important; }
   #tutArrow { animation: none !important; }
   
-  /* Rallenta animazioni rotanti da 2s a 8s */
+  /* Rallenta animazioni rotanti */
   .zvNewRays, [style*="zvNewRays"] { animation-duration: 60s !important; }
   
-  /* Bottone GIOCA: ferma shine */
+  /* Ferma animazioni logo e bottoni */
   [class*="zvNewButton"], [class*="zvPlay"] { animation: none !important; }
-  
-  /* GPU acceleration su elementi animati rimasti */
-  .game-title, .btn-play, .menu-btn { will-change: transform; transform: translateZ(0); }
-  
-  /* Ferma animazioni logo */
   [class*="zvNewLogo"], [class*="zvNewBreath"] { animation: none !important; }
   
-  /* Riduce drop-shadow pesante sul logo */
+  /* GPU acceleration */
+  .game-title, .btn-play, .menu-btn { will-change: transform; transform: translateZ(0); }
+  
+  /* Riduce drop-shadow sul logo */
   .game-title { filter: drop-shadow(0 0 15px rgba(74,240,208,.3)) !important; }
+
+  /* Ottimizza cult card (NEAR MISS, PERFECT DODGE) */
+  .zv-cult-title { text-shadow: none !important; }
+  .zv-cult-sub { text-shadow: none !important; }
+  .zv-cult-card { 
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .zv-cult-card::before, .zv-cult-card::after { display: none !important; }
+  #zivveCultMoment {
+    transition: opacity 0.15s ease !important;
+    filter: none !important;
+    will-change: opacity;
+  }
+  #zivveCultMoment.zv-show { transform: translate(-50%,-50%) scale(1) !important; }
+  #zivveCultMoment.zv-hide { transform: translate(-50%,-50%) scale(1) !important; }
+  .zv-cult-spark { display: none !important; }
 }
 </style>
 </head>
