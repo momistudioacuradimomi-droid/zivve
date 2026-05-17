@@ -2210,7 +2210,7 @@ function shareChallengeLink(){
 
   function persistHooks(){
     installDirectHooks();
-    setInterval(installDirectHooks, 800);
+    // installDirectHooks chiamato solo una volta
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', persistHooks, {once:true});
@@ -8520,6 +8520,10 @@ function applyPerfMode(){
 }
 
 let _shadowEnabled=true, _maxParticles=200, _glowEnabled=true;
+// Object pool particelle
+const _particlePool=[];
+function _getParticle(){return _particlePool.pop()||{};}
+function _releaseParticle(p){if(_particlePool.length<300)_particlePool.push(p);}
 
 // Wrapper per shadowBlur che rispetta _perfMode
 function setShadow(ctx2, blur, color){
@@ -9089,8 +9093,8 @@ if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G
       if(G.activePowerup.timer<=0) clearPowerup();
     }
   }
-  for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx*_dt;p.y+=p.vy*_dt;p.vy+=.055*_dt;p.vx*=Math.pow(.98,_dt);p.life-=_dt;if(p.life<=0)G.particles.splice(i,1);}
-  if(G.particles.length>_maxParticles) G.particles.splice(0,G.particles.length-_maxParticles);
+  for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx*_dt;p.y+=p.vy*_dt;p.vy+=.055*_dt;p.vx*=Math.pow(.98,_dt);p.life-=_dt;if(p.life<=0){_releaseParticle(p);G.particles.splice(i,1);}}
+  if(G.particles.length>_maxParticles){const _rem=G.particles.splice(0,G.particles.length-_maxParticles);_rem.forEach(_releaseParticle);}
   if(G.particles.length>_maxParticles) G.particles.splice(0,G.particles.length-_maxParticles);
   for(let i=G.rings.length-1;i>=0;i--){const r=G.rings[i];r.r+=r.grow||6;r.alpha-=.028;if(r.alpha<=0)G.rings.splice(i,1);}
   for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=(s.grow||9);s.alpha-=.025;if(s.alpha<=0)G.shockwaves.splice(i,1);}
@@ -18248,7 +18252,7 @@ function runMDLIntro(cb){
 
   function persistHooks(){
     installDirectHooks();
-    setInterval(installDirectHooks, 800);
+    // installDirectHooks chiamato solo una volta
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', persistHooks, {once:true});
@@ -22742,7 +22746,7 @@ function runMDLIntro(cb){
 
   function persistHooks(){
     installDirectHooks();
-    setInterval(installDirectHooks, 800);
+    // installDirectHooks chiamato solo una volta
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', persistHooks, {once:true});
