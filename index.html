@@ -18646,19 +18646,22 @@ function runMDLIntro(cb){
 
   addEventListener('resize',resize,{passive:true});
   resize();
-  var _engineRaf=requestAnimationFrame(frame);
+  // Su mobile: nascondi il motore visivo per massimizzare FPS
+  if(_isMob){
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){el.style.display='none';}
+    });
+    var _engineRaf=null;
+  } else {
+    var _engineRaf=requestAnimationFrame(frame);
+  }
   // Esponi funzioni stop/start per il gioco
   window._stopMenuEngine=function(){
     if(_engineRaf){cancelAnimationFrame(_engineRaf);_engineRaf=null;}
-    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
-      var el=document.getElementById(id);if(el)el.style.opacity='0';
-    });
   };
   window._startMenuEngine=function(){
-    if(!_engineRaf){
-      ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
-        var el=document.getElementById(id);if(el)el.style.opacity='';
-      });
+    if(!_isMob && !_engineRaf){
       _engineRaf=requestAnimationFrame(frame);
     }
   };
