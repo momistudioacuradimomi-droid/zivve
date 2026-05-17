@@ -2207,7 +2207,7 @@ html,body{width:100%;height:100%;overflow:hidden;overflow-x:hidden;overflow-y:hi
 #survivalBar{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
 #survivalFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:background .5s}
 /* In-game controls bar */
-#gameControls{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:all;z-index:15}
+#gameControls{position:absolute;top:max(env(safe-area-inset-top, 0px) + 52px, 52px);left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:all;z-index:15}
 .ctrl-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0}
 .ctrl-btn:active,.ctrl-btn:hover{background:rgba(74,240,208,.15);border-color:rgba(74,240,208,.4);color:var(--accent)}
 .ad-slot{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:min(320px,90vw);height:50px;border:1px dashed rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;border-radius:3px;pointer-events:none}
@@ -3822,8 +3822,27 @@ button[onclick*="startGame"]{
   canvas{transform:translateZ(0);will-change:transform;}
 }
 </style>
+<style id="mobile-perf">
+@media (max-width:768px){
+  #zvNewStars,#zvNewPulse,#zvNewGlass,#zvNextGenFX{mix-blend-mode:normal!important;}
+  #zvNewPulse{filter:none!important;}
+  .menu-btn,.ctrl-btn,.orb-card,.stat-row,.lb-row{box-shadow:none!important;}
+  canvas{transform:translateZ(0);will-change:transform;}
+}
+</style>
 </head>
 <body>
+<script>
+(function(){
+  document.addEventListener('touchmove',function(e){
+    if(e.target.closest('.overlay')||e.target.closest('.orb-categories')||e.target.closest('#shopContent')||e.target.closest('#leaderboardList')||e.target.closest('#bpContent')){return;}
+    e.preventDefault();
+  },{passive:false});
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length>1)e.preventDefault();
+  },{passive:false});
+})();
+</script>
 <script>
 (function(){
   document.addEventListener('touchmove',function(e){
@@ -4083,8 +4102,8 @@ button[onclick*="startGame"]{
 
 <!-- CONFIRM STOP -->
 <div class="overlay hidden" id="stopOverlay" style="display:none">
-  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px" data-i18n="stopConfirm">Stop this game?</div>
-  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px" data-i18n="progressLost">Progress will be lost</div>
+  <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px;text-align:center;width:100%;max-width:320px" data-i18n="stopConfirm">Stop this game?</div>
+  <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px;text-align:center;width:100%;max-width:320px" data-i18n="progressLost">Progress will be lost</div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.4)" onclick="forceStop()" data-i18n="yes">YES, STOP</button>
   <button class="btn-outline" onclick="hide('stopOverlay');resumeGame()" data-i18n="cancel">Cancel</button>
 </div>
@@ -8944,6 +8963,7 @@ if(!G.bossActive&&G.spawnTimer>=SPAWN_INTERVAL&&G.enemies.length<G.maxEnemies){G
     }
   }
   for(let i=G.particles.length-1;i>=0;i--){const p=G.particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.vx*=.98;p.life--;if(p.life<=0)G.particles.splice(i,1);}
+  if(G.particles.length>_maxParticles) G.particles.splice(0,G.particles.length-_maxParticles);
   for(let i=G.rings.length-1;i>=0;i--){const r=G.rings[i];r.r+=r.grow||6;r.alpha-=.028;if(r.alpha<=0)G.rings.splice(i,1);}
   for(let i=G.shockwaves.length-1;i>=0;i--){const s=G.shockwaves[i];s.r+=(s.grow||9);s.alpha-=.025;if(s.alpha<=0)G.shockwaves.splice(i,1);}
   if(G.shaking>0)G.shaking--;
@@ -9730,9 +9750,9 @@ function drawEnemies(){
     ctx.restore();
   }
 }
-function drawParticles(){for(const p of G.particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle=p.color;ctx.shadowBlur=6;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}}
-function drawRings(){for(const r of G.rings){ctx.save();ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
-function drawShockwaves(){for(const s of G.shockwaves){ctx.save();ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.shadowBlur=12;ctx.shadowColor=col;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();ctx.restore();}}
+function drawParticles(){const _parts=G.particles.slice(-_maxParticles);ctx.save();for(const p of _parts){const _a=Math.max(0,p.life/60);if(_a<=0)continue;ctx.globalAlpha=_a;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.restore();}
+function drawRings(){if(!G.rings.length)return;ctx.save();for(const r of G.rings){ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
+function drawShockwaves(){if(!G.shockwaves.length)return;ctx.save();for(const s of G.shockwaves){ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
 
 // ══════════════════════════════════════
 //  POWERUP HUD
@@ -11222,6 +11242,15 @@ const KING_PENALTIES = [
   {id:'target',    icon:'👑',  name:'Bersaglio',    desc:'Tutti i nemici ti inseguono direttamente'},
 ];
 
+// ── KING_REWARDS — premi che il re può assegnare ──
+const KING_REWARDS = [
+  {id:'shield_gift', icon:'🛡️', name:'Scudo Regalo',    desc:'Attiva uno scudo immediato'},
+  {id:'life_gift',   icon:'❤️',  name:'+1 Vita',         desc:'Dona una vita extra'},
+  {id:'slow_gift',   icon:'⏱️',  name:'Slow Mo',         desc:'Slow motion per 5 secondi'},
+  {id:'score_gift',  icon:'⭐',  name:'+200 Punti',      desc:'Aggiunge 200 punti istantanei'},
+  {id:'shield_lock', icon:'🔒',  name:'Scudo Eterno 30s',desc:'Scudo invincibile per 30 secondi'},
+];
+
 // ── Gestione torneo su Firebase ──
 function getTourneyWeekKey(){
   const d=new Date();
@@ -12209,11 +12238,11 @@ async function sbBroadcast(room, payload){
 }
 
 // ── Supabase table helpers for rooms ──
-async function sbRoomCreate(room){ if(!USE_LB) return; try{ await sbFetch('drift_rooms',{method:'POST',body:JSON.stringify(room)}); }catch(e){} }
-async function sbRoomGet(code){ if(!USE_LB) return null; try{ const d=await sbFetch(`drift_rooms?code=eq.${code}`); return Array.isArray(d)&&d[0]?d[0]:null; }catch(e){return null;} }
-async function sbRoomUpdate(code,data){ if(!USE_LB) return; try{ await sbFetch(`drift_rooms?code=eq.${code}`,{method:'PATCH',body:JSON.stringify(data)}); }catch(e){} }
-async function sbRoomPlayerUpsert(code,player){ if(!USE_LB) return; try{ const key=`drift_room_players?room_code=eq.${code}&name=eq.${player.name}`; const d=await sbFetch(key); if(Array.isArray(d)&&d[0]) await sbFetch(key,{method:'PATCH',body:JSON.stringify(player)}); else await sbFetch('drift_room_players',{method:'POST',body:JSON.stringify({...player,room_code:code})}); }catch(e){} }
-async function sbRoomPlayers(code){ if(!USE_LB) return []; try{ const d=await sbFetch(`drift_room_players?room_code=eq.${code}&order=score.desc`); return Array.isArray(d)?d:[]; }catch(e){return [];} }
+async function sbRoomCreate(room){ if(!USE_LB) return; try{ await fbSet('/rooms/'+room.code, room); }catch(e){} }
+async function sbRoomGet(code){ if(!USE_LB) return null; try{ const d=await fbGet('/rooms/'+code); return d||null; }catch(e){return null;} }
+async function sbRoomUpdate(code,data){ if(!USE_LB) return; try{ const ex=await fbGet('/rooms/'+code)||{}; await fbSet('/rooms/'+code,{...ex,...data}); }catch(e){} }
+async function sbRoomPlayerUpsert(code,player){ if(!USE_LB) return; try{ await fbSet('/rooms/'+code+'/players/'+encodeURIComponent(player.name), player); }catch(e){} }
+async function sbRoomPlayers(code){ if(!USE_LB) return []; try{ const d=await fbGet('/rooms/'+code+'/players'); return d?Object.values(d).sort((a,b)=>b.score-a.score):[]; }catch(e){return [];} }
 
 // ── State ──
 /* CH moved up */
@@ -15377,7 +15406,7 @@ function getActiveBPOrb(){
   if(!owned) return null;
   // Deve essere la sfera selezionata attualmente
   if(selectedOrbId !== bpId) return null;
-  return ORBS.find(o=>o.id===bpId)||null;
+  return (typeof ORB_CATALOG!=='undefined'?ORB_CATALOG:[]).find(o=>o.id===bpId)||null;
 }
 
 function bpHasPower(powerName){
@@ -18687,7 +18716,7 @@ function runMDLIntro(cb){
       ctx.shadowBlur=18;
       ctx.shadowColor=p.c;
       ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
+      ctx.arc(p.x,p.y,Math.max(0.01,p.r*p.life),0,Math.PI*2);
       ctx.fill();
     }
     particles=particles.filter(p=>p.life>0);
