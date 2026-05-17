@@ -1997,19 +1997,19 @@ function shareChallengeLink(){
         z-index:2147483000; pointer-events:none; opacity:0;
         transition:opacity .14s ease, transform .18s ease;
         text-align:center; white-space:nowrap;
-        filter:drop-shadow(0 0 10px rgba(0,0,0,.18));
+        filter:none;
       }
       #${OVERLAY_ID}.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
       #${OVERLAY_ID} .zv12j-kicker{
         display:block; margin-bottom:2px; font-family:'Rajdhani',sans-serif;
         font-size:6px; line-height:1; font-weight:700; letter-spacing:.20em; text-transform:uppercase;
         color:var(--zv12j-color,#58f2ff); opacity:.82;
-        text-shadow:0 0 8px color-mix(in srgb,var(--zv12j-color,#58f2ff) 38%, transparent);
+        text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-main{
         display:block; font-family:'Syncopate',sans-serif; font-weight:900;
         font-size:clamp(10px,1.45vw,15px); line-height:1.02; letter-spacing:.08em; text-transform:uppercase;
-        color:#eef8ff; text-shadow:0 0 8px var(--zv12j-color,#58f2ff), 0 0 14px color-mix(in srgb,var(--zv12j-color,#58f2ff) 20%, transparent);
+        color:#eef8ff; text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-sub{
         display:block; margin-top:2px; font-family:'Rajdhani',sans-serif;
@@ -8537,23 +8537,37 @@ function setShadow(ctx2, blur, color){
 // ══════════════════════════════════════════════════════════════
 const _comboHUD = document.getElementById('comboHUD');
 let _comboHideTimer = null;
+// Pre-crea elementi fissi per evitare innerHTML ogni frame
+let _comboLabelEl=null, _comboMultEl=null;
+(function(){
+  if(!_comboHUD) return;
+  _comboLabelEl=document.createElement('div');
+  _comboLabelEl.style.cssText="font-family:'Syncopate',sans-serif;font-size:16px;font-weight:900;letter-spacing:.1em";
+  _comboMultEl=document.createElement('div');
+  _comboMultEl.style.cssText="font-size:11px;letter-spacing:.1em;margin-top:2px";
+  _comboHUD.appendChild(_comboLabelEl);
+  _comboHUD.appendChild(_comboMultEl);
+})();
 
 function updateComboHUD(){
-  if(!_comboHUD) return;
+  if(!_comboHUD||!_comboLabelEl) return;
   const nm = G.nearMissStreak||0;
   const pd = G.perfectDodgeCount||0;
   const total = nm + pd;
   if(total < 2){ _comboHUD.style.opacity='0'; return; }
-
   const mult = G._perfectMult||1;
   const color = pd>=6?'#ffd700':pd>=3?'#ff8800':nm>=5?'#ff4488':'#4af0d0';
   const label = pd>=3?`⚡ PERFECT x${pd}`:`🔥 COMBO x${nm}`;
-  const multLabel = mult>1?`<div style="font-size:11px;letter-spacing:.1em;color:${color};margin-top:2px">× ${mult} MOLTIPLICATORE</div>`:'';
-
-  _comboHUD.innerHTML = `
-    <div style="font-family:'Syncopate',sans-serif;font-size:16px;font-weight:900;color:${color};
-      text-shadow:0 0 20px ${color};letter-spacing:.1em;animation:comboPop .2s ease">${label}</div>
-    ${multLabel}`;
+  _comboLabelEl.textContent=label;
+  _comboLabelEl.style.color=color;
+  _comboLabelEl.style.textShadow='none';
+  if(mult>1){
+    _comboMultEl.textContent=`× ${mult} MOLTIPLICATORE`;
+    _comboMultEl.style.color=color;
+    _comboMultEl.style.display='';
+  } else {
+    _comboMultEl.style.display='none';
+  }
   _comboHUD.style.opacity='1';
   clearTimeout(_comboHideTimer);
   _comboHideTimer = setTimeout(()=>{ if(_comboHUD) _comboHUD.style.opacity='0'; }, 1800);
@@ -18039,19 +18053,19 @@ function runMDLIntro(cb){
         z-index:2147483000; pointer-events:none; opacity:0;
         transition:opacity .14s ease, transform .18s ease;
         text-align:center; white-space:nowrap;
-        filter:drop-shadow(0 0 10px rgba(0,0,0,.18));
+        filter:none;
       }
       #${OVERLAY_ID}.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
       #${OVERLAY_ID} .zv12j-kicker{
         display:block; margin-bottom:2px; font-family:'Rajdhani',sans-serif;
         font-size:6px; line-height:1; font-weight:700; letter-spacing:.20em; text-transform:uppercase;
         color:var(--zv12j-color,#58f2ff); opacity:.82;
-        text-shadow:0 0 8px color-mix(in srgb,var(--zv12j-color,#58f2ff) 38%, transparent);
+        text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-main{
         display:block; font-family:'Syncopate',sans-serif; font-weight:900;
         font-size:clamp(10px,1.45vw,15px); line-height:1.02; letter-spacing:.08em; text-transform:uppercase;
-        color:#eef8ff; text-shadow:0 0 8px var(--zv12j-color,#58f2ff), 0 0 14px color-mix(in srgb,var(--zv12j-color,#58f2ff) 20%, transparent);
+        color:#eef8ff; text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-sub{
         display:block; margin-top:2px; font-family:'Rajdhani',sans-serif;
@@ -18375,7 +18389,7 @@ function runMDLIntro(cb){
     if(level !== lastLevel){
       lastLevel=level;
       punch();
-      burst(W/2,H*.46,'rgba(255,213,106,1)',100,1.4);
+      burst(W/2,H*.46,'rgba(255,213,106,1)',_isMob?20:100,1.4);
       showClip('VOID SHIFT · LEVEL '+level);
     }
 
@@ -18655,18 +18669,18 @@ function runMDLIntro(cb){
 
       if(text.includes('LEVEL')||text.includes('LIVELLO')||text.includes('RECORD')||text.includes('BEST')){
         punch();
-        burst(W/2,H*.46,'rgba(255,213,106,1)',100,1.5);
+        burst(W/2,H*.46,'rgba(255,213,106,1)',_isMob?20:100,1.5);
         showClip('RECORD ENERGY · SHARE THIS');
       }
 
       if(text.includes('NEAR')||text.includes('DANGER')||text.includes('PERFECT')||text.includes('DODGE')){
         punch();
-        burst(W/2,H*.46,'rgba(255,46,159,1)',70,1.4);
+        burst(W/2,H*.46,'rgba(255,46,159,1)',_isMob?15:70,1.4);
         showClip('IMPOSSIBLE DODGE · CLIP THIS');
       }
 
       if(text.includes('GAME OVER')||text.includes('IMPATTO')||text.includes('COLLASS')){
-        burst(W/2,H*.46,'rgba(255,46,109,1)',140,1.9);
+        burst(W/2,H*.46,'rgba(255,46,109,1)',_isMob?25:140,1.9);
       }
 
       return old.apply(this,arguments);
@@ -18865,8 +18879,10 @@ function runMDLIntro(cb){
     return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
   }
 
+  const _isMobBurst=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||innerWidth<600;
   function burst(x,y,style,amount){
-    for(let i=0;i<amount;i++){
+    const _amt=_isMobBurst?Math.min(amount,20):amount;
+    for(let i=0;i<_amt;i++){
       const a=Math.random()*Math.PI*2;
       const v=1+Math.random()*5;
       particles.push({
@@ -19005,14 +19021,14 @@ function runMDLIntro(cb){
       const p=playerPos();
       const style=ORB_STYLE[currentOrb()];
       if(text.includes('NEAR')||text.includes('DODGE')||text.includes('PERFECT')){
-        burst(p.x,p.y,style, currentOrb()==='event_horizon'?70:34);
+        burst(p.x,p.y,style, _isMobBurst?(currentOrb()==='event_horizon'?15:10):(currentOrb()==='event_horizon'?70:34));
         if(currentOrb()==='event_horizon'){
           document.body.classList.add('zv-near-miss');
           setTimeout(()=>document.body.classList.remove('zv-near-miss'),320);
         }
       }
       if(text.includes('GAME OVER')||text.includes('IMPATTO')||text.includes('COLLASS')){
-        burst(p.x,p.y,style, currentOrb()==='event_horizon'?120:60);
+        burst(p.x,p.y,style, _isMobBurst?(currentOrb()==='event_horizon'?20:15):(currentOrb()==='event_horizon'?120:60));
       }
       return oldShowMsg.apply(this,arguments);
     };
@@ -22533,19 +22549,19 @@ function runMDLIntro(cb){
         z-index:2147483000; pointer-events:none; opacity:0;
         transition:opacity .14s ease, transform .18s ease;
         text-align:center; white-space:nowrap;
-        filter:drop-shadow(0 0 10px rgba(0,0,0,.18));
+        filter:none;
       }
       #${OVERLAY_ID}.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
       #${OVERLAY_ID} .zv12j-kicker{
         display:block; margin-bottom:2px; font-family:'Rajdhani',sans-serif;
         font-size:6px; line-height:1; font-weight:700; letter-spacing:.20em; text-transform:uppercase;
         color:var(--zv12j-color,#58f2ff); opacity:.82;
-        text-shadow:0 0 8px color-mix(in srgb,var(--zv12j-color,#58f2ff) 38%, transparent);
+        text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-main{
         display:block; font-family:'Syncopate',sans-serif; font-weight:900;
         font-size:clamp(10px,1.45vw,15px); line-height:1.02; letter-spacing:.08em; text-transform:uppercase;
-        color:#eef8ff; text-shadow:0 0 8px var(--zv12j-color,#58f2ff), 0 0 14px color-mix(in srgb,var(--zv12j-color,#58f2ff) 20%, transparent);
+        color:#eef8ff; text-shadow:none;
       }
       #${OVERLAY_ID} .zv12j-sub{
         display:block; margin-top:2px; font-family:'Rajdhani',sans-serif;
