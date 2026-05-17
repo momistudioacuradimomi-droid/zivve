@@ -3878,6 +3878,14 @@ button[onclick*="startGame"]{
 }
 </style>
 <style id="zivve-mobile-perf">
+#overOverlay {
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  padding-top: max(env(safe-area-inset-top,0px) + 20px, 24px) !important;
+  padding-bottom: 40px !important;
+}
 @media (max-width: 768px) {
   /* Ferma animazioni decorative non essenziali */
   .game-title { animation: none !important; }
@@ -3945,7 +3953,7 @@ button[onclick*="startGame"]{
   // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
   var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
-  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable],#overOverlay,#overOverlay *';
 
   document.addEventListener('touchmove',function(e){
     var target=e.target;
@@ -3981,7 +3989,7 @@ button[onclick*="startGame"]{
   // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
   var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
-  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable],#overOverlay,#overOverlay *';
 
   document.addEventListener('touchmove',function(e){
     var target=e.target;
