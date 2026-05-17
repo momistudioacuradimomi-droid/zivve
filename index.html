@@ -4011,7 +4011,7 @@ button[onclick*="startGame"]{
   <div id="seasonContent" style="padding:max(env(safe-area-inset-top,0px) + 40px, 44px) 20px 24px;font-family:Syncopate,sans-serif;max-width:360px;margin:0 auto"></div>
 </div>
 <div id="ui">
-  <div id="comboHUD" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;text-align:center;z-index:12;opacity:0;transition:opacity .3s"></div>
+  <div id="comboHUD" style="display:none"></div>
   <div id="levelWrap"><div id="levelLbl" data-i18n="level">Level</div><div id="levelVal">1</div></div>
   <div id="scoreWrap"><div id="scoreLbl" data-i18n="score">Score</div><div id="scoreVal">0</div></div>
   <div id="livesWrap"><div id="livesLbl" data-i18n="lives">Lives</div><div id="livesIcons"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div></div>
@@ -8549,7 +8549,7 @@ let _comboLabelEl=null, _comboMultEl=null;
   _comboHUD.appendChild(_comboMultEl);
 })();
 
-function updateComboHUD(){
+function updateComboHUD(){return;
   if(!_comboHUD||!_comboLabelEl) return;
   const nm = G.nearMissStreak||0;
   const pd = G.perfectDodgeCount||0;
