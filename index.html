@@ -3917,56 +3917,82 @@ button[onclick*="startGame"]{
   .zv-cult-spark { display: none !important; }
 }
 </style>
+<script>
+// Wake Lock — mantieni lo schermo acceso durante il gioco
+(function(){
+  var _wakeLock = null;
+  async function requestWakeLock(){
+    try{
+      if('wakeLock' in navigator){
+        _wakeLock = await navigator.wakeLock.request('screen');
+      }
+    }catch(e){}
+  }
+  // Riacquista il wake lock se la pagina torna in primo piano
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') requestWakeLock();
+  });
+  requestWakeLock();
+})();
+</script>
 </head>
 <body>
-<div id="__fps" style="position:fixed;top:4px;right:4px;z-index:99999;background:rgba(0,0,0,0.7);color:#0f0;font-family:monospace;font-size:11px;padding:3px 6px;border-radius:4px;pointer-events:none"></div>
+
 <script>
 (function(){
-  var fps=0,frames=0,last=performance.now();
-  function tick(){
-    frames++;
-    var now=performance.now();
-    if(now-last>=1000){
-      fps=frames;frames=0;last=now;
-      var el=document.getElementById('__fps');
-      if(el) el.textContent=fps+' fps';
-    }
-    requestAnimationFrame(tick);
+  // Lista overlay che non devono muoversi con lo scroll
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay,#profileOverlay';
+  // Elementi scrollabili legittimi dentro gli overlay
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#statsContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
+
+  function isInFixedOverlay(el){
+    return !!el.closest(FIXED_OVERLAYS);
   }
-  requestAnimationFrame(tick);
+  function isScrollable(el){
+    return !!el.closest(SCROLLABLE);
+  }
+
+  document.addEventListener('touchmove',function(e){
+    if(isScrollable(e.target)) return;
+    if(isInFixedOverlay(e.target)) e.preventDefault();
+  },{passive:false});
+
+  document.addEventListener('wheel',function(e){
+    if(isScrollable(e.target)) return;
+    if(isInFixedOverlay(e.target)) e.preventDefault();
+  },{passive:false});
+
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length>1) e.preventDefault();
+  },{passive:false});
 })();
 </script>
 <script>
 (function(){
-  // Blocca scroll SOLO sul menu principale (startOverlay)
+  // Lista overlay che non devono muoversi con lo scroll
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay,#profileOverlay';
+  // Elementi scrollabili legittimi dentro gli overlay
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#statsContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
+
+  function isInFixedOverlay(el){
+    return !!el.closest(FIXED_OVERLAYS);
+  }
+  function isScrollable(el){
+    return !!el.closest(SCROLLABLE);
+  }
+
   document.addEventListener('touchmove',function(e){
-    const startOverlay=document.getElementById('startOverlay');
-    if(startOverlay && startOverlay.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    if(isScrollable(e.target)) return;
+    if(isInFixedOverlay(e.target)) e.preventDefault();
   },{passive:false});
+
   document.addEventListener('wheel',function(e){
-    const startOverlay=document.getElementById('startOverlay');
-    if(startOverlay && startOverlay.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    if(isScrollable(e.target)) return;
+    if(isInFixedOverlay(e.target)) e.preventDefault();
   },{passive:false});
-})();
-</script>
-<script>
-(function(){
-  // Blocca scroll SOLO sul menu principale (startOverlay)
-  document.addEventListener('touchmove',function(e){
-    const startOverlay=document.getElementById('startOverlay');
-    if(startOverlay && startOverlay.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
-  },{passive:false});
-  document.addEventListener('wheel',function(e){
-    const startOverlay=document.getElementById('startOverlay');
-    if(startOverlay && startOverlay.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length>1) e.preventDefault();
   },{passive:false});
 })();
 </script>
