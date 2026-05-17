@@ -5907,16 +5907,15 @@ function saveMockLB(name,score){const lb=JSON.parse(localStorage.getItem('drift_
 const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
 const shareCanvas=document.getElementById('shareCanvas'),sctx=shareCanvas.getContext('2d');
 let W,H,CX,CY,ORBIT_R;
+const _isMobCanvas=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||innerWidth<600;
 function resize(){
-  const dpr=window.devicePixelRatio||1;
+  // Su mobile cap DPR a 1 — il canvas 3x più grande causa lag enorme
+  const dpr=_isMobCanvas?1:Math.min(window.devicePixelRatio||1,2);
   const cssW=window.innerWidth, cssH=window.innerHeight;
-  // Canvas interno in pixel fisici per nitidezza su schermi HiDPI
   canvas.width=Math.round(cssW*dpr);
   canvas.height=Math.round(cssH*dpr);
-  // CSS size invariata — il canvas si scala visivamente
   canvas.style.width=cssW+'px';
   canvas.style.height=cssH+'px';
-  // Scala il context per compensare — tutte le coordinate rimangono in CSS pixels
   ctx.setTransform(dpr,0,0,dpr,0,0);
   W=cssW; H=cssH; CX=W/2; CY=H/2; ORBIT_R=Math.min(W,H)*.32;
 }
