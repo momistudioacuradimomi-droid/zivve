@@ -683,7 +683,7 @@ function shareChallengeLink(){
         background:linear-gradient(180deg,rgba(3,3,18,.82),rgba(3,3,18,.58));
         border:1px solid rgba(74,240,208,.34);
         box-shadow:0 0 28px rgba(74,240,208,.16),0 12px 36px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);
-        backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+        backdrop-filter:none;-webkit-backdrop-filter:none;
       }
       .zv-cult-card:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--cult-glow,rgba(74,240,208,.26)),transparent 62%);opacity:.8;pointer-events:none}
       .zv-cult-card:after{content:'';position:absolute;left:-20%;right:-20%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--cult-color,#4af0d0),transparent);opacity:.75;box-shadow:0 0 18px var(--cult-color,#4af0d0);pointer-events:none}
@@ -729,16 +729,19 @@ function shareChallengeLink(){
       subEl.textContent=sub||'';
       el.classList.remove('zv-hide');
       el.classList.add('zv-show');
-      for(let i=0;i<8;i++){
-        const s=document.createElement('i');
-        s.className='zv-cult-spark';
-        s.style.left=(45+Math.random()*10)+'%';
-        s.style.top=(45+Math.random()*20)+'%';
-        s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
-        s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
-        s.style.setProperty('--cult-color',c);
-        card.appendChild(s);
-        setTimeout(()=>s.remove(),900);
+      // Su mobile niente spark — troppo pesanti
+      if(!(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))){
+        for(let i=0;i<4;i++){
+          const s=document.createElement('i');
+          s.className='zv-cult-spark';
+          s.style.left=(45+Math.random()*10)+'%';
+          s.style.top=(45+Math.random()*20)+'%';
+          s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
+          s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
+          s.style.setProperty('--cult-color',c);
+          card.appendChild(s);
+          setTimeout(()=>s.remove(),900);
+        }
       }
       try{ if(typeof haptic==='function') haptic(opts&&opts.haptic?opts.haptic:[18,12,28]); }catch(e){}
       clearTimeout(cultTimer);
@@ -3872,6 +3875,30 @@ button[onclick*="startGame"]{
   #zvNewPulse{filter:none!important;}
   .menu-btn,.ctrl-btn,.orb-card,.stat-row,.lb-row{box-shadow:none!important;}
   canvas{transform:translateZ(0);will-change:transform;}
+}
+</style>
+<style id="zivve-mobile-perf">
+@media (max-width: 768px) {
+  /* Ferma animazioni decorative non essenziali */
+  .game-title { animation: none !important; }
+  .rec-badge { animation: none !important; }
+  .champion-crown { animation: none !important; }
+  #tutArrow { animation: none !important; }
+  
+  /* Rallenta animazioni rotanti da 2s a 8s */
+  .zvNewRays, [style*="zvNewRays"] { animation-duration: 60s !important; }
+  
+  /* Bottone GIOCA: ferma shine */
+  [class*="zvNewButton"], [class*="zvPlay"] { animation: none !important; }
+  
+  /* GPU acceleration su elementi animati rimasti */
+  .game-title, .btn-play, .menu-btn { will-change: transform; transform: translateZ(0); }
+  
+  /* Ferma animazioni logo */
+  [class*="zvNewLogo"], [class*="zvNewBreath"] { animation: none !important; }
+  
+  /* Riduce drop-shadow pesante sul logo */
+  .game-title { filter: drop-shadow(0 0 15px rgba(74,240,208,.3)) !important; }
 }
 </style>
 </head>
@@ -16678,7 +16705,7 @@ function runMDLIntro(cb){
         background:linear-gradient(180deg,rgba(3,3,18,.82),rgba(3,3,18,.58));
         border:1px solid rgba(74,240,208,.34);
         box-shadow:0 0 28px rgba(74,240,208,.16),0 12px 36px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);
-        backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+        backdrop-filter:none;-webkit-backdrop-filter:none;
       }
       .zv-cult-card:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--cult-glow,rgba(74,240,208,.26)),transparent 62%);opacity:.8;pointer-events:none}
       .zv-cult-card:after{content:'';position:absolute;left:-20%;right:-20%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--cult-color,#4af0d0),transparent);opacity:.75;box-shadow:0 0 18px var(--cult-color,#4af0d0);pointer-events:none}
@@ -16724,16 +16751,19 @@ function runMDLIntro(cb){
       subEl.textContent=sub||'';
       el.classList.remove('zv-hide');
       el.classList.add('zv-show');
-      for(let i=0;i<8;i++){
-        const s=document.createElement('i');
-        s.className='zv-cult-spark';
-        s.style.left=(45+Math.random()*10)+'%';
-        s.style.top=(45+Math.random()*20)+'%';
-        s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
-        s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
-        s.style.setProperty('--cult-color',c);
-        card.appendChild(s);
-        setTimeout(()=>s.remove(),900);
+      // Su mobile niente spark — troppo pesanti
+      if(!(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))){
+        for(let i=0;i<4;i++){
+          const s=document.createElement('i');
+          s.className='zv-cult-spark';
+          s.style.left=(45+Math.random()*10)+'%';
+          s.style.top=(45+Math.random()*20)+'%';
+          s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
+          s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
+          s.style.setProperty('--cult-color',c);
+          card.appendChild(s);
+          setTimeout(()=>s.remove(),900);
+        }
       }
       try{ if(typeof haptic==='function') haptic(opts&&opts.haptic?opts.haptic:[18,12,28]); }catch(e){}
       clearTimeout(cultTimer);
@@ -21169,7 +21199,7 @@ function runMDLIntro(cb){
         background:linear-gradient(180deg,rgba(3,3,18,.82),rgba(3,3,18,.58));
         border:1px solid rgba(74,240,208,.34);
         box-shadow:0 0 28px rgba(74,240,208,.16),0 12px 36px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);
-        backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+        backdrop-filter:none;-webkit-backdrop-filter:none;
       }
       .zv-cult-card:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--cult-glow,rgba(74,240,208,.26)),transparent 62%);opacity:.8;pointer-events:none}
       .zv-cult-card:after{content:'';position:absolute;left:-20%;right:-20%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--cult-color,#4af0d0),transparent);opacity:.75;box-shadow:0 0 18px var(--cult-color,#4af0d0);pointer-events:none}
@@ -21215,16 +21245,19 @@ function runMDLIntro(cb){
       subEl.textContent=sub||'';
       el.classList.remove('zv-hide');
       el.classList.add('zv-show');
-      for(let i=0;i<8;i++){
-        const s=document.createElement('i');
-        s.className='zv-cult-spark';
-        s.style.left=(45+Math.random()*10)+'%';
-        s.style.top=(45+Math.random()*20)+'%';
-        s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
-        s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
-        s.style.setProperty('--cult-color',c);
-        card.appendChild(s);
-        setTimeout(()=>s.remove(),900);
+      // Su mobile niente spark — troppo pesanti
+      if(!(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))){
+        for(let i=0;i<4;i++){
+          const s=document.createElement('i');
+          s.className='zv-cult-spark';
+          s.style.left=(45+Math.random()*10)+'%';
+          s.style.top=(45+Math.random()*20)+'%';
+          s.style.setProperty('--dx',((Math.random()-.5)*220)+'px');
+          s.style.setProperty('--dy',((Math.random()-.5)*120-20)+'px');
+          s.style.setProperty('--cult-color',c);
+          card.appendChild(s);
+          setTimeout(()=>s.remove(),900);
+        }
       }
       try{ if(typeof haptic==='function') haptic(opts&&opts.haptic?opts.haptic:[18,12,28]); }catch(e){}
       clearTimeout(cultTimer);
