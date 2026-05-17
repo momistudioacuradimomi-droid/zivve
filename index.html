@@ -6751,6 +6751,9 @@ function showStatsScreen(){
   clos.onclick=function(){div.remove();};
   div.appendChild(clos);
 
+  // Blocca scroll sul div statistiche
+  div.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
+  div.addEventListener('wheel', function(e){ e.preventDefault(); }, {passive:false});
   document.body.appendChild(div);
 }
 
@@ -10498,6 +10501,8 @@ function showUpgradeScreen(){
   wrap.appendChild(close);
 
   div.appendChild(wrap);
+  div.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
+  div.addEventListener('wheel', function(e){ e.preventDefault(); }, {passive:false});
   document.body.appendChild(div);
 }
 
