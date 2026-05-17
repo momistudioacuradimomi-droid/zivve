@@ -9957,7 +9957,7 @@ function drawEnemies(){
     ctx.restore();
   }
 }
-function drawParticles(){const _parts=G.particles.slice(-_maxParticles);ctx.save();for(const p of _parts){const _a=Math.max(0,p.life/60);if(_a<=0)continue;ctx.globalAlpha=_a;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.restore();}
+function drawParticles(){}
 function drawRings(){if(!G.rings.length)return;ctx.save();for(const r of G.rings){ctx.globalAlpha=r.alpha;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x??CX,r.y??CY,r.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
 function drawShockwaves(){if(!G.shockwaves.length)return;ctx.save();for(const s of G.shockwaves){ctx.globalAlpha=s.alpha;const col=s.color||'#ffe566';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(CX,CY,s.r,0,Math.PI*2);ctx.stroke();}ctx.restore();}
 
