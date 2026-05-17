@@ -2231,7 +2231,7 @@ html,body{width:100%;height:100%;overflow:hidden;overflow-x:hidden;overflow-y:hi
 
 /* ── UI ── */
 #ui{position:fixed;inset:0;pointer-events:none;z-index:10;display:none}
-#scoreWrap{position:absolute;top:max(env(safe-area-inset-top, 0px) + 122px, 122px);left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
+#scoreWrap{text-align:center;pointer-events:none;width:100%}
 #scoreLbl{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase}
 #scoreVal{font-family:'Syncopate',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:900;color:var(--white);line-height:1;text-shadow:0 0 25px rgba(126,200,255,.4);transition:transform .07s,color .07s}
 #scoreVal.pop{transform:scale(1.3);color:var(--gold);text-shadow:0 0 40px var(--gold)}
@@ -2254,7 +2254,7 @@ html,body{width:100%;height:100%;overflow:hidden;overflow-x:hidden;overflow-y:hi
 #survivalBar{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:min(240px,65vw);height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
 #survivalFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:background .5s}
 /* In-game controls bar */
-#gameControls{position:absolute;top:max(env(safe-area-inset-top, 0px) + 72px, 72px);left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:all;z-index:15}
+#gameControls{position:absolute;top:max(env(safe-area-inset-top, 0px) + 58px, 58px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:all;z-index:15}
 .ctrl-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0}
 .ctrl-btn:active,.ctrl-btn:hover{background:rgba(74,240,208,.15);border-color:rgba(74,240,208,.4);color:var(--accent)}
 .ad-slot{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:min(320px,90vw);height:50px;border:1px dashed rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;border-radius:3px;pointer-events:none}
@@ -3941,7 +3941,7 @@ button[onclick*="startGame"]{
 <script>
 (function(){
   // Overlay completamente fissi (niente scroll)
-  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
   // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
   var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
@@ -3977,7 +3977,7 @@ button[onclick*="startGame"]{
 <script>
 (function(){
   // Overlay completamente fissi (niente scroll)
-  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
   // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
   var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
@@ -4053,11 +4053,12 @@ button[onclick*="startGame"]{
 <div id="ui">
   <div id="comboHUD" style="display:none"></div>
   <div id="levelWrap"><div id="levelLbl" data-i18n="level">Level</div><div id="levelVal">1</div></div>
-  <div id="scoreWrap"><div id="scoreLbl" data-i18n="score">Score</div><div id="scoreVal">0</div></div>
   <div id="livesWrap"><div id="livesLbl" data-i18n="lives">Lives</div><div id="livesIcons"><div class="heart"></div><div class="heart"></div><div class="heart"></div></div></div>
   <div id="enemyCount"><span id="enemyCountVal">3</span><span data-i18n="orbs">orbs</span></div>
   <!-- Game control buttons — center top -->
   <div id="gameControls">
+  <div id="scoreWrap" style="width:100%;text-align:center;pointer-events:none"><div id="scoreLbl" data-i18n="score">Score</div><div id="scoreVal">0</div></div>
+  <div style="display:flex;gap:8px">
     <button class="ctrl-btn" onclick="pauseGame()" title="Pause" id="pauseBtn">⏸</button>
     <button class="ctrl-btn" onclick="confirmStop()" title="Stop" id="stopBtn">⏹</button>
     <button class="ctrl-btn" onclick="newGame()" title="New Game" id="newBtn">↺</button>
@@ -4067,7 +4068,7 @@ button[onclick*="startGame"]{
     <button class="ctrl-btn" onclick="toggleHaptic()" id="hapticBtn" title="Vibrazione">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 9v6M3 11v2M19 9v6M21 11v2M8 6v12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1z"/></svg>
     </button>
-  </div>
+  </div></div>
   <div id="msgWrap"><div id="msgText"></div></div>
   <div id="survivalBar"><div id="survivalFill"></div></div>
   <button id="langBtn" onclick="show('langOverlay')">🌐 <span id="langCurrent">EN</span></button>
@@ -4265,7 +4266,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- GAME OVER -->
-<div class="overlay hidden" id="overOverlay" style="display:none">
+<div class="overlay hidden" id="overOverlay" style="display:none;overflow-y:auto;justify-content:flex-start;padding-top:24px">
   <div class="go-title" data-i18n="gameOver">GAME OVER</div>
   <!-- Stats principali -->
   <div class="stats-row">
