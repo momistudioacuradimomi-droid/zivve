@@ -8783,6 +8783,18 @@ let _masterRaf=null;
 let _lastMasterTime=0;
 let _dt=1; // delta time multiplier (1 = 60fps normale)
 function masterLoop(now){
+  // Assicura che i canvas del menu siano nascosti durante il gioco
+  if(G && G.running && !window._menuHidden){
+    window._menuHidden=true;
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.display='none';
+    });
+  } else if((!G || !G.running) && window._menuHidden){
+    window._menuHidden=false;
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.display='';
+    });
+  }
   // Delta time: normalizza la velocità del gioco a 60fps
   // Se gira a 30fps, _dt=2 e tutto si muove il doppio più veloce per frame
   if(_lastMasterTime>0){
@@ -18213,7 +18225,7 @@ function runMDLIntro(cb){
   const sctx = starsCanvas.getContext('2d');
 
   const _isMob=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))||innerWidth<600;
-  const _fpsInterval=_isMob?34:0;
+  const _fpsInterval=_isMob?50:0;
   let _lastFrame=0;
 
   let W=0,H=0,D=1,T=0;
@@ -18238,7 +18250,7 @@ function runMDLIntro(cb){
     stars=[]; rings=[]; dust=[]; particles=[]; comets=[];
     const max=Math.max(W,H);
 
-    const _maxStars=_isMob?80:320;
+    const _maxStars=_isMob?40:320;
     for(let i=0;i<_maxStars;i++){
       const a=Math.random()*Math.PI*2;
       const dist=Math.pow(Math.random(),.48)*max*.78;
@@ -18253,7 +18265,7 @@ function runMDLIntro(cb){
       });
     }
 
-    const _maxDust=_isMob?12:56;
+    const _maxDust=_isMob?6:56;
     for(let i=0;i<_maxDust;i++){
       dust.push({
         x:Math.random()*W,
@@ -18275,7 +18287,7 @@ function runMDLIntro(cb){
       });
     }
 
-    const _maxComets=_isMob?4:14;
+    const _maxComets=_isMob?2:14;
     for(let i=0;i<_maxComets;i++){
       comets.push({
         a:Math.random()*Math.PI*2,
@@ -18618,6 +18630,20 @@ function runMDLIntro(cb){
   },{passive:true});
 
   function frame(now){
+    // Ferma completamente durante il gioco
+    if(window.G && window.G.running){
+      ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.style.display='none';
+      });
+      requestAnimationFrame(frame);
+      return;
+    }
+    // Ripristina visibilità quando non si gioca
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.display='';
+    });
     if(_fpsInterval>0 && now-_lastFrame<_fpsInterval){requestAnimationFrame(frame);return;}
     _lastFrame=now||0;
     T=now||0;
