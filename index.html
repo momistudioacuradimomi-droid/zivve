@@ -6457,9 +6457,9 @@ function exitGame(){
   // Prova a chiudere la finestra (funziona su TWA e app native)
   // Su browser normale mostra conferma
   hide('pauseOverlay');
-  if(G){ G.running=false; G.paused=false; }
+  if(G){ G.running=false; window._gameRunning=false; G.paused=false; }
   if(!G.running&&!G.paused)return;
-  G.paused=true;G.running=false;
+  G.paused=true;G.running=false; window._gameRunning=false;
   show('pauseOverlay');
   sndPause();haptic(20);
 }
@@ -6674,7 +6674,7 @@ function showStatsScreen(){
 
 function pauseGame(){
   if(!G||!G.running) return;
-  G.paused=true; G.running=false;
+  G.paused=true; G.running=false; window._gameRunning=false;
   show('pauseOverlay');
   try{sndPause();}catch(e){}
   try{haptic(20);}catch(e){}
@@ -6687,11 +6687,11 @@ function resumeGame(){
 function newGame(){ hide('pauseOverlay');hide('stopOverlay');startGame(); }
 function confirmStop(){
   if(!G.running&&!G.paused)return;
-  G.running=false;G.paused=false;
+  G.running=false; window._gameRunning=false;G.paused=false;
   show('stopOverlay');
 }
-function forceStop(){ hide('stopOverlay');G.running=false;G.paused=false;setTimeout(endGame,100); }
-function goMenu(){ hide('pauseOverlay');hide('stopOverlay');G.running=false;G.paused=false;_raceMode=false;_raceChoiceActive=false;document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());showStart(); }
+function forceStop(){ hide('stopOverlay');G.running=false; window._gameRunning=false;G.paused=false;setTimeout(endGame,100); }
+function goMenu(){ hide('pauseOverlay');hide('stopOverlay');G.running=false; window._gameRunning=false;G.paused=false;_raceMode=false;_raceChoiceActive=false;document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());showStart(); }
 
 // ══════════════════════════════════════
 //  START
@@ -8784,12 +8784,12 @@ let _lastMasterTime=0;
 let _dt=1; // delta time multiplier (1 = 60fps normale)
 function masterLoop(now){
   // Assicura che i canvas del menu siano nascosti durante il gioco
-  if(G && G.running && !window._menuHidden){
+  if(window._gameRunning && !window._menuHidden){
     window._menuHidden=true;
     ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.style.display='none';
     });
-  } else if((!G || !G.running) && window._menuHidden){
+  } else if(!window._gameRunning && window._menuHidden){
     window._menuHidden=false;
     ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.style.display='';
@@ -9408,7 +9408,7 @@ function registerHit(px,py,e){
       for(let _i=0;_i<3;_i++) G.shockwaves.push({r:_i*20,alpha:.7,grow:20,color:'#ffd700'});
       return;
     }
-    G.running=false;
+    G.running=false; window._gameRunning=false;
     G.deathX=px;G.deathY=py;G.deathZoom=1;G.deathFrame=0;
     for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*10+2;G.particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:100+Math.random()*40,color:['#ffe566','#ff2244','#4af0d0','#ff6633','#ffffff'][i%5],r:Math.random()*6+2});}
     sndDie();haptic([80,30,80,30,120]);
@@ -9431,7 +9431,7 @@ function registerHit(px,py,e){
       } else {
         // MORTE DRAMMATICA: freeze 600ms + silenzio
         stopGameMusic();stopZivveOST();
-        G.running=false; // blocca il loop
+        G.running=false; window._gameRunning=false; // blocca il loop
         // Esplosione finale massiccia
         const _dpx=CX+Math.cos(G.angle)*ORBIT_R,_dpy=CY+Math.sin(G.angle)*ORBIT_R;
         for(let _di=0;_di<60;_di++){
@@ -9442,7 +9442,7 @@ function registerHit(px,py,e){
         for(let _si=0;_si<4;_si++) G.shockwaves.push({r:_si*15,alpha:.9-_si*.15,grow:28,color:'#ff2244'});
         flashScreen('rgba(255,34,68,0.5)');
         // Disegna un frame con l'esplosione
-        G.running=true;draw();G.running=false;
+        G.running=true; window._gameRunning=true;draw();G.running=false; window._gameRunning=false;
         // Freeze 700ms poi game over
         setTimeout(()=>{endGame();},700);
       }
@@ -11946,7 +11946,7 @@ async function showTourneyScreen(){
 }
 
 async function endGame(){
-  G.running=false;
+  G.running=false; window._gameRunning=false;
   window._inGame=false;
   // Reset nuovi sistemi
   _raceMode=false; _raceChoiceActive=false;
@@ -18631,19 +18631,10 @@ function runMDLIntro(cb){
 
   function frame(now){
     // Ferma completamente durante il gioco
-    if(window.G && window.G.running){
-      ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
-        var el=document.getElementById(id);
-        if(el) el.style.display='none';
-      });
+    if(window._gameRunning){
       requestAnimationFrame(frame);
       return;
     }
-    // Ripristina visibilità quando non si gioca
-    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.style.display='';
-    });
     if(_fpsInterval>0 && now-_lastFrame<_fpsInterval){requestAnimationFrame(frame);return;}
     _lastFrame=now||0;
     T=now||0;
