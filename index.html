@@ -2263,7 +2263,7 @@ html,body{width:100%;height:100%;overflow:hidden;overflow-x:hidden;overflow-y:hi
 #langBtn:hover{color:var(--white);background:rgba(74,240,208,.1)}
 
 /* ── OVERLAYS ── */
-.overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:#03030a;padding:24px 18px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:#03030a;padding:24px 18px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:none;overscroll-behavior-y:contain;max-width:100vw}
 .overlay.hidden{display:none!important}
 .game-title{font-family:'Orbitron',sans-serif;font-size:clamp(58px,17vw,110px);font-weight:900;letter-spacing:.06em;background:linear-gradient(150deg,#e8f4ff 0%,var(--accent2) 45%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(74,240,208,.45));line-height:1;animation:titlePulse 2.8s ease-in-out infinite}
 @keyframes titlePulse{0%,100%{filter:drop-shadow(0 0 25px rgba(74,240,208,.3))}50%{filter:drop-shadow(0 0 65px rgba(74,240,208,.8))}}
@@ -3940,26 +3940,33 @@ button[onclick*="startGame"]{
 
 <script>
 (function(){
-  // Lista overlay che non devono muoversi con lo scroll
-  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay,#profileOverlay';
+  // Overlay completamente fissi (niente scroll)
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay';
+  // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
+  var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
-  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#statsContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
-
-  function isInFixedOverlay(el){
-    return !!el.closest(FIXED_OVERLAYS);
-  }
-  function isScrollable(el){
-    return !!el.closest(SCROLLABLE);
-  }
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
 
   document.addEventListener('touchmove',function(e){
-    if(isScrollable(e.target)) return;
-    if(isInFixedOverlay(e.target)) e.preventDefault();
+    var target=e.target;
+    // Permetti scroll su elementi scrollabili legittimi
+    if(target.closest(SCROLLABLE)) return;
+    // Blocca tutto sugli overlay fissi
+    if(target.closest(FIXED_OVERLAYS)){e.preventDefault();return;}
+    // Su overlay verticali blocca solo lo scroll orizzontale
+    if(target.closest(VSCROLL_OVERLAYS)){
+      if(Math.abs(e.touches[0]&&e.touches[0].clientX||0)>Math.abs(e.touches[0]&&e.touches[0].clientY||0)) e.preventDefault();
+      return;
+    }
+    // Statistiche e upgrade: blocca tutto
+    var statsEl=document.getElementById('statsContent');
+    if(!statsEl && target.closest('.overlay')) e.preventDefault();
   },{passive:false});
 
   document.addEventListener('wheel',function(e){
-    if(isScrollable(e.target)) return;
-    if(isInFixedOverlay(e.target)) e.preventDefault();
+    var target=e.target;
+    if(target.closest(SCROLLABLE)) return;
+    if(target.closest(FIXED_OVERLAYS)){e.preventDefault();return;}
   },{passive:false});
 
   document.addEventListener('touchstart',function(e){
@@ -3969,26 +3976,33 @@ button[onclick*="startGame"]{
 </script>
 <script>
 (function(){
-  // Lista overlay che non devono muoversi con lo scroll
-  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay,#profileOverlay';
+  // Overlay completamente fissi (niente scroll)
+  var FIXED_OVERLAYS='#startOverlay,#howOverlay,#lbOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#overOverlay,#nameOverlay,#seasonOverlay';
+  // Overlay che possono scorrere verticalmente (ma non orizzontalmente)
+  var VSCROLL_OVERLAYS='#profileOverlay';
   // Elementi scrollabili legittimi dentro gli overlay
-  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#statsContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
-
-  function isInFixedOverlay(el){
-    return !!el.closest(FIXED_OVERLAYS);
-  }
-  function isScrollable(el){
-    return !!el.closest(SCROLLABLE);
-  }
+  var SCROLLABLE='.orb-categories,#shopContent,#leaderboardList,#bpContent,#achList,#eventList,.overlay-scroll,.scroll-content,[data-scrollable]';
 
   document.addEventListener('touchmove',function(e){
-    if(isScrollable(e.target)) return;
-    if(isInFixedOverlay(e.target)) e.preventDefault();
+    var target=e.target;
+    // Permetti scroll su elementi scrollabili legittimi
+    if(target.closest(SCROLLABLE)) return;
+    // Blocca tutto sugli overlay fissi
+    if(target.closest(FIXED_OVERLAYS)){e.preventDefault();return;}
+    // Su overlay verticali blocca solo lo scroll orizzontale
+    if(target.closest(VSCROLL_OVERLAYS)){
+      if(Math.abs(e.touches[0]&&e.touches[0].clientX||0)>Math.abs(e.touches[0]&&e.touches[0].clientY||0)) e.preventDefault();
+      return;
+    }
+    // Statistiche e upgrade: blocca tutto
+    var statsEl=document.getElementById('statsContent');
+    if(!statsEl && target.closest('.overlay')) e.preventDefault();
   },{passive:false});
 
   document.addEventListener('wheel',function(e){
-    if(isScrollable(e.target)) return;
-    if(isInFixedOverlay(e.target)) e.preventDefault();
+    var target=e.target;
+    if(target.closest(SCROLLABLE)) return;
+    if(target.closest(FIXED_OVERLAYS)){e.preventDefault();return;}
   },{passive:false});
 
   document.addEventListener('touchstart',function(e){
