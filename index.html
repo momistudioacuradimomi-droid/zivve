@@ -6691,7 +6691,7 @@ function confirmStop(){
   show('stopOverlay');
 }
 function forceStop(){ hide('stopOverlay');G.running=false; window._gameRunning=false;G.paused=false;setTimeout(endGame,100); }
-function goMenu(){ hide('pauseOverlay');hide('stopOverlay');G.running=false; window._gameRunning=false;G.paused=false;_raceMode=false;_raceChoiceActive=false;document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());showStart(); }
+function goMenu(){ hide('pauseOverlay');hide('stopOverlay');G.running=false; window._gameRunning=false;G.paused=false;_raceMode=false;_raceChoiceActive=false;document.querySelectorAll('#_raceChoiceOverlay,#_raceHUD,#_objHUD').forEach(el=>el.remove());if(window._startMenuEngine)window._startMenuEngine();showStart(); }
 
 // ══════════════════════════════════════
 //  START
@@ -8784,17 +8784,7 @@ let _lastMasterTime=0;
 let _dt=1; // delta time multiplier (1 = 60fps normale)
 function masterLoop(now){
   // Assicura che i canvas del menu siano nascosti durante il gioco
-  if(window._gameRunning && !window._menuHidden){
-    window._menuHidden=true;
-    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
-      var el=document.getElementById(id); if(el) el.style.display='none';
-    });
-  } else if(!window._gameRunning && window._menuHidden){
-    window._menuHidden=false;
-    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass','zvNextGenFX'].forEach(function(id){
-      var el=document.getElementById(id); if(el) el.style.display='';
-    });
-  }
+
   // Delta time: normalizza la velocità del gioco a 60fps
   // Se gira a 30fps, _dt=2 e tutto si muove il doppio più veloce per frame
   if(_lastMasterTime>0){
@@ -9442,7 +9432,7 @@ function registerHit(px,py,e){
         for(let _si=0;_si<4;_si++) G.shockwaves.push({r:_si*15,alpha:.9-_si*.15,grow:28,color:'#ff2244'});
         flashScreen('rgba(255,34,68,0.5)');
         // Disegna un frame con l'esplosione
-        G.running=true; window._gameRunning=true;draw();G.running=false; window._gameRunning=false;
+        G.running=true; window._gameRunning=true; if(window._stopMenuEngine) window._stopMenuEngine();draw();G.running=false; window._gameRunning=false;
         // Freeze 700ms poi game over
         setTimeout(()=>{endGame();},700);
       }
@@ -18630,11 +18620,6 @@ function runMDLIntro(cb){
   },{passive:true});
 
   function frame(now){
-    // Ferma completamente durante il gioco
-    if(window._gameRunning){
-      requestAnimationFrame(frame);
-      return;
-    }
     if(_fpsInterval>0 && now-_lastFrame<_fpsInterval){requestAnimationFrame(frame);return;}
     _lastFrame=now||0;
     T=now||0;
@@ -18651,7 +18636,22 @@ function runMDLIntro(cb){
 
   addEventListener('resize',resize,{passive:true});
   resize();
-  requestAnimationFrame(frame);
+  var _engineRaf=requestAnimationFrame(frame);
+  // Esponi funzioni stop/start per il gioco
+  window._stopMenuEngine=function(){
+    if(_engineRaf){cancelAnimationFrame(_engineRaf);_engineRaf=null;}
+    ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.style.opacity='0';
+    });
+  };
+  window._startMenuEngine=function(){
+    if(!_engineRaf){
+      ['zvNewUniverse','zvNewStars','zvNewPulse','zvNewGlass'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.style.opacity='';
+      });
+      _engineRaf=requestAnimationFrame(frame);
+    }
+  };
 })();
 </script>
 
