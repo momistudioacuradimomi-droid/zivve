@@ -3948,19 +3948,23 @@ button[onclick*="startGame"]{
 
 <script>
 (function(){
-  // Blocca scroll SOLO sul menu principale
+  // Elementi scrollabili: solo questi possono ricevere scroll touch
+  var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
+  // Overlay fissi che non devono muoversi
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+
   document.addEventListener('touchmove',function(e){
-    var so=document.getElementById('startOverlay');
-    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    // Permetti scroll sugli elementi scrollabili
+    if(e.target.closest(SCROLLABLE)) return;
+    // Blocca su overlay fissi
+    if(e.target.closest(FIXED)) e.preventDefault();
   },{passive:false});
+
   document.addEventListener('wheel',function(e){
-    var so=document.getElementById('startOverlay');
-    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    if(e.target.closest(SCROLLABLE)) return;
+    if(e.target.closest(FIXED)) e.preventDefault();
   },{passive:false});
+
   document.addEventListener('touchstart',function(e){
     if(e.touches.length>1) e.preventDefault();
   },{passive:false});
@@ -3968,19 +3972,23 @@ button[onclick*="startGame"]{
 </script>
 <script>
 (function(){
-  // Blocca scroll SOLO sul menu principale
+  // Elementi scrollabili: solo questi possono ricevere scroll touch
+  var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
+  // Overlay fissi che non devono muoversi
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+
   document.addEventListener('touchmove',function(e){
-    var so=document.getElementById('startOverlay');
-    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    // Permetti scroll sugli elementi scrollabili
+    if(e.target.closest(SCROLLABLE)) return;
+    // Blocca su overlay fissi
+    if(e.target.closest(FIXED)) e.preventDefault();
   },{passive:false});
+
   document.addEventListener('wheel',function(e){
-    var so=document.getElementById('startOverlay');
-    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
-      e.preventDefault();
-    }
+    if(e.target.closest(SCROLLABLE)) return;
+    if(e.target.closest(FIXED)) e.preventDefault();
   },{passive:false});
+
   document.addEventListener('touchstart',function(e){
     if(e.touches.length>1) e.preventDefault();
   },{passive:false});
@@ -4277,7 +4285,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- LEADERBOARD -->
-<div class="overlay hidden" id="lbOverlay" style="display:none">
+<div class="overlay hidden" id="lbOverlay" style="display:none;overflow:hidden">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(20px,5.5vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 18px var(--gold);margin-bottom:14px;letter-spacing:.05em">🏆 TOP ZIVVERS</div>
   <div class="lb-tabs">
     <button class="lb-tab active" id="lbTabWorld" onclick="switchLbTab('world')">🌍 World</button>
@@ -7738,8 +7746,7 @@ function showBgThemeScreen(){
   const unlocked=isTester()?BG_THEMES:getUnlockedBgThemes();
   const current=getCurrentBgTheme().id;
   const div=document.createElement('div');
-  div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.96);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px;font-family:Syncopate,sans-serif;overflow-y:auto';
-  div.addEventListener('touchmove',function(e){e.stopPropagation();},{passive:true});
+  div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.96);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;gap:12px;font-family:Syncopate,sans-serif;overflow-y:auto;-webkit-overflow-scrolling:touch';
   let html='<div style="font-size:11px;letter-spacing:.3em;color:#4af0d0;margin-bottom:4px">TEMA CAMPO</div>';
   html+='<div style="font-size:9px;color:rgba(200,220,255,.4);margin-bottom:16px;letter-spacing:.15em">Sbloccati con il livello account</div>';
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:300px">';
@@ -7782,7 +7789,7 @@ function showBgThemeScreen(){
 
 function showCommunityScreen(){
   const div=document.createElement('div');
-  div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.96);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;font-family:Orbitron,sans-serif';
+  div.style.cssText='position:fixed;inset:0;background:rgba(3,3,10,.96);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:24px;font-family:Orbitron,sans-serif;overflow-y:auto;-webkit-overflow-scrolling:touch';
   div.innerHTML='<div style="font-size:11px;letter-spacing:.3em;color:#4af0d0;margin-bottom:4px">🌐 COMMUNITY</div>'+
     '<div style="font-size:10px;color:rgba(200,220,255,.5);margin-bottom:8px">Unisciti alla community ZIVVE</div>';
   const links=[
@@ -10375,12 +10382,16 @@ function showUpgradeScreen(){
   const div = document.createElement('div');
   div.id = 'zvUpgradeRedesigned';
   div.style.cssText =
-    'position:fixed;inset:0;z-index:260;display:flex;flex-direction:column;align-items:center;overflow-y:auto;'+
-    'padding:calc(env(safe-area-inset-top) + 24px) 20px 34px;font-family:Syncopate,sans-serif;color:#fff;'+
+    'position:fixed;inset:0;z-index:260;overflow:hidden;'+
+    'font-family:Syncopate,sans-serif;color:#fff;'+
     'background:radial-gradient(circle at 50% 12%,rgba(109,255,244,.22),transparent 23%),'+
     'radial-gradient(circle at 88% 76%,rgba(255,46,159,.16),transparent 38%),'+
     'radial-gradient(circle at 14% 72%,rgba(160,107,255,.20),transparent 36%),'+
     'linear-gradient(180deg,#000008 0%,#04041e 50%,#000008 100%)';
+
+  // Crea un container interno scrollabile
+  const scrollWrap = document.createElement('div');
+  scrollWrap.style.cssText = 'position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 24px) 20px 34px;z-index:2';
 
   const aura = document.createElement('div');
   aura.style.cssText =
@@ -10478,9 +10489,8 @@ function showUpgradeScreen(){
   close.onclick=function(){div.remove();};
   wrap.appendChild(close);
 
-  div.appendChild(wrap);
-  div.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
-  div.addEventListener('wheel', function(e){ e.preventDefault(); }, {passive:false});
+  scrollWrap.appendChild(wrap);
+  div.appendChild(scrollWrap);
   document.body.appendChild(div);
 }
 
