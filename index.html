@@ -2322,7 +2322,7 @@ html,body{width:100%;height:100%;overflow:hidden;overflow-x:hidden;overflow-y:hi
 /* ── SHOP ── */
 .shop-title{font-family:'Syncopate',sans-serif;font-size:clamp(20px,5vw,30px);font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);letter-spacing:.06em;margin-bottom:4px}
 .shop-subtitle{font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:18px}
-.orb-categories{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;max-height:60vh;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
+.orb-categories{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;padding-right:2px}
 .orb-cat-title{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .orb-cat-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
 .orb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
@@ -3951,7 +3951,7 @@ button[onclick*="startGame"]{
   // Elementi scrollabili: solo questi possono ricevere scroll touch
   var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
   // Overlay fissi che non devono muoversi
-  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
 
   document.addEventListener('touchmove',function(e){
     // Permetti scroll sugli elementi scrollabili
@@ -3975,7 +3975,7 @@ button[onclick*="startGame"]{
   // Elementi scrollabili: solo questi possono ricevere scroll touch
   var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
   // Overlay fissi che non devono muoversi
-  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
 
   document.addEventListener('touchmove',function(e){
     // Permetti scroll sugli elementi scrollabili
@@ -4646,7 +4646,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SHOP -->
-<div class="overlay hidden" id="shopOverlay" style="display:none;overflow:hidden">
+<div class="overlay hidden" id="shopOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div class="shop-title" data-i18n="shopTitle">NEGOZIO SFERE</div>
   <div class="shop-subtitle" style="text-align:center;line-height:1.6">Ogni sfera ha un <strong style="color:var(--accent)">potere unico</strong> che cambia il gioco</div>
   <div style="font-size:10px;color:var(--dim);letter-spacing:.15em;margin-bottom:4px;text-align:center">
@@ -4661,10 +4661,10 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- LANGUAGE -->
-<div class="overlay hidden" id="langOverlay" style="display:none;overflow:hidden">
+<div class="overlay hidden" id="langOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:18px" data-i18n="chooseLang">Choose your language</div>
-  <div class="lang-grid" id="langGrid"></div>
+  <div class="lang-grid" id="langGrid" style="width:100%;max-width:340px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px"></div>
   <button class="btn-play" onclick="hide('langOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
