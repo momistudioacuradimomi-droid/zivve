@@ -3948,49 +3948,51 @@ button[onclick*="startGame"]{
 
 <script>
 (function(){
-  // Elementi scrollabili: solo questi possono ricevere scroll touch
-  var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
-  // Overlay fissi che non devono muoversi
   var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var _touchStartX=0, _touchStartY=0;
+
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length>1){e.preventDefault();return;}
+    _touchStartX=e.touches[0].clientX;
+    _touchStartY=e.touches[0].clientY;
+  },{passive:false});
 
   document.addEventListener('touchmove',function(e){
-    // Permetti scroll sugli elementi scrollabili
-    if(e.target.closest(SCROLLABLE)) return;
-    // Blocca su overlay fissi
-    if(e.target.closest(FIXED)) e.preventDefault();
+    var dx=Math.abs(e.touches[0].clientX-_touchStartX);
+    var dy=Math.abs(e.touches[0].clientY-_touchStartY);
+    // Blocca sempre lo swipe orizzontale se prevale sul verticale
+    if(dx>dy && dx>8){e.preventDefault();return;}
+    // Blocca scroll verticale sugli overlay fissi
+    if(e.target.closest(FIXED)){e.preventDefault();return;}
   },{passive:false});
 
   document.addEventListener('wheel',function(e){
-    if(e.target.closest(SCROLLABLE)) return;
     if(e.target.closest(FIXED)) e.preventDefault();
-  },{passive:false});
-
-  document.addEventListener('touchstart',function(e){
-    if(e.touches.length>1) e.preventDefault();
   },{passive:false});
 })();
 </script>
 <script>
 (function(){
-  // Elementi scrollabili: solo questi possono ricevere scroll touch
-  var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
-  // Overlay fissi che non devono muoversi
   var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var _touchStartX=0, _touchStartY=0;
+
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length>1){e.preventDefault();return;}
+    _touchStartX=e.touches[0].clientX;
+    _touchStartY=e.touches[0].clientY;
+  },{passive:false});
 
   document.addEventListener('touchmove',function(e){
-    // Permetti scroll sugli elementi scrollabili
-    if(e.target.closest(SCROLLABLE)) return;
-    // Blocca su overlay fissi
-    if(e.target.closest(FIXED)) e.preventDefault();
+    var dx=Math.abs(e.touches[0].clientX-_touchStartX);
+    var dy=Math.abs(e.touches[0].clientY-_touchStartY);
+    // Blocca sempre lo swipe orizzontale se prevale sul verticale
+    if(dx>dy && dx>8){e.preventDefault();return;}
+    // Blocca scroll verticale sugli overlay fissi
+    if(e.target.closest(FIXED)){e.preventDefault();return;}
   },{passive:false});
 
   document.addEventListener('wheel',function(e){
-    if(e.target.closest(SCROLLABLE)) return;
     if(e.target.closest(FIXED)) e.preventDefault();
-  },{passive:false});
-
-  document.addEventListener('touchstart',function(e){
-    if(e.touches.length>1) e.preventDefault();
   },{passive:false});
 })();
 </script>
