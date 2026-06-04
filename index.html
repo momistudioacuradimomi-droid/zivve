@@ -4646,7 +4646,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SHOP -->
-<div class="overlay hidden" id="shopOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div class="overlay hidden" id="shopOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-x:none">
   <div class="shop-title" data-i18n="shopTitle">NEGOZIO SFERE</div>
   <div class="shop-subtitle" style="text-align:center;line-height:1.6">Ogni sfera ha un <strong style="color:var(--accent)">potere unico</strong> che cambia il gioco</div>
   <div style="font-size:10px;color:var(--dim);letter-spacing:.15em;margin-bottom:4px;text-align:center">
@@ -4661,10 +4661,10 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- LANGUAGE -->
-<div class="overlay hidden" id="langOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div class="overlay hidden" id="langOverlay" style="display:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-x:none" onclick="event.stopPropagation()">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:18px" data-i18n="chooseLang">Choose your language</div>
-  <div class="lang-grid" id="langGrid" style="width:100%;max-width:340px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px"></div>
+  <div class="lang-grid" id="langGrid" style="width:100%;max-width:340px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px" onclick="event.stopPropagation()"></div>
   <button class="btn-play" onclick="hide('langOverlay');show('startOverlay')" data-i18n="back">← BACK</button>
 </div>
 
