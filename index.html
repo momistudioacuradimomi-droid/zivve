@@ -3878,6 +3878,11 @@ button[onclick*="startGame"]{
 }
 </style>
 <style id="zivve-mobile-perf">
+/* Blocca swipe laterale su tutti gli overlay via CSS */
+.overlay { touch-action: pan-y !important; overscroll-behavior: contain !important; }
+#startOverlay { touch-action: none !important; }
+/* Battle pass e upgrade: scroll solo verticale */
+#zvBattlePassRedesigned, #zvUpgradeRedesigned { touch-action: pan-y !important; overscroll-behavior-x: none !important; }
 #overOverlay {
   overflow-y: scroll !important;
   -webkit-overflow-scrolling: touch !important;
@@ -3948,57 +3953,31 @@ button[onclick*="startGame"]{
 
 <script>
 (function(){
-  var FIXED='#startOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
-  var SCROLLABLE='#lbFullRows,.orb-categories,#shopOverlay,#langOverlay,#overOverlay,#profileOverlay,[data-scrollable]';
-  var _touchStartX=0, _touchStartY=0;
-
+  // Blocca solo multitouch
   document.addEventListener('touchstart',function(e){
-    if(e.touches.length>1){e.preventDefault();return;}
-    _touchStartX=e.touches[0].clientX;
-    _touchStartY=e.touches[0].clientY;
+    if(e.touches.length>1) e.preventDefault();
   },{passive:false});
-
+  // Blocca scroll sul menu principale
   document.addEventListener('touchmove',function(e){
-    var dx=Math.abs(e.touches[0].clientX-_touchStartX);
-    var dy=Math.abs(e.touches[0].clientY-_touchStartY);
-    // Se siamo in un elemento scrollabile, non bloccare nulla
-    if(e.target.closest(SCROLLABLE)) return;
-    // Blocca swipe orizzontale ovunque
-    if(dx>dy && dx>8){e.preventDefault();return;}
-    // Blocca scroll verticale sugli overlay fissi
-    if(e.target.closest(FIXED)){e.preventDefault();return;}
-  },{passive:false});
-
-  document.addEventListener('wheel',function(e){
-    if(e.target.closest(FIXED)) e.preventDefault();
+    var so=document.getElementById('startOverlay');
+    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
+      e.preventDefault();
+    }
   },{passive:false});
 })();
 </script>
 <script>
 (function(){
-  var FIXED='#startOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
-  var SCROLLABLE='#lbFullRows,.orb-categories,#shopOverlay,#langOverlay,#overOverlay,#profileOverlay,[data-scrollable]';
-  var _touchStartX=0, _touchStartY=0;
-
+  // Blocca solo multitouch
   document.addEventListener('touchstart',function(e){
-    if(e.touches.length>1){e.preventDefault();return;}
-    _touchStartX=e.touches[0].clientX;
-    _touchStartY=e.touches[0].clientY;
+    if(e.touches.length>1) e.preventDefault();
   },{passive:false});
-
+  // Blocca scroll sul menu principale
   document.addEventListener('touchmove',function(e){
-    var dx=Math.abs(e.touches[0].clientX-_touchStartX);
-    var dy=Math.abs(e.touches[0].clientY-_touchStartY);
-    // Se siamo in un elemento scrollabile, non bloccare nulla
-    if(e.target.closest(SCROLLABLE)) return;
-    // Blocca swipe orizzontale ovunque
-    if(dx>dy && dx>8){e.preventDefault();return;}
-    // Blocca scroll verticale sugli overlay fissi
-    if(e.target.closest(FIXED)){e.preventDefault();return;}
-  },{passive:false});
-
-  document.addEventListener('wheel',function(e){
-    if(e.target.closest(FIXED)) e.preventDefault();
+    var so=document.getElementById('startOverlay');
+    if(so && so.style.display!=='none' && e.target.closest('#startOverlay')){
+      e.preventDefault();
+    }
   },{passive:false});
 })();
 </script>
