@@ -3951,7 +3951,7 @@ button[onclick*="startGame"]{
   // Elementi scrollabili: solo questi possono ricevere scroll touch
   var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
   // Overlay fissi che non devono muoversi
-  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
 
   document.addEventListener('touchmove',function(e){
     // Permetti scroll sugli elementi scrollabili
@@ -3975,7 +3975,7 @@ button[onclick*="startGame"]{
   // Elementi scrollabili: solo questi possono ricevere scroll touch
   var SCROLLABLE='#lbFullRows,.orb-categories,#shopContent,#bpContent,#achList,.stat-grid,.bracket-wrap';
   // Overlay fissi che non devono muoversi
-  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#tourneyOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#shopOverlay,#langOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
 
   document.addEventListener('touchmove',function(e){
     // Permetti scroll sugli elementi scrollabili
@@ -4214,7 +4214,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- REGOLAMENTO -->
-<div class="overlay hidden" id="howOverlay" style="display:none">
+<div class="overlay hidden" id="howOverlay" style="display:none;overflow:hidden">
   <div class="instr-title" data-i18n="howToPlay">REGOLAMENTO</div>
   <div style="font-size:10px;color:rgba(74,240,208,.55);letter-spacing:.1em;text-align:center;margin:-4px 0 12px;font-style:italic;padding:0 16px;line-height:1.6">
     "Prima della luce, esisteva solo il moto.<br>Le sfere rosse vogliono fermarti.<br>Tu sei l'ultima. Non fermarti mai."
@@ -4226,7 +4226,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- PAUSE -->
-<div class="overlay hidden" id="pauseOverlay" style="display:none">
+<div class="overlay hidden" id="pauseOverlay" style="display:none;overflow:hidden">
   <div class="pause-title" data-i18n="paused">⏸ PAUSED</div>
   <div style="font-size:11px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:24px" data-i18n="pauseSub">Game is paused</div>
   <div id="muteLabel" style="display:none"></div>
@@ -4242,7 +4242,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- CONFIRM STOP -->
-<div class="overlay hidden" id="stopOverlay" style="display:none">
+<div class="overlay hidden" id="stopOverlay" style="display:none;overflow:hidden">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--red);letter-spacing:.05em;margin-bottom:8px;text-align:center;width:100%;max-width:320px" data-i18n="stopConfirm">Stop this game?</div>
   <div style="font-size:11px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px;text-align:center;width:100%;max-width:320px" data-i18n="progressLost">Progress will be lost</div>
   <button class="btn-play" style="background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 0 30px rgba(255,34,68,.4)" onclick="forceStop()" data-i18n="yes">YES, STOP</button>
@@ -4306,7 +4306,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- DAILY EVENT OVERLAY -->
-<div class="overlay hidden" id="eventOverlay" style="display:none">
+<div class="overlay hidden" id="eventOverlay" style="display:none;overflow:hidden">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;margin-bottom:4px;text-align:center" id="evOvTitle">🎪 EVENTO GIORNALIERO</div>
   <div style="font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:10px;text-align:center" id="evOvSubtitle">Solo oggi</div>
   <!-- Calendario 7 giorni -->
@@ -4334,7 +4334,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- ACHIEVEMENTS -->
-<div class="overlay hidden" id="achOverlay" style="display:none">
+<div class="overlay hidden" id="achOverlay" style="display:none;overflow:hidden">
   <div class="ach-overlay-title">🏅 BADGE & PREMI</div>
   <div style="font-size:10px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:16px" id="achProgress">0 / 0 unlocked</div>
   <div class="ach-list" id="achList"></div>
@@ -4459,7 +4459,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SURVIVAL MODE -->
-<div class="overlay hidden" id="survivalOverlay" style="display:none">
+<div class="overlay hidden" id="survivalOverlay" style="display:none;overflow:hidden">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,var(--red),var(--red2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">♾ SURVIVAL</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px">No lives. Pure endurance.</div>
   <div style="background:rgba(255,34,68,.06);border:1px solid rgba(255,34,68,.2);border-radius:6px;padding:16px 20px;max-width:300px;width:100%;margin-bottom:20px">
@@ -4489,7 +4489,7 @@ button[onclick*="startGame"]{
 <div id="achToast"><div class="ach-toast-inner"><span class="ach-toast-icon" id="achToastIcon">🏅</span><div class="ach-toast-body"><div class="ach-toast-label">Achievement Unlocked</div><div class="ach-toast-name" id="achToastName"></div></div></div></div>
 
 <!-- CHALLENGE MODE SELECT -->
-<div class="overlay hidden" id="challengeOverlay" style="display:none">
+<div class="overlay hidden" id="challengeOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="background:linear-gradient(135deg,var(--gold),#ff8855);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">⚔️ CHALLENGE</div>
   <div class="ch-subtitle">Choose your battle mode</div>
   <div class="ch-mode-grid">
@@ -4526,7 +4526,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- ASYNC CHALLENGE -->
-<div class="overlay hidden" id="asyncOverlay" style="display:none">
+<div class="overlay hidden" id="asyncOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="color:var(--accent);text-shadow:0 0 20px var(--accent)">📨 ASYNC</div>
   <div class="ch-subtitle">Play & share your link</div>
   <div id="asyncContent">
@@ -4542,7 +4542,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- ASYNC RESULT (after game) -->
-<div class="overlay hidden" id="asyncResultOverlay" style="display:none">
+<div class="overlay hidden" id="asyncResultOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="color:var(--accent);text-shadow:0 0 20px var(--accent)">📨 CHALLENGE SENT</div>
   <div class="ch-room-box">
     <div class="ch-room-label">SHARE THIS LINK</div>
@@ -4557,7 +4557,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- LIVE DUEL LOBBY -->
-<div class="overlay hidden" id="syncOverlay" style="display:none">
+<div class="overlay hidden" id="syncOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="color:var(--gold);text-shadow:0 0 20px var(--gold)">⚡ LIVE DUEL</div>
   <div class="ch-subtitle">Real-time battle</div>
   <div id="syncLobbyContent">
@@ -4575,7 +4575,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SYNC ROOM WAITING -->
-<div class="overlay hidden" id="syncRoomOverlay" style="display:none">
+<div class="overlay hidden" id="syncRoomOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="color:var(--gold);text-shadow:0 0 20px var(--gold)">⚡ ROOM</div>
   <div class="ch-room-box">
     <div class="ch-room-label">ROOM CODE</div>
@@ -4590,7 +4590,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SYNC RESULT -->
-<div class="overlay hidden" id="syncResultOverlay" style="display:none">
+<div class="overlay hidden" id="syncResultOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="color:var(--gold);text-shadow:0 0 20px var(--gold)" id="syncResultTitle">DUEL OVER</div>
   <div class="ch-players-list" id="syncResultList" style="max-width:300px;width:100%"></div>
   <div class="btn-row" style="margin-top:14px">
@@ -4600,7 +4600,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- TOURNAMENT -->
-<div class="overlay hidden" id="tourneyOverlay" style="display:none">
+<div class="overlay hidden" id="tourneyOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="background:linear-gradient(135deg,var(--gold),#ff8855);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏆 TOURNAMENT</div>
   <div class="ch-subtitle">Eliminazione a bracket</div>
   <div id="tourneyLobbyContent">
@@ -4624,7 +4624,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- TOURNAMENT BRACKET -->
-<div class="overlay hidden" id="tourneyRoomOverlay" style="display:none">
+<div class="overlay hidden" id="tourneyRoomOverlay" style="display:none;overflow:hidden">
   <div class="ch-title" style="background:linear-gradient(135deg,var(--gold),#ff8855);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏆 BRACKET</div>
   <div class="ch-room-box" style="margin-bottom:10px">
     <div class="ch-room-label">TOURNEY CODE</div>
@@ -4646,7 +4646,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- SHOP -->
-<div class="overlay hidden" id="shopOverlay" style="display:none">
+<div class="overlay hidden" id="shopOverlay" style="display:none;overflow:hidden">
   <div class="shop-title" data-i18n="shopTitle">NEGOZIO SFERE</div>
   <div class="shop-subtitle" style="text-align:center;line-height:1.6">Ogni sfera ha un <strong style="color:var(--accent)">potere unico</strong> che cambia il gioco</div>
   <div style="font-size:10px;color:var(--dim);letter-spacing:.15em;margin-bottom:4px;text-align:center">
@@ -4661,7 +4661,7 @@ button[onclick*="startGame"]{
 </div>
 
 <!-- LANGUAGE -->
-<div class="overlay hidden" id="langOverlay" style="display:none">
+<div class="overlay hidden" id="langOverlay" style="display:none;overflow:hidden">
   <div style="font-family:'Syncopate',sans-serif;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent);text-shadow:0 0 15px var(--accent);margin-bottom:4px;letter-spacing:.06em">🌐 LANGUAGE</div>
   <div style="font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase;margin-bottom:18px" data-i18n="chooseLang">Choose your language</div>
   <div class="lang-grid" id="langGrid"></div>
