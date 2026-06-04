@@ -7623,12 +7623,14 @@ function showBattlePassScreen(){
   const div = document.createElement('div');
   div.id = 'zvBattlePassRedesigned';
   div.style.cssText =
-    'position:fixed;inset:0;z-index:260;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior-x:none;'+
-    'padding:calc(env(safe-area-inset-top) + 24px) 20px 34px;font-family:Syncopate,sans-serif;color:#fff;'+
+    'position:fixed;inset:0;z-index:260;overflow:hidden;'+
+    'font-family:Syncopate,sans-serif;color:#fff;'+
     'background:radial-gradient(circle at 50% 12%,rgba(255,213,106,.24),transparent 23%),'+
     'radial-gradient(circle at 88% 76%,rgba(255,46,159,.18),transparent 38%),'+
     'radial-gradient(circle at 14% 72%,rgba(160,107,255,.20),transparent 36%),'+
     'linear-gradient(180deg,#000008 0%,#120a18 48%,#000008 100%)';
+  const scrollWrapBP = document.createElement('div');
+  scrollWrapBP.style.cssText = 'position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-x:none;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 24px) 20px 34px;z-index:2';
 
   const aura = document.createElement('div');
   aura.style.cssText =
@@ -7737,7 +7739,8 @@ function showBattlePassScreen(){
   closeBtn.onclick=function(){div.remove();};
   wrap.appendChild(closeBtn);
 
-  div.appendChild(wrap);
+  scrollWrapBP.appendChild(wrap);
+  div.appendChild(scrollWrapBP);
   document.body.appendChild(div);
 }
 
