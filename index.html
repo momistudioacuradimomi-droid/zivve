@@ -3949,6 +3949,7 @@ button[onclick*="startGame"]{
 <script>
 (function(){
   var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var SCROLLABLE='#lbFullRows,.orb-categories,#shopOverlay,#langOverlay,#overOverlay,#profileOverlay,[data-scrollable]';
   var _touchStartX=0, _touchStartY=0;
 
   document.addEventListener('touchstart',function(e){
@@ -3960,7 +3961,9 @@ button[onclick*="startGame"]{
   document.addEventListener('touchmove',function(e){
     var dx=Math.abs(e.touches[0].clientX-_touchStartX);
     var dy=Math.abs(e.touches[0].clientY-_touchStartY);
-    // Blocca sempre lo swipe orizzontale se prevale sul verticale
+    // Se siamo in un elemento scrollabile, non bloccare nulla
+    if(e.target.closest(SCROLLABLE)) return;
+    // Blocca swipe orizzontale ovunque
     if(dx>dy && dx>8){e.preventDefault();return;}
     // Blocca scroll verticale sugli overlay fissi
     if(e.target.closest(FIXED)){e.preventDefault();return;}
@@ -3974,6 +3977,7 @@ button[onclick*="startGame"]{
 <script>
 (function(){
   var FIXED='#startOverlay,#lbOverlay,#howOverlay,#eventOverlay,#achOverlay,#survivalOverlay,#challengeOverlay,#asyncOverlay,#asyncResultOverlay,#syncOverlay,#syncRoomOverlay,#syncResultOverlay,#tourneyOverlay,#tourneyRoomOverlay,#pauseOverlay,#stopOverlay,#nameOverlay,#seasonOverlay';
+  var SCROLLABLE='#lbFullRows,.orb-categories,#shopOverlay,#langOverlay,#overOverlay,#profileOverlay,[data-scrollable]';
   var _touchStartX=0, _touchStartY=0;
 
   document.addEventListener('touchstart',function(e){
@@ -3985,7 +3989,9 @@ button[onclick*="startGame"]{
   document.addEventListener('touchmove',function(e){
     var dx=Math.abs(e.touches[0].clientX-_touchStartX);
     var dy=Math.abs(e.touches[0].clientY-_touchStartY);
-    // Blocca sempre lo swipe orizzontale se prevale sul verticale
+    // Se siamo in un elemento scrollabile, non bloccare nulla
+    if(e.target.closest(SCROLLABLE)) return;
+    // Blocca swipe orizzontale ovunque
     if(dx>dy && dx>8){e.preventDefault();return;}
     // Blocca scroll verticale sugli overlay fissi
     if(e.target.closest(FIXED)){e.preventDefault();return;}
